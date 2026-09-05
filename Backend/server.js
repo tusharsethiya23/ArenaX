@@ -5,7 +5,10 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://arenax-4yzn.onrender.com',
+}));
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
