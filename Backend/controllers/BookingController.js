@@ -21,7 +21,7 @@ const createBooking = async (req, res) => {
 const getMyBookingsAsCoach = async (req, res) => {
   try {
     const bookings = await Booking.find({ coach: req.user._id })
-      .populate('learner', 'name email location')
+      .populate('learner', 'name email location profilePhoto')
       .sort({ createdAt: -1 });
 
     res.json(bookings);
@@ -57,7 +57,7 @@ const updateBookingStatus = async (req, res) => {
 const getMyBookingsAsLearner = async (req, res) => {
   try {
     const bookings = await Booking.find({ learner: req.user._id })
-      .populate('coach', 'name email sport location pricePerSession')
+      .populate('coach', 'name email sport location pricePerSession profilePhoto')
       .sort({ createdAt: -1 });
 
     res.json(bookings);
