@@ -118,5 +118,24 @@ const getUserById = async (req, res) => {
   }
 };
 
-module.exports = { getCoaches, updateProfile, uploadProfilePhoto, getUserById };
+// Permanently deletes the logged-in user's own account.
+// The user ID always comes from the verified token (req.user._id),
+// never from the request — so nobody can delete someone else's account.
+const deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await User.findByIdAndDelete(req.user._id);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getCoaches, updateProfile, uploadProfilePhoto, getUserById,deleteAccount };
 

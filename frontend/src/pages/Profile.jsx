@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
+import { useNavigate } from 'react-router-dom';
+
 const Profile = () => {
-    const { user, login } = useAuth();
+    const { user, login, logout } = useAuth();
     const [photoFile, setPhotoFile] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const navigate = useNavigate();
 
 
     const [formData, setFormData] = useState({
@@ -49,6 +52,22 @@ const Profile = () => {
             setMessage('Profile updated!');
         } catch (err) {
             setMessage(err.response?.data?.message || 'Something went wrong');
+        }
+    };
+
+    // Handles permanent account deletion after user confirmation
+    const handleDeleteAccount = async () => {
+        const confirmed = window.confirm(
+            'Are you sure you want to delete your account? This cannot be undone.'
+        );
+        if (!confirmed) return;
+
+        try {
+            await API.delete('/users/profile');
+            logout(); // clear local auth state
+            navigate('/register'); // send them back to the landing/register page
+        } catch (err) {
+            alert(err.response?.data?.message || 'Something went wrong');
         }
     };
 
@@ -322,6 +341,20 @@ const Profile = () => {
                         >
                             Save Changes
                         </button>
+
+                        {/* Danger zone — account deletion */}
+                        <div className="mt-10 pt-6 border-t border-ink/10">
+                            <h3 className="font-display text-sm text-signal mb-2">DANGER ZONE</h3>
+                            <p className="text-sm text-stone mb-3">
+                                Deleting your account is permanent and cannot be undone.
+                            </p>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="border border-signal text-signal px-4 py-2 text-sm font-semibold hover:bg-signal hover:text-white transition-colors"
+                            >
+                                Delete my account
+                            </button>
+                        </div>
 
                     </div>
 
