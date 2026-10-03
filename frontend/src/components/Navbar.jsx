@@ -67,6 +67,14 @@ const Navbar = () => {
                                 </Link>
                             )}
 
+                            {user.role === 'admin' && (
+                                <Link
+                                    to="/admin"
+                                    className="text-white/50 transition-colors hover:text-[#FF2A2A]"
+                                >
+                                    Admin
+                                </Link>
+                            )}
                             <Link
                                 to="/profile"
                                 className="text-white/50 transition-colors hover:text-[#FF2A2A]"
@@ -164,6 +172,16 @@ const Navbar = () => {
                                 className="text-white/60 transition-colors hover:text-[#FF2A2A]"
                             >
                                 Analytics
+                            </Link>
+                        )}
+
+                        {user.role === 'admin' && (
+                            <Link
+                                to="/admin"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="text-white/60 transition-colors hover:text-[#FF2A2A]"
+                            >
+                                Admin
                             </Link>
                         )}
 

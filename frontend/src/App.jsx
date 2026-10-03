@@ -11,9 +11,10 @@ import UserProfileView from './pages/UserProfileView';
 import Analytics from './pages/Analytics';
 import Subscription from './pages/Subscription';
 import { useAuth } from './context/AuthContext';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
-   const { user } = useAuth();
+  const { user } = useAuth();
   return (
     <>
       <Navbar />
@@ -77,6 +78,17 @@ function App() {
                 <Analytics />
               </ProtectedRoute>
 
+            }
+          />
+        )}
+
+        {user?.role === 'admin' && (
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
             }
           />
         )}
