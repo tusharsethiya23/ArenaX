@@ -4,57 +4,36 @@ const jwt = require('jsonwebtoken');
 
 // Signup
 const registerUser = async (req, res) => {
-    try {
-        const {
-            name,
-            email,
-            password,
-            role,
-            sport,
-            location,
-            pricePerSession,
-            skillLevelTaught,
-            goals,
-            skillLevel,
-            bio,
-        } = req.body;
+  try {
+    const { name, email, password, role, sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio } = req.body;
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role,
-            sport,
-            location,
-            pricePerSession,
-            skillLevelTaught,
-            goals,
-            skillLevel,
-            bio,
-        });
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '30d',
-        });
-
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    // Security: block anyone from registering themselves as admin directly.
+    // Admin accounts are only created manually in the database.
+    if (role === 'admin') {
+      return res.status(403).json({ message: 'Cannot register as admin' });
     }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name, email, password: hashedPassword, role,
+      sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio,
+    });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+    res.status(201).json({
+      _id: user._id, name: user.name, email: user.email, role: user.role, token,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // Login

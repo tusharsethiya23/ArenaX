@@ -137,5 +137,31 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-module.exports = { getCoaches, updateProfile, uploadProfilePhoto, getUserById,deleteAccount };
+// Admin-only: view all users on the platform
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin-only: delete ANY user by ID (unlike deleteAccount, which only
+// deletes the logged-in user's own account)
+const adminDeleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted by admin' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getCoaches, updateProfile, uploadProfilePhoto, getUserById, deleteAccount, getAllUsers, adminDeleteUser };
+
 
