@@ -5,8 +5,22 @@ require('dotenv').config();
 
 const app = express();
 
+// server.js
+// CORS setup — allows requests from the local dev frontend.
+// When the frontend is deployed later, add its live URL to this list too.
+const allowedOrigins = [
+  'http://localhost:5173', // local Vite dev server
+];
+
 app.use(cors({
-  origin: 'https://arenax-4yzn.onrender.com',
+  origin: function (origin, callback) {
+    // Postman/no-origin requests allowed; otherwise must match the list
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
 }));
 
 app.use(express.json());

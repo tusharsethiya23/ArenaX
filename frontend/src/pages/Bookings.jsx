@@ -1,7 +1,7 @@
 // Bookings.jsx
 // Displays bookings for the logged-in user — coach sees requests received,
-// learner sees requests they've sent. Now also shows the other person's
-// profile photo and makes their name clickable to view their public profile.
+// learner sees requests they've sent. Shows the other person's profile photo
+// and makes their name clickable to view their public profile page.
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // needed to make the name clickable
@@ -13,6 +13,7 @@ const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Coach and learner hit different endpoints to get "their side" of bookings
   const endpoint = user.role === 'coach' ? '/bookings/my-requests' : '/bookings/my-bookings';
 
   const fetchBookings = async () => {
@@ -30,15 +31,17 @@ const Bookings = () => {
     fetchBookings();
   }, []);
 
+  // Coach accepts/declines a pending booking
   const handleStatusUpdate = async (id, status) => {
     try {
       await API.put(`/bookings/${id}`, { status });
-      fetchBookings();
+      fetchBookings(); // refresh list after status change
     } catch (err) {
       alert(err.response?.data?.message || 'Something went wrong');
     }
   };
 
+  // Color coding for each booking status badge
   const statusColor = {
     pending: 'text-stone border-stone/30',
     confirmed: 'text-teal border-teal/30',
@@ -61,14 +64,17 @@ const Bookings = () => {
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => {
-            // The "other person" in this booking — coach sees the learner,
-            // learner sees the coach
+            // The "other person" in this booking — coach sees the learner's
+            // info, learner sees the coach's info
             const otherPerson = user.role === 'coach' ? b.learner : b.coach;
 
             return (
-              <div key={b._id} className="border border-ink/10 bg-white p-5 flex items-center justify-between">
+              <div
+                key={b._id}
+                className="border border-ink/10 bg-white p-5 flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
-                  {/* Profile photo — falls back to a placeholder if not set */}
+                  {/* Profile photo — shows a placeholder if user hasn't uploaded one */}
                   <img
                     src={otherPerson?.profilePhoto || 'https://placehold.co/48x48?text=?'}
                     alt={otherPerson?.name}
@@ -83,7 +89,9 @@ const Bookings = () => {
                     >
                       {otherPerson?.name}
                     </Link>
-                    <p className="text-sm text-stone">{b.day} · {b.timeSlot}</p>
+                    <p className="text-sm text-stone">
+                      {b.day} · {b.timeSlot}
+                    </p>
                   </div>
                 </div>
 
@@ -92,6 +100,7 @@ const Bookings = () => {
                     {b.status.toUpperCase()}
                   </span>
 
+                  {/* Accept/Decline buttons only shown to coach, only for pending bookings */}
                   {user.role === 'coach' && b.status === 'pending' && (
                     <>
                       <button
