@@ -12,7 +12,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.googleId; // only required if NOT a Google account
+    },
+  }, googleId: {
+    type: Boolean,
+    default: false,
   },
   role: {
     type: String,
