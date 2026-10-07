@@ -9,6 +9,7 @@ const Discover = () => {
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const [spotlight, setSpotlight] = useState(null);
+    const [recommended, setRecommended] = useState([]);
 
     const fetchCoaches = async () => {
         setLoading(true);
@@ -50,6 +51,12 @@ const Discover = () => {
             alert(err.response?.data?.message || 'Something went wrong');
         }
     };
+
+    useEffect(() => {
+        if (user?.role === 'learner') {
+            API.get('/users/recommended').then((res) => setRecommended(res.data));
+        }
+    }, []);
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-[#05070D]">
@@ -128,6 +135,26 @@ const Discover = () => {
 
 
                 {/* ================= SEARCH ================= */}
+
+
+                {user?.role === 'learner' && recommended.length > 0 && (
+                    <div className="mb-10">
+                        <h2 className="font-display text-lg text-ink mb-3">RECOMMENDED FOR YOU</h2>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            {recommended.slice(0, 4).map((coach) => (
+                                <div key={coach._id} className="border border-teal/30 bg-teal/5 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <Link to={`/profile-view/${coach._id}`} className="font-medium text-ink hover:text-signal">
+                                            {coach.name}
+                                        </Link>
+                                        <span className="text-xs text-teal font-semibold">{coach.avgRating} ★</span>
+                                    </div>
+                                    <p className="text-sm text-stone">{coach.sport} · {coach.location}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <form
                     onSubmit={handleSearch}

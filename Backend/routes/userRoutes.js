@@ -11,12 +11,13 @@ const {
   uploadProfilePhoto,
   getUserById,
   deleteAccount,
-  getAllUsers,      
-  adminDeleteUser,  
+  getAllUsers,
+  adminDeleteUser,
+  getRecommendedCoaches
 } = require('../controllers/userController');
 
 const { protect } = require('../middlewares/auth.middleware');
-const { adminOnly } = require('../middlewares/admin.middleware'); 
+const { adminOnly } = require('../middlewares/admin.middleware');
 const upload = require('../middlewares/upload.middleware');
 
 // Public routes
@@ -26,6 +27,8 @@ router.get('/coaches', getCoaches);
 // treat "admin" as if it were an :id value
 router.get('/admin/all', protect, adminOnly, getAllUsers);
 router.delete('/admin/:id', protect, adminOnly, adminDeleteUser);
+
+router.get('/recommended', protect, getRecommendedCoaches);
 
 // Public — get any single user's profile by ID (used for public profile view)
 router.get('/:id', getUserById);

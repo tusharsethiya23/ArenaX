@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const imagekit = require('../config/imagekit');
+const Review = require('../models/Review.js');
+const Endorsement = require('../models/Endorsement.js');
 
 const getCoaches = async (req, res) => {
   try {
@@ -162,6 +164,58 @@ const adminDeleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getCoaches, updateProfile, uploadProfilePhoto, getUserById, deleteAccount, getAllUsers, adminDeleteUser };
+const getRecommendedCoaches = async (req, res) => {
+  try {
+    if (req.user.role !== 'learner') {
+      return res.status(403).json({ message: 'Only learners can view recommendations' });
+    }
 
+    const learner = req.user;
+
+    // Base filter: only coaches, and matching the learner's preferred sport
+    // if they've set one
+    let filter = { role: 'coach' };
+    if (learner.sport) filter.sport = learner.sport;
+
+    const coaches = await User.find(filter).select('-password');
+
+    // Score each coach: rating + endorsements + skill-level match bonus
+    const scoredCoaches = await Promise.all(
+      coaches.map(async (coach) => {
+        const reviews = await Review.find({ coach: coach._id });
+        const avgRating = reviews.length
+          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+          : 0;
+
+        const endorsementCount = await Endorsement.countDocuments({ endorsedUser: coach._id });
+
+        let matchScore = avgRating * 2 + endorsementCount * 0.5;
+
+        // Bonus if the coach teaches at the learner's exact skill level
+        if (learner.skillLevel && coach.skillLevelTaught === learner.skillLevel) {
+          matchScore += 3;
+        }
+
+        return {
+          ...coach.toObject(),
+          avgRating: avgRating.toFixed(1),
+          endorsementCount,
+          matchScore,
+        };
+      })
+    );
+
+    // Highest match score first
+    scoredCoaches.sort((a, b) => b.matchScore - a.matchScore);
+
+    res.json(scoredCoaches);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  getCoaches, updateProfile, uploadProfilePhoto, getUserById,
+  deleteAccount, getAllUsers, adminDeleteUser, getRecommendedCoaches,
+};
 

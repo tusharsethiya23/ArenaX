@@ -117,7 +117,18 @@ const Bookings = () => {
                       </button>
                     </>
                   )}
+
+                  {b.status === 'confirmed' && (
+                    <Link
+                      to={`/chat/${b._id}`}
+                      className="text-sm bg-ink text-white px-3 py-1.5 hover:bg-ink/90"
+                    >
+                      Chat
+                    </Link>
+                  )}
                 </div>
+
+
               </div>
             );
           })}

@@ -212,6 +212,19 @@ const Profile = () => {
 
                         {user.role === "learner" && (
                             <>
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-stone mb-1">Preferred Sport</label>
+                                    <input
+                                        type="text"
+                                        name="sport"
+                                        value={formData.sport}
+                                        onChange={handleChange}
+                                        placeholder="e.g. Cricket"
+                                        className="w-full border border-ink/15 bg-white px-3 py-2.5 focus:outline-none focus:border-signal"
+                                    />
+                                </div>
+
                                 <p className="break-words">
                                     <span className="text-[#8B95A5]">Goals: </span>
                                     <span className="text-white">

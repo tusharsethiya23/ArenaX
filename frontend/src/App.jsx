@@ -12,6 +12,7 @@ import Analytics from './pages/Analytics';
 import Subscription from './pages/Subscription';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
+import Chat from './pages/Chat';
 
 function App() {
   const { user } = useAuth();
@@ -92,7 +93,18 @@ function App() {
             }
           />
         )}
+
+        <Route
+          path="/chat/:bookingId"
+          element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
+
+
     </>
   );
 }
