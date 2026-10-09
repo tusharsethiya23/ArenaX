@@ -14,6 +14,9 @@ import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
 import Chat from './pages/Chat';
 import Tournaments from './pages/Tournament';
+import BrandLogin from './pages/BrandLogin';
+import BrandDashboard from './pages/BrandDashboard';
+import MyDeals from './pages/MyDeals';
 
 function App() {
   const { user } = useAuth();
@@ -112,6 +115,27 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/brand/login"
+          element={
+            <BrandLogin/>
+          }
+        />
+        <Route
+          path="/brand/dashboard"
+          element={
+            <BrandDashboard />
+          }
+        />
+        <Route
+          path="/deals" element={
+            <ProtectedRoute>
+              <MyDeals />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
 
 

@@ -73,6 +73,14 @@ const Navbar = () => {
                                 </Link>
                             )}
 
+                            <Link
+                                to="/bookings"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="text-white/60 transition-colors hover:text-[#FF2A2A]"
+                            >
+                                Bookings
+                            </Link>
+                            
                             {user.role === 'admin' && (
                                 <Link
                                     to="/admin"
@@ -184,6 +192,12 @@ const Navbar = () => {
                                 className="text-white/60 transition-colors hover:text-[#FF2A2A]"
                             >
                                 Analytics
+                            </Link>
+                        )}
+
+                        {user.role === 'coach' && (
+                            <Link to="/deals" className="text-white/50 transition-colors hover:text-[#FF2A2A]">
+                                Deals
                             </Link>
                         )}
 

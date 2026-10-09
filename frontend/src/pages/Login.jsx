@@ -75,6 +75,10 @@ const Login = () => {
           </button>
         </form>
 
+        <Link to="/brand/login" className="block text-xs text-stone mt-3 hover:underline">
+          Are you a brand? Log in here
+        </Link>
+
         <p className="text-sm text-stone mt-6">
           New to ArenaX?{' '}
           <Link to="/register" className="text-teal font-medium hover:underline">
