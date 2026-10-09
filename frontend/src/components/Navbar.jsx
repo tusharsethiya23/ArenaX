@@ -58,6 +58,12 @@ const Navbar = () => {
                                 Subscription
                             </Link>
 
+                            <Link
+                                to="/tournaments"
+                                className="text-white/50 transition-colors hover:text-[#FF2A2A]">
+                                Tournaments
+                            </Link>
+
                             {user.role === "coach" && (
                                 <Link
                                     to="/analytics"
@@ -163,6 +169,12 @@ const Navbar = () => {
                             className="text-white/60 transition-colors hover:text-[#FF2A2A]"
                         >
                             Subscription
+                        </Link>
+
+                        <Link
+                            to="/tournaments"
+                            className="text-white/50 transition-colors hover:text-[#FF2A2A]">
+                            Tournaments
                         </Link>
 
                         {user.role === "coach" && (

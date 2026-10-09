@@ -13,6 +13,7 @@ import Subscription from './pages/Subscription';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
 import Chat from './pages/Chat';
+import Tournaments from './pages/Tournament';
 
 function App() {
   const { user } = useAuth();
@@ -99,6 +100,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Chat />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/tournaments"
+          element={
+            <ProtectedRoute>
+              <Tournaments />
             </ProtectedRoute>
           }
         />

@@ -11,6 +11,7 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
+const tournamentRoutes = require('./routes/tournament.routes.js');
 
 // Origins allowed to call this API (used for both Express and Socket.io).
 // Add your deployed Vercel URL here once the frontend is live.
@@ -50,6 +51,7 @@ app.use('/api/deals', require('./routes/dealRoutes.js'));
 app.use('/api/subscriptions', require('./routes/subscriptionRoutes.js'));
 app.use('/api/spotlight', require('./routes/spotLightRoutes.js'));
 app.use('/api/analytics', require('./routes/analyticRoutes.js'));
+app.use('/api/tournaments', tournamentRoutes);
 
 app.get('/', (req, res) => {
   res.send('Sports Mentor Platform API is running 🎉');
