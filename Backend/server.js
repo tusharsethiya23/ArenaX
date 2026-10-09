@@ -48,7 +48,7 @@ app.use('/api/content', require('./routes/contentRoutes.js'));
 app.use('/api/brands', require('./routes/brandRoutes.js'));
 app.use('/api/deals', require('./routes/dealRoutes.js'));
 app.use('/api/subscriptions', require('./routes/subscriptionRoutes.js'));
-app.use('/api/spotlight', require('./routes/spotlightRoutes.js'));
+app.use('/api/spotlight', require('./routes/spotLightRoutes.js'));
 app.use('/api/analytics', require('./routes/analyticRoutes.js'));
 
 app.get('/', (req, res) => {
