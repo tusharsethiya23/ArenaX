@@ -17,6 +17,7 @@ import Tournaments from './pages/Tournament';
 import BrandLogin from './pages/BrandLogin';
 import BrandDashboard from './pages/BrandDashboard';
 import MyDeals from './pages/MyDeals';
+import AiAssistant from './pages/AiAssistant';
 
 function App() {
   const { user } = useAuth();
@@ -119,7 +120,7 @@ function App() {
         <Route
           path="/brand/login"
           element={
-            <BrandLogin/>
+            <BrandLogin />
           }
         />
         <Route
@@ -132,6 +133,16 @@ function App() {
           path="/deals" element={
             <ProtectedRoute>
               <MyDeals />
+            </ProtectedRoute>
+          }
+        />
+
+
+        <Route
+          path="/ai-assistant"
+          element={
+            <ProtectedRoute>
+              <AiAssistant/>
             </ProtectedRoute>
           }
         />

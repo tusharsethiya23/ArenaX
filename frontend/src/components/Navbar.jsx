@@ -80,7 +80,14 @@ const Navbar = () => {
                             >
                                 Bookings
                             </Link>
-                            
+
+                            <Link
+                                to="/ai-assistant"
+                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
+                            >
+                                AI Assistant
+                            </Link>
+
                             {user.role === 'admin' && (
                                 <Link
                                     to="/admin"
@@ -184,6 +191,15 @@ const Navbar = () => {
                             className="text-white/50 transition-colors hover:text-[#FF2A2A]">
                             Tournaments
                         </Link>
+
+                        <Link
+                            to="/ai-assistant"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
+                        >
+                            AI Assistant
+                        </Link>
+
 
                         {user.role === "coach" && (
                             <Link

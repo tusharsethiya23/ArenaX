@@ -1,4 +1,4 @@
-const Spotlight = require('../models/Spotlight');
+const Spotlight = require('../models/spotlight.model');
 
 // Brand ek athlete ko sponsor karke spotlight kharidta hai
 const createSpotlight = async (req, res) => {

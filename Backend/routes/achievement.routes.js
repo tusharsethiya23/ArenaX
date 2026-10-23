@@ -4,7 +4,7 @@ const {
   addAchievement,
   getAchievementsForUser,
   verifyAchievement,
-} = require('../controllers/achievementController');
+} = require('../controllers/achievement.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 router.post('/', protect, addAchievement);

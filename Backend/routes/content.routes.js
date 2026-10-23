@@ -5,7 +5,7 @@ const {
   getAllContent,
   purchaseContent,
   getMyPurchases,
-} = require('../controllers/contentController');
+} = require('../controllers/content.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 router.post('/', protect, createContent);

@@ -1,4 +1,4 @@
-const Booking = require('../models/Booking');
+const Booking = require('../models/booking.model');
 
 // Learner booking request banata hai
 const createBooking = async (req, res) => {

@@ -1,5 +1,5 @@
-const Message = require('../models/Message');
-const Booking = require('../models/Booking');
+const Message = require('../models/message.model');
+const Booking = require('../models/booking.model');
 
 // Message bhejna
 const sendMessage = async (req, res) => {

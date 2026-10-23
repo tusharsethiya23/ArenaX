@@ -38,19 +38,19 @@ mongoose.connect(process.env.MONGO_URI)
 
 // ---------- Routes ----------
 // Each path below must match the real file name in your routes/ folder
-app.use('/api/auth', require('./routes/authRoutes.js'));
-app.use('/api/users', require('./routes/userRoutes.js'));
-app.use('/api/bookings', require('./routes/bookingRoutes.js'));
-app.use('/api/messages', require('./routes/messageRoutes.js'));
-app.use('/api/reviews', require('./routes/reviewRoutes.js'));
-app.use('/api/endorsements', require('./routes/endorsement.js'));
-app.use('/api/achievements', require('./routes/achievementRoutes.js'));
-app.use('/api/content', require('./routes/contentRoutes.js'));
-app.use('/api/brands', require('./routes/brandRoutes.js'));
-app.use('/api/deals', require('./routes/dealRoutes.js'));
-app.use('/api/subscriptions', require('./routes/subscriptionRoutes.js'));
-app.use('/api/spotlight', require('./routes/spotLightRoutes.js'));
-app.use('/api/analytics', require('./routes/analyticRoutes.js'));
+app.use('/api/auth', require('./routes/auth.routes.js'));
+app.use('/api/users', require('./routes/user.routes.js'));
+app.use('/api/bookings', require('./routes/booking.routes.js'));
+app.use('/api/messages', require('./routes/message.routes.js'));
+app.use('/api/reviews', require('./routes/review.routes.js'));
+app.use('/api/endorsements', require('./routes/endorsement.routes.js'));
+app.use('/api/achievements', require('./routes/achievement.routes.js'));
+app.use('/api/content', require('./routes/content.routes.js'));
+app.use('/api/brands', require('./routes/brand.routes.js'));
+app.use('/api/deals', require('./routes/deal.routes.js'));
+app.use('/api/subscriptions', require('./routes/subscription.routes.js'));
+app.use('/api/spotlight', require('./routes/spotlight.routes.js'));
+app.use('/api/analytics', require('./routes/analytics.routes.js'));
 app.use('/api/tournaments', tournamentRoutes);
 
 app.get('/', (req, res) => {

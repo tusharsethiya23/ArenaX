@@ -1,4 +1,4 @@
-const Endorsement = require('../models/Endorsement');
+const Endorsement = require('../models/endorsement.model');
 
 const createEndorsement = async (req, res) => {
   try {

@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const imagekit = require('../config/imagekit');
-const Review = require('../models/Review.js');
-const Endorsement = require('../models/Endorsement.js');
+const User = require('../models/user.model');
+const imagekit = require('../config/imagekit.config');
+const Review = require('../models/review.model.js');
+const Endorsement = require('../models/endorsement.model.js');
 
 const getCoaches = async (req, res) => {
   try {

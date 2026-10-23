@@ -1,4 +1,4 @@
-const Deal = require('../models/Deal');
+const Deal = require('../models/deal.model');
 
 // Brand deal request bhejta hai
 const createDeal = async (req, res) => {

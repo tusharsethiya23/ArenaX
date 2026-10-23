@@ -14,7 +14,7 @@ const {
   getAllUsers,
   adminDeleteUser,
   getRecommendedCoaches
-} = require('../controllers/userController');
+} = require('../controllers/user.controller');
 
 const { protect } = require('../middlewares/auth.middleware');
 const { adminOnly } = require('../middlewares/admin.middleware');

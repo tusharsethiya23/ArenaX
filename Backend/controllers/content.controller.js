@@ -1,5 +1,5 @@
-const Content = require('../models/Content');
-const Purchase = require('../models/Purchase');
+const Content = require('../models/content.model');
+const Purchase = require('../models/purchase.model');
 
 const createContent = async (req, res) => {
   try {

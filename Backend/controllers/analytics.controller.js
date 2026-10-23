@@ -3,12 +3,12 @@
 // dashboard — bookings, earnings, and now also review ratings, endorsements,
 // and achievements, giving a fuller picture of the athlete's track record.
 
-const ProfileView = require('../models/ProfilePreview.js');
-const Booking = require('../models/Booking.js');
-const Deal = require('../models/Deal.js');
-const Review = require('../models/Review.js');
-const Endorsement = require('../models/Endorsement.js');
-const Achievement = require('../models/Achievement.js');
+const ProfileView = require('../models/profileView.model.js');
+const Booking = require('../models/booking.model.js');
+const Deal = require('../models/deal.model.js');
+const Review = require('../models/review.model.js');
+const Endorsement = require('../models/endorsement.model.js');
+const Achievement = require('../models/achievement.model.js');
 const recordProfileView = async (req, res) => {
   try {
     await ProfileView.create({ profileOwner: req.params.userId });

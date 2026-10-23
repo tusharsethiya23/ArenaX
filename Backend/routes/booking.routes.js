@@ -5,7 +5,7 @@ const {
   getMyBookingsAsCoach,
   updateBookingStatus,
   getMyBookingsAsLearner,
-} = require('../controllers/BookingController');
+} = require('../controllers/booking.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 router.post('/', protect, createBooking);

@@ -1,4 +1,4 @@
-const Subscription = require('../models/Subscription');
+const Subscription = require('../models/subscription.model');
 
 const PLAN_DURATION_DAYS = 30;
 

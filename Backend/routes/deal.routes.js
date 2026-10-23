@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createDeal, getMyDeals, updateDealStatus } = require('../controllers/dealController');
+const { createDeal, getMyDeals, updateDealStatus } = require('../controllers/deal.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 router.post('/', protect, createDeal);

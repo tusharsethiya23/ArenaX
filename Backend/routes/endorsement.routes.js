@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createEndorsement, getEndorsementsForUser } = require('../controllers/endorsementController');
+const { createEndorsement, getEndorsementsForUser } = require('../controllers/endorsement.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 router.post('/', protect, createEndorsement);
