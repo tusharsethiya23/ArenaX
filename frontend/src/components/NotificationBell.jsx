@@ -1,15 +1,17 @@
 // NotificationBell.jsx
 // Bell button with a red dot for unread notifications.
 // There's no notification service on the backend, so notifications are built
-// from bookings the app already has:
+// from data the app already has:
 //   - coaches: pending booking requests they still need to answer
 //   - learners: bookings a coach has confirmed or declined
+//   - everyone: new followers
 // "Unread" = newer than the last time this user opened the bell. That time is
 // remembered per user in localStorage, so opening the bell clears the dot.
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
+import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
 import useDismiss from '../hooks/useDismiss';
@@ -22,13 +24,14 @@ const readSeenAt = (key) => {
     }
 };
 
-// Turn bookings into notification items, newest first
-const buildNotifications = (bookings, role) => {
-    const items = role === 'coach'
+// Turn bookings and new followers into notification items, newest first
+const buildNotifications = (bookings, followers, role) => {
+    const bookingItems = role === 'coach'
         ? bookings
             .filter((b) => b.status === 'pending')
             .map((b) => ({
                 id: b._id,
+                to: '/bookings',
                 text: `${b.learner?.name || 'A learner'} requested a session`,
                 detail: `${b.day} · ${b.timeSlot}`,
                 time: new Date(b.createdAt).getTime(),
@@ -37,11 +40,19 @@ const buildNotifications = (bookings, role) => {
             .filter((b) => b.status === 'confirmed' || b.status === 'declined')
             .map((b) => ({
                 id: b._id,
+                to: '/bookings',
                 text: `${b.coach?.name || 'Your coach'} ${b.status} your session`,
                 detail: `${b.day} · ${b.timeSlot}`,
                 time: new Date(b.updatedAt).getTime(),
             }));
-    return items.sort((a, b) => b.time - a.time).slice(0, 6);
+    const followerItems = followers.map((f) => ({
+        id: `follow-${f.user._id}`,
+        to: `/profile-view/${f.user._id}`,
+        text: `${f.user.name} started following you`,
+        detail: [f.user.role, f.user.sport].filter(Boolean).join(' · '),
+        time: new Date(f.followedAt).getTime(),
+    }));
+    return [...bookingItems, ...followerItems].sort((a, b) => b.time - a.time).slice(0, 8);
 };
 
 const NotificationBell = () => {
@@ -59,7 +70,17 @@ const NotificationBell = () => {
     const close = useCallback(() => setOpen(false), []);
     useDismiss(wrapperRef, open, close);
 
-    const notifications = buildNotifications(bookings, user.role);
+    // People who follow me (newest first), for "started following you"
+    const [followers, setFollowers] = useState([]);
+    useEffect(() => {
+        let cancelled = false;
+        API.get(`/follows/${user._id}/followers`)
+            .then((res) => !cancelled && setFollowers(res.data))
+            .catch(() => { /* bell just shows booking notifications */ });
+        return () => { cancelled = true; };
+    }, [user._id]);
+
+    const notifications = buildNotifications(bookings, followers, user.role);
     const hasUnread = notifications.some((n) => n.time > seenAt);
 
     const toggle = () => {
@@ -99,7 +120,7 @@ const NotificationBell = () => {
                             {notifications.map((n) => (
                                 <li key={n.id}>
                                     <Link
-                                        to="/bookings"
+                                        to={n.to}
                                         onClick={close}
                                         className="flex gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-canvas"
                                     >

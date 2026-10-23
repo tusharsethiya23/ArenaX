@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
-const { createPost, getFeed, MAX_IMAGES } = require('../controllers/post.controller');
+const { createPost, getFeed, getFollowingFeed, MAX_IMAGES } = require('../controllers/post.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 
@@ -21,7 +21,12 @@ const uploadImages = (req, res, next) => {
   });
 };
 
+// The Following feed needs a platform user (brand tokens have no follows)
+const onlyUsers = (req, res, next) =>
+  req.user ? next() : res.status(403).json({ message: 'Only users have a following feed' });
+
 router.get('/', getFeed); // public — feed padhne ke liye login zaroori nahi
+router.get('/following', protect, onlyUsers, getFollowingFeed);
 router.post('/', protect, uploadImages, createPost);
 
 module.exports = router;

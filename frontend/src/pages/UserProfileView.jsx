@@ -1,7 +1,8 @@
 // UserProfileView.jsx
-// Someone's public profile (route: /profile-view/:userId): header with a
-// Subscribe/Manage plan shortcut, endorsements received, and a form to
-// endorse them (hidden on your own profile).
+// Someone's public profile (route: /profile-view/:userId): header with
+// follower counts, Follow button and a Subscribe/Manage plan shortcut,
+// endorsements received, and a form to endorse them (follow + endorse are
+// hidden on your own profile).
 
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -9,11 +10,16 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useSubscription from '../hooks/useSubscription';
 import Avatar from '../components/Avatar';
+import FollowButton from '../components/FollowButton';
+import FollowCounts from '../components/FollowCounts';
+import useFollow from '../hooks/useFollow';
 
 const UserProfileView = () => {
     const { userId } = useParams();
     const { user: currentUser } = useAuth();
     const isPro = useSubscription();
+    const follow = useFollow(userId);
+    const isOwnProfile = currentUser._id === userId;
 
     const [endorsements, setEndorsements] = useState([]);
     const [profileUser, setProfileUser] = useState(null);
@@ -65,12 +71,19 @@ const UserProfileView = () => {
                             {[profileUser.sport, profileUser.location].filter(Boolean).join(' · ')}
                         </p>
                         {profileUser.bio && <p className="mt-2 text-sm text-ink/80">{profileUser.bio}</p>}
+                        <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-3" />
                     </div>
 
-                    {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
-                    <Link to="/subscription" className={`btn shrink-0 ${isPro ? 'btn-soft' : 'btn-lime'}`}>
-                        {isPro ? 'Manage plan' : 'Subscribe'}
-                    </Link>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                        {/* Follow (not on your own profile) */}
+                        {!isOwnProfile && follow.loaded && (
+                            <FollowButton isFollowing={follow.isFollowing} onClick={follow.toggle} disabled={follow.busy} />
+                        )}
+                        {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
+                        <Link to="/subscription" className={`btn ${isPro ? 'btn-soft' : 'btn-lime'}`}>
+                            {isPro ? 'Manage plan' : 'Subscribe'}
+                        </Link>
+                    </div>
                 </section>
             )}
 

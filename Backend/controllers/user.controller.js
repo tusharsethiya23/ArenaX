@@ -3,6 +3,7 @@ const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
 const Endorsement = require('../models/endorsement.model.js');
 const Post = require('../models/post.model.js');
+const Follow = require('../models/follow.model.js');
 
 const getCoaches = async (req, res) => {
   try {
@@ -134,6 +135,7 @@ const deleteAccount = async (req, res) => {
 
     await User.findByIdAndDelete(req.user._id);
     await Post.deleteMany({ author: req.user._id });
+    await Follow.deleteMany({ $or: [{ follower: req.user._id }, { following: req.user._id }] });
 
     res.json({ message: 'Account deleted successfully' });
   } catch (error) {
@@ -161,6 +163,7 @@ const adminDeleteUser = async (req, res) => {
     }
     await User.findByIdAndDelete(req.params.id);
     await Post.deleteMany({ author: req.params.id });
+    await Follow.deleteMany({ $or: [{ follower: req.params.id }, { following: req.params.id }] });
     res.json({ message: 'User deleted by admin' });
   } catch (error) {
     res.status(500).json({ message: error.message });

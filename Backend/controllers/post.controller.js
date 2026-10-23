@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Post = require('../models/post.model');
+const Follow = require('../models/follow.model');
 const imagekit = require('../config/imagekit.config');
 
 const { MAX_TEXT_LENGTH, MAX_IMAGES } = Post;
@@ -53,14 +54,15 @@ const createPost = async (req, res) => {
 // Feed: newest first, cursor-paginated.
 // GET /api/posts?limit=10&cursor=<_id of the last post you already have>
 // Cursor (not page numbers) so new posts arriving don't cause duplicates while scrolling.
-const getFeed = async (req, res) => {
+// `getBaseFilter(req)` narrows which posts are included (everyone, or only people you follow).
+const feedHandler = (getBaseFilter) => async (req, res) => {
   try {
     const { cursor } = req.query;
     let limit = parseInt(req.query.limit, 10);
     if (!Number.isInteger(limit) || limit < 1) limit = DEFAULT_PAGE_SIZE;
     limit = Math.min(limit, MAX_PAGE_SIZE);
 
-    const filter = {};
+    const filter = await getBaseFilter(req);
     if (cursor) {
       if (!mongoose.Types.ObjectId.isValid(cursor)) {
         return res.status(400).json({ message: 'Invalid cursor' });
@@ -86,4 +88,13 @@ const getFeed = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getFeed, MAX_IMAGES };
+// GET /api/posts — posts from everyone
+const getFeed = feedHandler(async () => ({}));
+
+// GET /api/posts/following — only posts by people the logged-in user follows
+const getFollowingFeed = feedHandler(async (req) => {
+  const follows = await Follow.find({ follower: req.user._id }).select('following');
+  return { author: { $in: follows.map((f) => f.following) } };
+});
+
+module.exports = { createPost, getFeed, getFollowingFeed, MAX_IMAGES };

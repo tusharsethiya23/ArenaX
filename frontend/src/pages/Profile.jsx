@@ -12,12 +12,15 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import StatsPanel from '../components/StatsPanel';
+import FollowCounts from '../components/FollowCounts';
+import useFollow from '../hooks/useFollow';
 
 const Profile = () => {
     const { user, login } = useAuth();
     const [photoFile, setPhotoFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
+    const follow = useFollow(user._id);
 
     const tabs = [
         { id: 'profile', label: 'Profile' },
@@ -78,6 +81,7 @@ const Profile = () => {
                         <span className="badge bg-lime capitalize text-ink">{user.role}</span>
                     </div>
                     {user.bio && <p className="mt-2 text-sm text-ink/80">{user.bio}</p>}
+                    <FollowCounts userId={user._id} followers={follow.followers} following={follow.following} className="mt-3" />
 
                     <div className="mt-4 flex flex-wrap gap-2">
                         <Link to={`/profile-view/${user._id}`} className="btn btn-soft">
