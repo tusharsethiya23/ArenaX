@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
   },
+  yearsExperience: {
+    type: Number,
+    min: 0,
+    max: 60,
+  },
   availability: [
     {
       day: String,      // "Saturday"

@@ -1,34 +1,87 @@
 // Settings.jsx
 // Account settings (route: /settings, from the avatar menu): editing profile
-// details and permanently deleting the account.
+// details, a coach's weekly time slots, and permanently deleting the account.
+// The form waits for the full profile to load, so saving never blanks out
+// fields that the login data doesn't include.
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus, X } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import useMyProfile from '../hooks/useMyProfile';
 import PageHeader from '../components/PageHeader';
+import { WEEKDAYS, slotStartMinutes } from '../utils/slots';
 
-const Settings = () => {
+const LEVELS = ['beginner', 'intermediate', 'advanced'];
+
+// Sort slots Monday-first, then by start time
+const DAY_ORDER = [...WEEKDAYS.slice(1), WEEKDAYS[0]];
+const sortSlots = (slots) => [...slots].sort((a, b) =>
+    DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day)
+    || (slotStartMinutes(a.timeSlot) ?? 9999) - (slotStartMinutes(b.timeSlot) ?? 9999));
+
+// Form values from the loaded profile
+const initialForm = (profile) => ({
+    bio: profile.bio || '',
+    location: profile.location || '',
+    sport: profile.sport || '',
+    pricePerSession: profile.pricePerSession ?? '',
+    skillLevelTaught: profile.skillLevelTaught || '',
+    yearsExperience: profile.yearsExperience ?? '',
+    availability: sortSlots((profile.availability || []).map(({ day, timeSlot }) => ({ day, timeSlot }))),
+    goals: profile.goals || '',
+    skillLevel: profile.skillLevel || '',
+});
+
+const SettingsContent = ({ profile }) => {
     const { user, login, logout } = useAuth();
     const navigate = useNavigate();
+    const isCoach = user.role === 'coach';
 
-    const [formData, setFormData] = useState({
-        bio: user.bio || '',
-        location: user.location || '',
-        sport: user.sport || '',
-        pricePerSession: user.pricePerSession || '',
-    });
+    const [formData, setFormData] = useState(() => initialForm(profile));
+    const [newSlot, setNewSlot] = useState({ day: 'Monday', timeSlot: '' });
     const [message, setMessage] = useState('');
     const [messageIsError, setMessageIsError] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const addSlot = () => {
+        const timeSlot = newSlot.timeSlot.trim();
+        if (!timeSlot) return;
+        const exists = formData.availability.some(
+            (s) => s.day === newSlot.day && s.timeSlot.toLowerCase() === timeSlot.toLowerCase()
+        );
+        if (!exists) {
+            setFormData({ ...formData, availability: sortSlots([...formData.availability, { day: newSlot.day, timeSlot }]) });
+        }
+        setNewSlot({ ...newSlot, timeSlot: '' });
+    };
+
+    const removeSlot = (index) => {
+        setFormData({ ...formData, availability: formData.availability.filter((_, i) => i !== index) });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSaving(true);
+        // Only send the fields that apply to this role
+        const payload = { bio: formData.bio, location: formData.location, sport: formData.sport };
+        if (isCoach) {
+            Object.assign(payload, {
+                pricePerSession: formData.pricePerSession,
+                skillLevelTaught: formData.skillLevelTaught,
+                yearsExperience: formData.yearsExperience,
+                availability: formData.availability,
+            });
+        } else if (user.role === 'learner') {
+            Object.assign(payload, { goals: formData.goals, skillLevel: formData.skillLevel });
+        }
         try {
-            const res = await API.put('/users/profile', formData);
+            const res = await API.put('/users/profile', payload);
             login({ ...user, ...res.data, token: localStorage.getItem('token') });
             setMessage('Profile updated!');
             setMessageIsError(false);
@@ -36,6 +89,7 @@ const Settings = () => {
             setMessage(err.response?.data?.message || 'Something went wrong');
             setMessageIsError(true);
         }
+        setSaving(false);
     };
 
     // Handles permanent account deletion after user confirmation
@@ -60,38 +114,124 @@ const Settings = () => {
 
             {message && <div className={`mb-5 ${messageIsError ? 'alert-error' : 'alert-success'}`}>{message}</div>}
 
-            {/* ================= EDIT DETAILS ================= */}
-            <form onSubmit={handleSubmit} className="card space-y-4">
-                <h2 className="text-lg font-bold tracking-tight">Edit details</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
 
-                <div>
-                    <label className="label">Bio</label>
-                    <textarea name="bio" value={formData.bio} onChange={handleChange} rows={3} className="input resize-none" />
-                </div>
+                    {/* ================= DETAILS ================= */}
+                    <section className="card space-y-4">
+                        <h2 className="text-lg font-bold tracking-tight">Edit details</h2>
 
-                <div>
-                    <label className="label">Location</label>
-                    <input type="text" name="location" value={formData.location} onChange={handleChange} className="input" />
-                </div>
+                        <div>
+                            <label className="label">Bio</label>
+                            <textarea name="bio" value={formData.bio} onChange={handleChange} rows={3} className="input resize-none" />
+                        </div>
 
-                {/* Coaches set the sport they teach; learners set their preferred sport */}
-                {(user.role === 'coach' || user.role === 'learner') && (
-                    <div>
-                        <label className="label">{user.role === 'coach' ? 'Sport' : 'Preferred sport'}</label>
-                        <input type="text" name="sport" value={formData.sport} onChange={handleChange} placeholder="e.g. Cricket" className="input" />
-                    </div>
-                )}
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label className="label">Location</label>
+                                <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Indore" className="input" />
+                            </div>
+                            {(isCoach || user.role === 'learner') && (
+                                <div>
+                                    <label className="label">{isCoach ? 'Sport' : 'Preferred sport'}</label>
+                                    <input type="text" name="sport" value={formData.sport} onChange={handleChange} placeholder="e.g. Cricket" className="input" />
+                                </div>
+                            )}
+                        </div>
 
-                {user.role === 'coach' && (
-                    <div>
-                        <label className="label">Price per session (₹)</label>
-                        <input type="number" name="pricePerSession" value={formData.pricePerSession} onChange={handleChange} className="input" />
-                    </div>
-                )}
+                        {isCoach && (
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label className="label">Price per session (₹)</label>
+                                    <input type="number" min="0" name="pricePerSession" value={formData.pricePerSession} onChange={handleChange} className="input" />
+                                </div>
+                                <div>
+                                    <label className="label">Level you teach</label>
+                                    <select name="skillLevelTaught" value={formData.skillLevelTaught} onChange={handleChange} className="input capitalize">
+                                        <option value="">Not set</option>
+                                        {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="label">Years of experience</label>
+                                    <input type="number" min="0" max="60" name="yearsExperience" value={formData.yearsExperience} onChange={handleChange} className="input" />
+                                </div>
+                            </div>
+                        )}
 
-                <button type="submit" className="btn btn-dark px-8">
-                    Save changes
-                </button>
+                        {user.role === 'learner' && (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className="label">Your level</label>
+                                    <select name="skillLevel" value={formData.skillLevel} onChange={handleChange} className="input capitalize">
+                                        <option value="">Not set</option>
+                                        {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="label">Goals</label>
+                                    <input type="text" name="goals" value={formData.goals} onChange={handleChange} placeholder="e.g. Make the district team" className="input" />
+                                </div>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* ================= COACH TIME SLOTS ================= */}
+                    {isCoach && (
+                        <section className="card space-y-4">
+                            <div>
+                                <h2 className="text-lg font-bold tracking-tight">Weekly time slots</h2>
+                                <p className="mt-1 text-sm text-muted">Learners pick from these when booking. They repeat every week.</p>
+                            </div>
+
+                            {formData.availability.length === 0 ? (
+                                <p className="rounded-2xl bg-canvas px-4 py-3 text-sm text-muted">No slots yet. Add your first one below.</p>
+                            ) : (
+                                <ul className="flex flex-wrap gap-2">
+                                    {formData.availability.map((s, i) => (
+                                        <li key={`${s.day}-${s.timeSlot}`} className="flex items-center gap-2 rounded-full bg-canvas py-1.5 pl-4 pr-1.5 text-sm">
+                                            <span className="font-semibold">{s.day.slice(0, 3)}</span>
+                                            <span>{s.timeSlot}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSlot(i)}
+                                                aria-label={`Remove ${s.day} ${s.timeSlot}`}
+                                                className="flex h-6 w-6 items-center justify-center rounded-full text-muted hover:bg-white hover:text-danger"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <select
+                                    value={newSlot.day}
+                                    onChange={(e) => setNewSlot({ ...newSlot, day: e.target.value })}
+                                    className="input sm:w-44"
+                                    aria-label="Day"
+                                >
+                                    {DAY_ORDER.map((d) => <option key={d}>{d}</option>)}
+                                </select>
+                                <input
+                                    value={newSlot.timeSlot}
+                                    onChange={(e) => setNewSlot({ ...newSlot, timeSlot: e.target.value })}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSlot(); } }}
+                                    placeholder="e.g. 6 PM - 7 PM"
+                                    maxLength={40}
+                                    className="input"
+                                    aria-label="Time"
+                                />
+                                <button type="button" onClick={addSlot} disabled={!newSlot.timeSlot.trim()} className="btn btn-soft shrink-0">
+                                    <Plus size={16} /> Add slot
+                                </button>
+                            </div>
+                        </section>
+                    )}
+
+                    <button type="submit" disabled={saving} className="btn btn-dark px-8">
+                        {saving ? 'Saving...' : 'Save changes'}
+                    </button>
             </form>
 
             {/* ================= DANGER ZONE ================= */}
@@ -106,6 +246,20 @@ const Settings = () => {
             </section>
         </div>
     );
+};
+
+// Waits for the full profile so the form never starts with blank fields
+const Settings = () => {
+    const { profile, loaded } = useMyProfile();
+    if (!loaded) {
+        return (
+            <div className="page max-w-3xl">
+                <PageHeader title="Settings" subtitle="Manage your profile and account" />
+                <p className="empty-state">Loading your profile...</p>
+            </div>
+        );
+    }
+    return <SettingsContent profile={profile} />;
 };
 
 export default Settings;

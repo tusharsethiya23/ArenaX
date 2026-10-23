@@ -4,6 +4,8 @@ const Review = require('../models/review.model.js');
 const Endorsement = require('../models/endorsement.model.js');
 const Post = require('../models/post.model.js');
 const Follow = require('../models/follow.model.js');
+const Achievement = require('../models/achievement.model.js');
+const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
 
 const getCoaches = async (req, res) => {
   try {
@@ -37,9 +39,32 @@ const getCoaches = async (req, res) => {
       if (maxPrice) filter.pricePerSession.$lte = Number(maxPrice);
     }
 
-    const coaches = await User.find(filter).select('-password');
+    const coaches = await User.find(filter).select('-password').lean();
+    const ids = coaches.map((c) => c._id);
 
-    res.json(coaches);
+    // Extra info for the Discover cards, fetched in bulk (not one query per coach):
+    // rating + review count, "verified" (has a verified achievement), and taken slots
+    const [ratings, verified, taken] = await Promise.all([
+      Review.aggregate([
+        { $match: { coach: { $in: ids } } },
+        { $group: { _id: '$coach', avg: { $avg: '$rating' }, count: { $sum: 1 } } },
+      ]),
+      Achievement.distinct('user', { user: { $in: ids }, verified: true }),
+      takenSlotsByCoach(ids),
+    ]);
+    const ratingById = Object.fromEntries(ratings.map((r) => [String(r._id), r]));
+    const verifiedIds = new Set(verified.map(String));
+
+    res.json(coaches.map((c) => {
+      const r = ratingById[String(c._id)];
+      return {
+        ...c,
+        rating: r ? Math.round(r.avg * 10) / 10 : null,
+        reviewCount: r ? r.count : 0,
+        verified: verifiedIds.has(String(c._id)),
+        takenSlots: taken[c._id] || [],
+      };
+    }));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -56,9 +81,23 @@ const updateProfile = async (req, res) => {
     // Jo bhi field bheji hai, wahi update karo — baaki purani value rakho
     const fieldsToUpdate = [
       'name', 'bio', 'location', 'profilePhoto',
-      'sport', 'pricePerSession', 'skillLevelTaught', 'availability',
+      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability',
       'goals', 'skillLevel',
     ];
+
+    // Availability comes from the Settings editor: check days/times before saving
+    if (req.body.availability !== undefined) {
+      const { value, error } = cleanAvailability(req.body.availability);
+      if (error) return res.status(400).json({ message: error });
+      req.body.availability = value;
+    }
+    // Empty inputs from the form clear these fields instead of failing validation
+    for (const field of ['skillLevelTaught', 'skillLevel', 'yearsExperience', 'pricePerSession']) {
+      if (req.body[field] === '') {
+        user[field] = undefined;
+        delete req.body[field];
+      }
+    }
 
     fieldsToUpdate.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -78,11 +117,16 @@ const updateProfile = async (req, res) => {
       sport: updatedUser.sport,
       pricePerSession: updatedUser.pricePerSession,
       skillLevelTaught: updatedUser.skillLevelTaught,
+      yearsExperience: updatedUser.yearsExperience,
       availability: updatedUser.availability,
       goals: updatedUser.goals,
       skillLevel: updatedUser.skillLevel,
     });
   } catch (error) {
+    // Bad values (e.g. unknown skill level, negative experience) are the client's mistake
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -112,11 +156,28 @@ const uploadProfilePhoto = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select('-password').lean();
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user);
+    if (user.role !== 'coach') return res.json(user);
+
+    // Coaches: add what the profile card shows (rating, verified badge, taken slots)
+    const [ratings, isVerified, taken] = await Promise.all([
+      Review.aggregate([
+        { $match: { coach: user._id } },
+        { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
+      ]),
+      Achievement.exists({ user: user._id, verified: true }),
+      takenSlotsByCoach([user._id]),
+    ]);
+    res.json({
+      ...user,
+      rating: ratings[0] ? Math.round(ratings[0].avg * 10) / 10 : null,
+      reviewCount: ratings[0]?.count || 0,
+      verified: Boolean(isVerified),
+      takenSlots: taken[user._id] || [],
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

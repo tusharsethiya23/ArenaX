@@ -1,10 +1,12 @@
 // UserProfileView.jsx
-// Someone's public profile (route: /profile-view/:userId): header with
-// follower counts, Follow button and a Subscribe/Manage plan shortcut,
-// endorsements received, and a form to endorse them (follow + endorse are
-// hidden on your own profile).
+// Someone's public profile (route: /profile-view/:userId).
+//   Coaches: the CoachProfileCard (follow, slots and booking) on the left,
+//            about + endorsements on the right
+//   Others:  a header with follower counts, Follow button and plan shortcut,
+//            then endorsements
+// Follow, booking and endorsing are hidden on your own profile.
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +14,7 @@ import useSubscription from '../hooks/useSubscription';
 import Avatar from '../components/Avatar';
 import FollowButton from '../components/FollowButton';
 import FollowCounts from '../components/FollowCounts';
+import CoachProfileCard from '../components/CoachProfileCard';
 import useFollow from '../hooks/useFollow';
 
 const UserProfileView = () => {
@@ -26,21 +29,20 @@ const UserProfileView = () => {
     const [skill, setSkill] = useState('');
     const [note, setNote] = useState('');
 
-    const fetchEndorsements = async () => {
-        const res = await API.get(`/endorsements/${userId}`);
-        setEndorsements(res.data);
-    };
-
-    const fetchProfileUser = async () => {
-        const res = await API.get(`/users/${userId}`);
-        setProfileUser(res.data);
-    };
-
+    const fetchEndorsements = useCallback(
+        () => API.get(`/endorsements/${userId}`).then((res) => setEndorsements(res.data)),
+        [userId]
+    );
+    // Also used after booking, to refresh which slots are taken
+    const fetchProfileUser = useCallback(
+        () => API.get(`/users/${userId}`).then((res) => setProfileUser(res.data)),
+        [userId]
+    );
 
     useEffect(() => {
-        fetchEndorsements();
-        fetchProfileUser()
-    }, [userId]);
+        fetchEndorsements().catch(console.error);
+        fetchProfileUser().catch(console.error);
+    }, [fetchEndorsements, fetchProfileUser]);
 
     const handleEndorse = async (e) => {
         e.preventDefault();
@@ -54,84 +56,119 @@ const UserProfileView = () => {
         }
     };
 
+    // Shortcut to the user's own plan page (subscriptions are per-user plans)
+    const planLink = (
+        <Link to="/subscription" className={`btn ${isPro ? 'btn-soft' : 'btn-lime'}`}>
+            {isPro ? 'Manage plan' : 'Subscribe'}
+        </Link>
+    );
+
+    const endorsementsSection = (
+        <section>
+            <h2 className="section-title mb-4">Endorsements</h2>
+            {endorsements.length === 0 ? (
+                <p className="empty-state">No endorsements yet.</p>
+            ) : (
+                <div className="space-y-3">
+                    {endorsements.map((e) => (
+                        <div key={e._id} className="rounded-[28px] bg-surface p-5">
+                            <span className="badge bg-lime text-ink">{e.skill}</span>
+                            {e.note && <p className="mt-3 break-words text-sm leading-6">{e.note}</p>}
+                            <p className="mt-3 text-sm text-muted">
+                                {e.endorser?.name}{e.endorser?.sport ? ` · ${e.endorser.sport}` : ''}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </section>
+    );
+
+    const endorseForm = !isOwnProfile && (
+        <form onSubmit={handleEndorse} className="card h-fit space-y-3">
+            <h2 className="text-lg font-bold tracking-tight">Give an endorsement</h2>
+            <input
+                placeholder="Skill (e.g. Fast bowling)"
+                value={skill}
+                onChange={(e) => setSkill(e.target.value)}
+                required
+                className="input"
+            />
+            <textarea
+                placeholder="Note (optional)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                className="input resize-none"
+            />
+            <button type="submit" className="btn btn-dark w-full">
+                Endorse
+            </button>
+        </form>
+    );
+
+    if (!profileUser) return <div className="page"><p className="empty-state">Loading profile...</p></div>;
+
+    // ===================== COACH PROFILE =====================
+    if (profileUser.role === 'coach') {
+        return (
+            <div className="page grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:items-start">
+                <div className="lg:sticky lg:top-24">
+                    <CoachProfileCard
+                        key={profileUser._id}
+                        coach={profileUser}
+                        follow={follow}
+                        isOwn={isOwnProfile}
+                        canBook={currentUser.role === 'learner' && !isOwnProfile}
+                        onBooked={() => fetchProfileUser().catch(console.error)}
+                    />
+                </div>
+
+                <div className="min-w-0 space-y-6">
+                    <section className="card">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <h2 className="text-lg font-bold tracking-tight">About</h2>
+                            {planLink}
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
+                        <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-4" />
+                    </section>
+                    {endorsementsSection}
+                    {endorseForm}
+                </div>
+            </div>
+        );
+    }
+
+    // ===================== OTHER PROFILES =====================
     return (
         <div className="page max-w-4xl space-y-6">
+            <section className="card flex flex-col gap-5 sm:flex-row sm:items-center">
+                <Avatar name={profileUser.name} photo={profileUser.profilePhoto} className="h-20 w-20 text-2xl" />
 
-            {/* ================= PROFILE HEADER ================= */}
-            {profileUser && (
-                <section className="card flex flex-col gap-5 sm:flex-row sm:items-center">
-                    <Avatar name={profileUser.name} photo={profileUser.profilePhoto} className="h-20 w-20 text-2xl" />
-
-                    <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <h1 className="break-words text-3xl font-extrabold tracking-tight">{profileUser.name}</h1>
-                            {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role}</span>}
-                        </div>
-                        <p className="mt-1 text-sm text-muted">
-                            {[profileUser.sport, profileUser.location].filter(Boolean).join(' · ')}
-                        </p>
-                        {profileUser.bio && <p className="mt-2 text-sm text-ink/80">{profileUser.bio}</p>}
-                        <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-3" />
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h1 className="break-words text-3xl font-extrabold tracking-tight">{profileUser.name}</h1>
+                        {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role}</span>}
                     </div>
+                    <p className="mt-1 text-sm text-muted">
+                        {[profileUser.sport, profileUser.location].filter(Boolean).join(' · ')}
+                    </p>
+                    {profileUser.bio && <p className="mt-2 text-sm text-ink/80">{profileUser.bio}</p>}
+                    <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-3" />
+                </div>
 
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                        {/* Follow (not on your own profile) */}
-                        {!isOwnProfile && follow.loaded && (
-                            <FollowButton isFollowing={follow.isFollowing} onClick={follow.toggle} disabled={follow.busy} />
-                        )}
-                        {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
-                        <Link to="/subscription" className={`btn ${isPro ? 'btn-soft' : 'btn-lime'}`}>
-                            {isPro ? 'Manage plan' : 'Subscribe'}
-                        </Link>
-                    </div>
-                </section>
-            )}
-
-            <div className={`grid gap-6 ${currentUser._id !== userId ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
-
-                {/* ================= ENDORSEMENTS ================= */}
-                <section>
-                    <h2 className="section-title mb-4">Endorsements</h2>
-                    {endorsements.length === 0 ? (
-                        <p className="empty-state">No endorsements yet.</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {endorsements.map((e) => (
-                                <div key={e._id} className="rounded-[28px] bg-surface p-5">
-                                    <span className="badge bg-lime text-ink">{e.skill}</span>
-                                    {e.note && <p className="mt-3 break-words text-sm leading-6">{e.note}</p>}
-                                    <p className="mt-3 text-sm text-muted">
-                                        {e.endorser?.name}{e.endorser?.sport ? ` · ${e.endorser.sport}` : ''}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                    {!isOwnProfile && follow.loaded && (
+                        <FollowButton isFollowing={follow.isFollowing} onClick={follow.toggle} disabled={follow.busy} />
                     )}
-                </section>
+                    {planLink}
+                </div>
+            </section>
 
-                {/* ================= ENDORSE FORM ================= */}
-                {currentUser._id !== userId && (
-                    <form onSubmit={handleEndorse} className="card h-fit space-y-3">
-                        <h2 className="text-lg font-bold tracking-tight">Give an endorsement</h2>
-                        <input
-                            placeholder="Skill (e.g. Fast bowling)"
-                            value={skill}
-                            onChange={(e) => setSkill(e.target.value)}
-                            required
-                            className="input"
-                        />
-                        <textarea
-                            placeholder="Note (optional)"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            rows={3}
-                            className="input resize-none"
-                        />
-                        <button type="submit" className="btn btn-dark w-full">
-                            Endorse
-                        </button>
-                    </form>
-                )}
+            <div className={`grid gap-6 ${!isOwnProfile ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
+                {endorsementsSection}
+                {endorseForm}
             </div>
         </div>
     );

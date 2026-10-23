@@ -1,9 +1,44 @@
+const mongoose = require('mongoose');
 const Booking = require('../models/booking.model');
+const User = require('../models/user.model');
+const { normalizeDay, slotKey, takenSlotsByCoach } = require('../utils/slots.util');
 
 // Learner booking request banata hai
 const createBooking = async (req, res) => {
   try {
-    const { coachId, day, timeSlot } = req.body;
+    if (!req.user) {
+      return res.status(403).json({ message: 'Only users can book sessions' });
+    }
+    const { coachId } = req.body;
+    const day = normalizeDay(req.body.day);
+    const timeSlot = typeof req.body.timeSlot === 'string' ? req.body.timeSlot.trim() : '';
+
+    if (!mongoose.Types.ObjectId.isValid(coachId)) {
+      return res.status(400).json({ message: 'Invalid coach' });
+    }
+    if (!day || !timeSlot) {
+      return res.status(400).json({ message: 'Pick a day and a time slot' });
+    }
+    if (req.user._id.equals(coachId)) {
+      return res.status(400).json({ message: 'You cannot book yourself' });
+    }
+
+    const coach = await User.findOne({ _id: coachId, role: 'coach' }).select('availability');
+    if (!coach) {
+      return res.status(404).json({ message: 'Coach not found' });
+    }
+
+    // If the coach has listed their slots, the booking must be one of them
+    const key = slotKey(day, timeSlot);
+    if (coach.availability?.length && !coach.availability.some((s) => slotKey(s.day, s.timeSlot) === key)) {
+      return res.status(400).json({ message: 'That time is not one of the coach\'s slots' });
+    }
+
+    // A slot held by a pending or confirmed booking can't be booked again
+    const taken = (await takenSlotsByCoach([coach._id]))[coach._id] || [];
+    if (taken.some((s) => slotKey(s.day, s.timeSlot) === key)) {
+      return res.status(409).json({ message: 'That slot was just taken. Please pick another one.' });
+    }
 
     const booking = await Booking.create({
       learner: req.user._id,   // token se aaya — request bhejne wala hi learner hai
