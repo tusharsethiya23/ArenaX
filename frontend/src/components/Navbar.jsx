@@ -29,17 +29,23 @@ const Navbar = () => {
                 {/* ---------- CENTER: primary links (desktop) ---------- */}
                 {user && (
                     <div className="hidden items-center gap-1 rounded-full bg-surface p-1.5 md:flex">
-                        {NAV_LINKS.map(({ to, label, end }) => (
+                        {NAV_LINKS.map(({ to, label, end, icon: Icon, accent }) => (
                             <NavLink
                                 key={to}
                                 to={to}
                                 end={end}
                                 className={({ isActive }) =>
-                                    `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
-                                        isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'
-                                    }`
+                                    accent
+                                        // "Post" in the middle: a lime pill with a + icon
+                                        ? `mx-1 flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-semibold transition-colors ${
+                                            isActive ? 'bg-ink text-lime' : 'bg-lime text-ink hover:brightness-95'
+                                        }`
+                                        : `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
+                                            isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+                                        }`
                                 }
                             >
+                                {accent && <Icon size={17} strokeWidth={2.5} />}
                                 {label}
                             </NavLink>
                         ))}

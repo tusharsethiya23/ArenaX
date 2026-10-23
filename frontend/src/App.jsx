@@ -21,6 +21,7 @@ import BrandDashboard from './pages/BrandDashboard';
 import MyDeals from './pages/MyDeals';
 import AiAssistant from './pages/AiAssistant';
 import Feed from './pages/Feed';
+import NewPost from './pages/NewPost';
 
 function App() {
   const { user } = useAuth();
@@ -35,6 +36,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Feed />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/new-post"
+          element={
+            <ProtectedRoute>
+              <NewPost />
             </ProtectedRoute>
           }
         />

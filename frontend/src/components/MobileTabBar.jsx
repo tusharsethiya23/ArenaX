@@ -1,35 +1,50 @@
 // MobileTabBar.jsx
 // Bottom tab bar shown below the md breakpoint, replacing the navbar's center
-// links. Same 4 destinations as desktop (from navLinks.js). The active tab's
-// icon sits in a black pill with a lime icon.
+// links. Same destinations as desktop (from navLinks.js). The active tab's
+// icon sits in a black pill with a lime icon; the "Post" action in the
+// middle is a raised round lime button.
 
 import { NavLink } from 'react-router-dom';
 import NAV_LINKS from './navLinks';
 
 const MobileTabBar = () => (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
-        <div className="grid h-16 grid-cols-4">
-            {NAV_LINKS.map(({ to, label, icon: Icon, end }) => (
-                <NavLink
-                    key={to}
-                    to={to}
-                    end={end}
-                    className={({ isActive }) =>
-                        `flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
-                            isActive ? 'text-ink' : 'text-muted'
-                        }`
-                    }
-                >
-                    {({ isActive }) => (
-                        <>
-                            <span className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-ink text-lime' : ''}`}>
-                                <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
+        <div className="grid h-16 grid-cols-5">
+            {NAV_LINKS.map(({ to, label, icon: Icon, end, accent }) =>
+                accent ? (
+                    <NavLink key={to} to={to} aria-label="New post" className="flex items-start justify-center">
+                        {({ isActive }) => (
+                            <span
+                                className={`-mt-5 flex h-14 w-14 items-center justify-center rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.18)] ring-4 ring-canvas transition-colors ${
+                                    isActive ? 'bg-ink text-lime' : 'bg-lime text-ink'
+                                }`}
+                            >
+                                <Icon size={26} strokeWidth={2.5} />
                             </span>
-                            <span className="whitespace-nowrap">{label}</span>
-                        </>
-                    )}
-                </NavLink>
-            ))}
+                        )}
+                    </NavLink>
+                ) : (
+                    <NavLink
+                        key={to}
+                        to={to}
+                        end={end}
+                        className={({ isActive }) =>
+                            `flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                                isActive ? 'text-ink' : 'text-muted'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <span className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-ink text-lime' : ''}`}>
+                                    <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
+                                </span>
+                                <span className="max-w-full truncate">{label}</span>
+                            </>
+                        )}
+                    </NavLink>
+                )
+            )}
         </div>
     </nav>
 );

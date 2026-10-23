@@ -1,11 +1,13 @@
 // Feed.jsx
 // Homepage: posts from everyone, newest first, with infinite scroll.
+// Writing a post lives on its own page (/new-post, the "Post" nav button).
 // Layout matches Discover: feed column + SideRail on xl screens. Below xl the
-// sidebar is hidden, so a compact Upcoming session card shows above the composer.
+// sidebar is hidden, so a compact Upcoming session card shows above the posts.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import API from '../api/axios';
-import CreatePost from '../components/CreatePost';
 import PostCard from '../components/PostCard';
 import UpcomingSession from '../components/UpcomingSession';
 import PageHeader from '../components/PageHeader';
@@ -54,8 +56,6 @@ const Feed = () => {
         return () => observer.disconnect();
     }, [loadMore, error, hasMore]);
 
-    const handlePostCreated = (post) => setPosts((prev) => [post, ...prev]);
-
     return (
         <div className="page grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
 
@@ -65,8 +65,6 @@ const Feed = () => {
 
                 <div className="space-y-5">
                     <UpcomingSession className="xl:hidden" />
-
-                    <CreatePost onPostCreated={handlePostCreated} />
 
                     {posts.map((post) => (
                         <PostCard key={post._id} post={post} />
@@ -92,7 +90,10 @@ const Feed = () => {
                     )}
 
                     {!loading && !error && !hasMore && posts.length === 0 && (
-                        <p className="empty-state">No posts yet. Be the first to share something.</p>
+                        <div className="empty-state">
+                            <p className="mb-4">No posts yet. Be the first to share something.</p>
+                            <Link to="/new-post" className="btn btn-lime"><Plus size={16} strokeWidth={2.5} /> New post</Link>
+                        </div>
                     )}
 
                     {!loading && !hasMore && posts.length > 0 && (
