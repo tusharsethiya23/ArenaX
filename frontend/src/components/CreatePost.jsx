@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, X, MapPin } from 'lucide-react';
 import Avatar from './Avatar';
 
 // Keep in sync with Backend/models/post.model.js and upload.middleware.js
 const MAX_TEXT_LENGTH = 2000;
 const MAX_IMAGES = 4;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_LOCATION_LENGTH = 80;
 
 const CreatePost = ({ onPostCreated }) => {
     const { user } = useAuth();
     const [text, setText] = useState('');
+    const [location, setLocation] = useState('');
     const [images, setImages] = useState([]); // [{ file, preview }]
     const [error, setError] = useState('');
     const [posting, setPosting] = useState(false);
@@ -60,6 +62,7 @@ const CreatePost = ({ onPostCreated }) => {
 
         const formData = new FormData();
         formData.append('text', trimmed);
+        if (location.trim()) formData.append('location', location.trim());
         images.forEach((img) => formData.append('images', img.file));
 
         setPosting(true);
@@ -68,6 +71,7 @@ const CreatePost = ({ onPostCreated }) => {
             const res = await API.post('/posts', formData);
             onPostCreated(res.data);
             setText('');
+            setLocation('');
             clearImages(images);
             setImages([]);
         } catch (err) {
@@ -112,6 +116,19 @@ const CreatePost = ({ onPostCreated }) => {
                     ))}
                 </div>
             )}
+
+            {/* Optional place tag, shown on the photo in the feed */}
+            <label className="mt-4 flex items-center gap-2 rounded-2xl bg-canvas px-4 py-2.5">
+                <MapPin size={16} className="shrink-0 text-muted" />
+                <input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    maxLength={MAX_LOCATION_LENGTH}
+                    placeholder="Add a location (optional), e.g. Holkar Ground, Indore"
+                    aria-label="Location"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-muted"
+                />
+            </label>
 
             {error && (
                 <p className="alert-error mt-3">{error}</p>

@@ -1,14 +1,61 @@
 const mongoose = require('mongoose');
 const Post = require('../models/post.model');
+const Comment = require('../models/comment.model');
+const SavedPost = require('../models/savedPost.model');
 const Follow = require('../models/follow.model');
+const User = require('../models/user.model');
+const Achievement = require('../models/achievement.model');
 const imagekit = require('../config/imagekit.config');
 
-const { MAX_TEXT_LENGTH, MAX_IMAGES } = Post;
+const { MAX_TEXT_LENGTH, MAX_IMAGES, MAX_LOCATION_LENGTH } = Post;
+const { MAX_COMMENT_LENGTH } = Comment;
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 20;
-const AUTHOR_FIELDS = 'name profilePhoto role sport';
+const AUTHOR_FIELDS = 'name profilePhoto role sport location pricePerSession';
+const COMMENT_AUTHOR_FIELDS = 'name profilePhoto role';
 
-// Create a post with optional text and up to MAX_IMAGES images (multipart/form-data)
+const isId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+const pageLimit = (raw) => {
+  const limit = parseInt(raw, 10);
+  return Math.min(Number.isInteger(limit) && limit > 0 ? limit : DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+};
+
+// Adds what the feed shows for each post, in a few bulk queries for the whole page:
+// isLiked / isSaved (for the logged-in user), the latest comment, and author.verified.
+const decoratePosts = async (posts, viewer) => {
+  if (posts.length === 0) return [];
+  const ids = posts.map((p) => p._id);
+  const authorIds = [...new Set(posts.map((p) => String(p.author?._id)).filter(Boolean))];
+
+  const [liked, saved, latest, verified] = await Promise.all([
+    viewer ? Post.find({ _id: { $in: ids }, likes: viewer._id }).distinct('_id') : [],
+    viewer ? SavedPost.find({ user: viewer._id, post: { $in: ids } }).distinct('post') : [],
+    Comment.aggregate([
+      { $match: { post: { $in: ids } } },
+      { $sort: { _id: -1 } },
+      { $group: { _id: '$post', comment: { $first: '$$ROOT' } } },
+    ]),
+    Achievement.distinct('user', { user: { $in: authorIds }, verified: true }),
+  ]);
+
+  // Load the latest comments' authors
+  const latestComments = await Comment.populate(latest.map((l) => l.comment), { path: 'author', select: COMMENT_AUTHOR_FIELDS });
+  const latestByPost = Object.fromEntries(latestComments.map((c) => [String(c.post), c]));
+  const likedSet = new Set(liked.map(String));
+  const savedSet = new Set(saved.map(String));
+  const verifiedSet = new Set(verified.map(String));
+
+  return posts.map((p) => ({
+    ...p,
+    author: p.author ? { ...p.author, verified: verifiedSet.has(String(p.author._id)) } : null,
+    isLiked: likedSet.has(String(p._id)),
+    isSaved: savedSet.has(String(p._id)),
+    latestComment: latestByPost[String(p._id)] || null,
+  }));
+};
+
+// Create a post with optional text, location and up to MAX_IMAGES images (multipart/form-data)
 const createPost = async (req, res) => {
   try {
     // `protect` also lets brand tokens through — only platform users can post
@@ -17,6 +64,7 @@ const createPost = async (req, res) => {
     }
 
     const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
+    const location = typeof req.body.location === 'string' ? req.body.location.trim() : '';
     const files = req.files || [];
 
     if (!text && files.length === 0) {
@@ -24,6 +72,9 @@ const createPost = async (req, res) => {
     }
     if (text.length > MAX_TEXT_LENGTH) {
       return res.status(400).json({ message: `Post text can be at most ${MAX_TEXT_LENGTH} characters` });
+    }
+    if (location.length > MAX_LOCATION_LENGTH) {
+      return res.status(400).json({ message: `Location can be at most ${MAX_LOCATION_LENGTH} characters` });
     }
 
     // Validate everything above before uploading, so bad requests don't leave files on ImageKit
@@ -38,11 +89,13 @@ const createPost = async (req, res) => {
     const post = await Post.create({
       author: req.user._id,
       text,
+      location,
       images: uploads.map((u) => u.url),
     });
-    await post.populate('author', AUTHOR_FIELDS);
+    const populated = await Post.findById(post._id).populate('author', AUTHOR_FIELDS).lean();
+    const [decorated] = await decoratePosts([populated], req.user);
 
-    res.status(201).json(post);
+    res.status(201).json(decorated);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ message: error.message });
@@ -51,37 +104,46 @@ const createPost = async (req, res) => {
   }
 };
 
-// Feed: newest first, cursor-paginated.
-// GET /api/posts?limit=10&cursor=<_id of the last post you already have>
-// Cursor (not page numbers) so new posts arriving don't cause duplicates while scrolling.
-// `getBaseFilter(req)` narrows which posts are included (everyone, or only people you follow).
+// Feed, cursor-paginated so new posts arriving don't cause duplicates while scrolling.
+// GET /api/posts[/following|/coaches]?limit=10&sort=latest|popular&cursor=...
+//   latest  (default): newest first; cursor = _id of the last post you have
+//   popular:           most liked first; cursor = "<likeCount>_<_id>" of the last post
+// `getBaseFilter(req)` narrows which posts are included.
 const feedHandler = (getBaseFilter) => async (req, res) => {
   try {
     const { cursor } = req.query;
-    let limit = parseInt(req.query.limit, 10);
-    if (!Number.isInteger(limit) || limit < 1) limit = DEFAULT_PAGE_SIZE;
-    limit = Math.min(limit, MAX_PAGE_SIZE);
+    const popular = req.query.sort === 'popular';
+    const limit = pageLimit(req.query.limit);
 
     const filter = await getBaseFilter(req);
     if (cursor) {
-      if (!mongoose.Types.ObjectId.isValid(cursor)) {
-        return res.status(400).json({ message: 'Invalid cursor' });
+      if (popular) {
+        const [count, id] = String(cursor).split('_');
+        if (!/^\d+$/.test(count) || !isId(id)) return res.status(400).json({ message: 'Invalid cursor' });
+        filter.$or = [
+          { likeCount: { $lt: Number(count) } },
+          { likeCount: Number(count), _id: { $lt: new mongoose.Types.ObjectId(id) } },
+        ];
+      } else {
+        if (!isId(cursor)) return res.status(400).json({ message: 'Invalid cursor' });
+        filter._id = { $lt: cursor };
       }
-      filter._id = { $lt: cursor };
     }
 
     // Fetch one extra to know whether another page exists
     const posts = await Post.find(filter)
-      .sort({ _id: -1 })
+      .sort(popular ? { likeCount: -1, _id: -1 } : { _id: -1 })
       .limit(limit + 1)
-      .populate('author', AUTHOR_FIELDS);
+      .populate('author', AUTHOR_FIELDS)
+      .lean();
 
     const hasMore = posts.length > limit;
     if (hasMore) posts.pop();
+    const last = posts[posts.length - 1];
 
     res.json({
-      posts,
-      nextCursor: hasMore ? posts[posts.length - 1]._id : null,
+      posts: await decoratePosts(posts, req.user),
+      nextCursor: hasMore ? (popular ? `${last.likeCount}_${last._id}` : last._id) : null,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -97,4 +159,221 @@ const getFollowingFeed = feedHandler(async (req) => {
   return { author: { $in: follows.map((f) => f.following) } };
 });
 
-module.exports = { createPost, getFeed, getFollowingFeed, MAX_IMAGES };
+// GET /api/posts/coaches — only posts by coaches
+const getCoachesFeed = feedHandler(async () => ({
+  author: { $in: await User.find({ role: 'coach' }).distinct('_id') },
+}));
+
+// GET /api/posts/saved — the logged-in user's saved posts, most recently saved first.
+// Cursor = _id of the save record (`savedId` on each post).
+const getSavedPosts = async (req, res) => {
+  try {
+    const { cursor } = req.query;
+    const limit = pageLimit(req.query.limit);
+    const filter = { user: req.user._id };
+    if (cursor) {
+      if (!isId(cursor)) return res.status(400).json({ message: 'Invalid cursor' });
+      filter._id = { $lt: cursor };
+    }
+
+    const saves = await SavedPost.find(filter).sort({ _id: -1 }).limit(limit + 1).lean();
+    const hasMore = saves.length > limit;
+    if (hasMore) saves.pop();
+
+    const posts = await Post.find({ _id: { $in: saves.map((s) => s.post) } }).populate('author', AUTHOR_FIELDS).lean();
+    const byId = Object.fromEntries(posts.map((p) => [String(p._id), p]));
+    // Keep saved order; skip saves whose post was deleted
+    const ordered = saves.filter((s) => byId[String(s.post)]).map((s) => ({ ...byId[String(s.post)], savedId: s._id }));
+
+    res.json({
+      posts: await decoratePosts(ordered, req.user),
+      nextCursor: hasMore ? saves[saves.length - 1]._id : null,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Loads a post by :id or sends 400/404. Returns the post or null.
+const findPostOr404 = async (req, res) => {
+  if (!isId(req.params.id)) {
+    res.status(400).json({ message: 'Invalid post id' });
+    return null;
+  }
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    res.status(404).json({ message: 'Post not found' });
+    return null;
+  }
+  return post;
+};
+
+// GET /api/posts/:id — one post (for shared links)
+const getPost = async (req, res) => {
+  try {
+    if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
+    const post = await Post.findById(req.params.id).populate('author', AUTHOR_FIELDS).lean();
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    const [decorated] = await decoratePosts([post], req.user);
+    res.json(decorated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// DELETE /api/posts/:id — the author (or an admin) removes a post, with its comments and saves
+const deletePost = async (req, res) => {
+  try {
+    const post = await findPostOr404(req, res);
+    if (!post) return;
+    if (!post.author.equals(req.user._id) && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'You can only delete your own posts' });
+    }
+    await Promise.all([
+      Post.deleteOne({ _id: post._id }),
+      Comment.deleteMany({ post: post._id }),
+      SavedPost.deleteMany({ post: post._id }),
+    ]);
+    res.json({ message: 'Post deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST/DELETE /api/posts/:id/like — idempotent; the conditional update means
+// double-clicks or two tabs can't count a like twice or go below zero
+const setLike = (like) => async (req, res) => {
+  try {
+    if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
+    const me = req.user._id;
+    if (like) {
+      await Post.updateOne({ _id: req.params.id, likes: { $ne: me } }, { $push: { likes: me }, $inc: { likeCount: 1 } });
+    } else {
+      await Post.updateOne({ _id: req.params.id, likes: me }, { $pull: { likes: me }, $inc: { likeCount: -1 } });
+    }
+    const post = await Post.findById(req.params.id).select('likeCount');
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    res.json({ isLiked: like, likeCount: post.likeCount });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST/DELETE /api/posts/:id/save — idempotent bookmark
+const setSaved = (save) => async (req, res) => {
+  try {
+    const post = await findPostOr404(req, res);
+    if (!post) return;
+    if (save) {
+      await SavedPost.updateOne(
+        { user: req.user._id, post: post._id },
+        { $setOnInsert: { user: req.user._id, post: post._id } },
+        { upsert: true }
+      ).catch((e) => { if (e.code !== 11000) throw e; }); // a simultaneous save is fine
+    } else {
+      await SavedPost.deleteOne({ user: req.user._id, post: post._id });
+    }
+    res.json({ isSaved: save });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// GET /api/posts/:id/comments?cursor= — newest first, 20 at a time
+const getComments = async (req, res) => {
+  try {
+    if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
+    const { cursor } = req.query;
+    const filter = { post: req.params.id };
+    if (cursor) {
+      if (!isId(cursor)) return res.status(400).json({ message: 'Invalid cursor' });
+      filter._id = { $lt: cursor };
+    }
+    const limit = 20;
+    const comments = await Comment.find(filter).sort({ _id: -1 }).limit(limit + 1).populate('author', COMMENT_AUTHOR_FIELDS);
+    const hasMore = comments.length > limit;
+    if (hasMore) comments.pop();
+    res.json({ comments, nextCursor: hasMore ? comments[comments.length - 1]._id : null });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/posts/:id/comments — { text }
+const addComment = async (req, res) => {
+  try {
+    const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
+    if (!text) return res.status(400).json({ message: 'Comment cannot be empty' });
+    if (text.length > MAX_COMMENT_LENGTH) {
+      return res.status(400).json({ message: `Comments can be at most ${MAX_COMMENT_LENGTH} characters` });
+    }
+    const post = await findPostOr404(req, res);
+    if (!post) return;
+
+    const comment = await Comment.create({ post: post._id, author: req.user._id, text });
+    const { commentCount } = await Post.findByIdAndUpdate(post._id, { $inc: { commentCount: 1 } }, { new: true }).select('commentCount');
+    await comment.populate('author', COMMENT_AUTHOR_FIELDS);
+    res.status(201).json({ comment, commentCount });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// DELETE /api/posts/:id/comments/:commentId — comment author, post author, or admin
+const deleteComment = async (req, res) => {
+  try {
+    if (!isId(req.params.id) || !isId(req.params.commentId)) {
+      return res.status(400).json({ message: 'Invalid id' });
+    }
+    const comment = await Comment.findOne({ _id: req.params.commentId, post: req.params.id });
+    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+
+    const post = await Post.findById(req.params.id).select('author');
+    const allowed = comment.author.equals(req.user._id)
+      || post?.author.equals(req.user._id)
+      || req.user.role === 'admin';
+    if (!allowed) return res.status(403).json({ message: 'You cannot delete this comment' });
+
+    await Comment.deleteOne({ _id: comment._id });
+    const updated = await Post.findOneAndUpdate(
+      { _id: req.params.id, commentCount: { $gt: 0 } },
+      { $inc: { commentCount: -1 } },
+      { new: true }
+    ).select('commentCount');
+    res.json({ message: 'Comment deleted', commentCount: updated?.commentCount ?? 0 });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Removes everything a deleted account left in the feed: their posts (with those
+// posts' comments and saves), their comments elsewhere, their likes and saves.
+const removeUserFeedContent = async (userId) => {
+  const ownPosts = await Post.find({ author: userId }).distinct('_id');
+  // Posts that lose comments from this user need their counts fixed afterwards
+  const commentedPosts = await Comment.find({ author: userId, post: { $nin: ownPosts } }).distinct('post');
+
+  await Promise.all([
+    Post.deleteMany({ _id: { $in: ownPosts } }),
+    Comment.deleteMany({ $or: [{ post: { $in: ownPosts } }, { author: userId }] }),
+    SavedPost.deleteMany({ $or: [{ post: { $in: ownPosts } }, { user: userId }] }),
+    Post.updateMany({ likes: userId }, { $pull: { likes: userId }, $inc: { likeCount: -1 } }),
+  ]);
+
+  const counts = await Comment.aggregate([
+    { $match: { post: { $in: commentedPosts } } },
+    { $group: { _id: '$post', n: { $sum: 1 } } },
+  ]);
+  const byPost = Object.fromEntries(counts.map((c) => [String(c._id), c.n]));
+  await Promise.all(commentedPosts.map((id) =>
+    Post.updateOne({ _id: id }, { commentCount: byPost[String(id)] || 0 })));
+};
+
+module.exports = {
+  createPost, getFeed, getFollowingFeed, getCoachesFeed, getSavedPosts, getPost, deletePost,
+  likePost: setLike(true), unlikePost: setLike(false),
+  savePost: setSaved(true), unsavePost: setSaved(false),
+  getComments, addComment, deleteComment,
+  removeUserFeedContent,
+  MAX_IMAGES,
+};

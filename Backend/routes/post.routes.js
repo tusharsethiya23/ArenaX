@@ -1,8 +1,12 @@
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
-const { createPost, getFeed, getFollowingFeed, MAX_IMAGES } = require('../controllers/post.controller');
-const { protect } = require('../middlewares/auth.middleware');
+const {
+  createPost, getFeed, getFollowingFeed, getCoachesFeed, getSavedPosts, getPost, deletePost,
+  likePost, unlikePost, savePost, unsavePost, getComments, addComment, deleteComment,
+  MAX_IMAGES,
+} = require('../controllers/post.controller');
+const { protect, optionalProtect } = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 
 // Run multer ourselves so its errors (too big, wrong type, too many files)
@@ -21,12 +25,28 @@ const uploadImages = (req, res, next) => {
   });
 };
 
-// The Following feed needs a platform user (brand tokens have no follows)
+// Following/saved feeds, likes, comments and saves need a platform user (brand tokens have none)
 const onlyUsers = (req, res, next) =>
-  req.user ? next() : res.status(403).json({ message: 'Only users have a following feed' });
+  req.user ? next() : res.status(403).json({ message: 'Only users can do this' });
+const user = [protect, onlyUsers];
 
-router.get('/', getFeed); // public — feed padhne ke liye login zaroori nahi
-router.get('/following', protect, onlyUsers, getFollowingFeed);
+// Feeds (fixed paths before /:id)
+router.get('/', optionalProtect, getFeed); // public — login sirf "maine like kiya?" ke liye
+router.get('/following', ...user, getFollowingFeed);
+router.get('/coaches', optionalProtect, getCoachesFeed);
+router.get('/saved', ...user, getSavedPosts);
+
 router.post('/', protect, uploadImages, createPost);
+
+// One post
+router.get('/:id', optionalProtect, getPost);
+router.delete('/:id', ...user, deletePost);
+router.post('/:id/like', ...user, likePost);
+router.delete('/:id/like', ...user, unlikePost);
+router.post('/:id/save', ...user, savePost);
+router.delete('/:id/save', ...user, unsavePost);
+router.get('/:id/comments', optionalProtect, getComments);
+router.post('/:id/comments', ...user, addComment);
+router.delete('/:id/comments/:commentId', ...user, deleteComment);
 
 module.exports = router;

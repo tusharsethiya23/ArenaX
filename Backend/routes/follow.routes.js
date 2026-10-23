@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {
-  followUser, unfollowUser, getFollowStats, getFollowers, getFollowing,
+  followUser, unfollowUser, getFollowStats, getFollowers, getFollowing, getSuggestions,
 } = require('../controllers/follow.controller');
 const { protect } = require('../middlewares/auth.middleware');
+
+router.get('/suggestions', protect, getSuggestions); // "Coaches to follow"
 
 router.post('/:userId', protect, followUser);
 router.delete('/:userId', protect, unfollowUser);

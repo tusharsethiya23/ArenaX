@@ -108,4 +108,30 @@ const getFollowers = listHandler('following', 'follower');
 // GET /api/follows/:userId/following — people :userId follows
 const getFollowing = listHandler('follower', 'following');
 
-module.exports = { followUser, unfollowUser, getFollowStats, getFollowers, getFollowing };
+// GET /api/follows/suggestions — coaches the logged-in user doesn't follow yet,
+// most-followed first, each with their follower count
+const getSuggestions = async (req, res) => {
+  try {
+    if (!req.user) return res.json([]);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 5, 20);
+    const alreadyFollowing = await Follow.find({ follower: req.user._id }).distinct('following');
+
+    const coaches = await User.find({ role: 'coach', _id: { $nin: [req.user._id, ...alreadyFollowing] } })
+      .select(USER_FIELDS)
+      .lean();
+    const counts = await Follow.aggregate([
+      { $match: { following: { $in: coaches.map((c) => c._id) } } },
+      { $group: { _id: '$following', n: { $sum: 1 } } },
+    ]);
+    const countById = Object.fromEntries(counts.map((c) => [String(c._id), c.n]));
+
+    res.json(coaches
+      .map((c) => ({ ...c, followerCount: countById[String(c._id)] || 0 }))
+      .sort((a, b) => b.followerCount - a.followerCount || String(b._id).localeCompare(String(a._id)))
+      .slice(0, limit));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { followUser, unfollowUser, getFollowStats, getFollowers, getFollowing, getSuggestions };

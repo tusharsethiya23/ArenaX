@@ -22,6 +22,8 @@ import MyDeals from './pages/MyDeals';
 import AiAssistant from './pages/AiAssistant';
 import Feed from './pages/Feed';
 import NewPost from './pages/NewPost';
+import SavedPosts from './pages/SavedPosts';
+import PostPage from './pages/PostPage';
 
 function App() {
   const { user } = useAuth();
@@ -44,6 +46,22 @@ function App() {
           element={
             <ProtectedRoute>
               <NewPost />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved"
+          element={
+            <ProtectedRoute>
+              <SavedPosts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/post/:postId"
+          element={
+            <ProtectedRoute>
+              <PostPage />
             </ProtectedRoute>
           }
         />

@@ -2,7 +2,7 @@ const User = require('../models/user.model');
 const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
 const Endorsement = require('../models/endorsement.model.js');
-const Post = require('../models/post.model.js');
+const { removeUserFeedContent } = require('./post.controller.js');
 const Follow = require('../models/follow.model.js');
 const Achievement = require('../models/achievement.model.js');
 const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
@@ -195,7 +195,7 @@ const deleteAccount = async (req, res) => {
     }
 
     await User.findByIdAndDelete(req.user._id);
-    await Post.deleteMany({ author: req.user._id });
+    await removeUserFeedContent(req.user._id); // posts, comments, likes, saves
     await Follow.deleteMany({ $or: [{ follower: req.user._id }, { following: req.user._id }] });
 
     res.json({ message: 'Account deleted successfully' });
@@ -223,7 +223,7 @@ const adminDeleteUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     await User.findByIdAndDelete(req.params.id);
-    await Post.deleteMany({ author: req.params.id });
+    await removeUserFeedContent(req.params.id); // posts, comments, likes, saves
     await Follow.deleteMany({ $or: [{ follower: req.params.id }, { following: req.params.id }] });
     res.json({ message: 'User deleted by admin' });
   } catch (error) {

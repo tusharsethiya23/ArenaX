@@ -18,11 +18,9 @@ import StadiumArt from './StadiumArt';
 import FollowListModal from './FollowListModal';
 import { upcomingDays, slotsForDay } from '../utils/slots';
 import { sportEmoji } from '../utils/sports';
+import { compact } from '../utils/format';
 
 const DAY_TABS = 4;
-
-// 2400 -> "2.4k"
-const compact = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k` : String(n));
 
 const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
     const days = upcomingDays(DAY_TABS);

@@ -1,0 +1,64 @@
+// ImageCarousel.jsx
+// A post's photos, one at a time: swipe (or the arrows on desktop) to move,
+// a "1/4" counter top-right, and the post's location tag bottom-left.
+// Uses CSS scroll-snap, so touch swiping works natively.
+
+import { useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+
+const ImageCarousel = ({ images, location }) => {
+    const [index, setIndex] = useState(0);
+    const trackRef = useRef(null);
+    const many = images.length > 1;
+
+    const goTo = (i) => {
+        const track = trackRef.current;
+        if (track) track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+    };
+
+    // Keep the counter in sync with swipes
+    const handleScroll = () => {
+        const track = trackRef.current;
+        if (track) setIndex(Math.round(track.scrollLeft / track.clientWidth));
+    };
+
+    return (
+        <div className="group relative overflow-hidden rounded-[24px] bg-canvas">
+            <div
+                ref={trackRef}
+                onScroll={handleScroll}
+                className="flex aspect-[16/9] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+                {images.map((src, i) => (
+                    <a key={src} href={src} target="_blank" rel="noopener noreferrer" className="h-full w-full shrink-0 snap-center">
+                        <img src={src} alt={`Photo ${i + 1} of ${images.length}`} loading="lazy" className="h-full w-full object-cover" />
+                    </a>
+                ))}
+            </div>
+
+            {many && (
+                <>
+                    <span className="badge absolute right-3 top-3 bg-ink/80 text-white">{index + 1} / {images.length}</span>
+                    {index > 0 && (
+                        <button onClick={() => goTo(index - 1)} aria-label="Previous photo" className="absolute left-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 shadow group-hover:flex">
+                            <ChevronLeft size={18} />
+                        </button>
+                    )}
+                    {index < images.length - 1 && (
+                        <button onClick={() => goTo(index + 1)} aria-label="Next photo" className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 shadow group-hover:flex">
+                            <ChevronRight size={18} />
+                        </button>
+                    )}
+                </>
+            )}
+
+            {location && (
+                <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-surface px-3 py-1.5 text-sm font-semibold">
+                    <MapPin size={14} className="shrink-0 text-danger" /> {location}
+                </span>
+            )}
+        </div>
+    );
+};
+
+export default ImageCarousel;

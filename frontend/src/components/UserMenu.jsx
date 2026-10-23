@@ -7,7 +7,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     ChevronDown, CalendarDays, BarChart3, CreditCard, Settings,
-    Handshake, ShieldCheck, LogOut,
+    Handshake, ShieldCheck, LogOut, Bookmark,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
@@ -41,6 +41,7 @@ const UserMenu = () => {
     const items = [
         { to: '/bookings', label: 'My bookings', icon: CalendarDays },
         user.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
+        { to: '/saved', label: 'Saved posts', icon: Bookmark },
         { to: '/subscription', label: 'Plan and billing', icon: CreditCard },
         user.role === 'coach' && { to: '/deals', label: 'Brand deals', icon: Handshake },
         user.role === 'admin' && { to: '/admin', label: 'Admin', icon: ShieldCheck },

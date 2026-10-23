@@ -1,6 +1,6 @@
 // UpcomingSession.jsx
 // Compact "Upcoming session" card at the top of the Feed on smaller screens
-// (large screens show the full Upcoming sessions list in the SideRail).
+// (larger screens show the full Upcoming list in the Feed's right column).
 // Bookings only store a weekday + time slot (no calendar date), so "next" =
 // a confirmed booking first, otherwise one still awaiting the coach.
 // Renders nothing when there's no active booking.
