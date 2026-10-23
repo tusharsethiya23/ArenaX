@@ -2,6 +2,7 @@
 // Coach performance stats (formerly the /analytics page, now the "Stats" tab
 // on /profile). Shows booking stats plus trust/performance metrics (rating,
 // endorsements, achievements) and earnings, aggregated by the backend.
+// The first tile of each section is highlighted in lime, like the mockup.
 
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
@@ -16,8 +17,8 @@ const StatsPanel = () => {
             .catch((err) => setError(err.response?.data?.message || 'Could not load your stats'));
     }, []);
 
-    if (error) return <p className="py-10 text-center text-sm text-[#FF2A2A]">{error}</p>;
-    if (!data) return <p className="py-10 text-center text-[10px] uppercase tracking-[0.3em] text-[#8B95A5]">Loading stats...</p>;
+    if (error) return <p className="alert-error">{error}</p>;
+    if (!data) return <p className="empty-state">Loading stats...</p>;
 
     const sections = [
         {
@@ -30,7 +31,7 @@ const StatsPanel = () => {
             ],
         },
         {
-            title: 'Performance & Trust',
+            title: 'Performance & trust',
             stats: [
                 { label: 'Average rating', value: data.averageRating ? `${data.averageRating} ★` : '—' },
                 { label: 'Total reviews', value: data.totalReviews },
@@ -49,17 +50,15 @@ const StatsPanel = () => {
     ];
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {sections.map((section) => (
-                <section key={section.title}>
-                    <h2 className="mb-3 text-[9px] font-bold uppercase tracking-[0.3em] text-[#8B95A5] sm:text-[10px]">
-                        {section.title}
-                    </h2>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-                        {section.stats.map((s) => (
-                            <div key={s.label} className="rounded-xl border border-white/10 bg-[#071426]/70 p-4 sm:p-5">
-                                <p className="break-words text-xl font-black text-white sm:text-2xl">{s.value}</p>
-                                <p className="mt-1 text-xs text-white/45">{s.label}</p>
+                <section key={section.title} className="card">
+                    <h2 className="mb-4 text-lg font-bold tracking-tight">{section.title}</h2>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                        {section.stats.map((s, i) => (
+                            <div key={s.label} className={`rounded-3xl p-4 sm:p-5 ${i === 0 ? 'bg-lime' : 'bg-canvas'}`}>
+                                <p className="break-words text-2xl font-extrabold tracking-tight sm:text-3xl">{s.value}</p>
+                                <p className={`mt-1 text-xs ${i === 0 ? 'text-ink/70' : 'text-muted'}`}>{s.label}</p>
                             </div>
                         ))}
                     </div>

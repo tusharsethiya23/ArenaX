@@ -5,8 +5,19 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // needed to make the name clickable
+import { MessageCircle } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import Avatar from '../components/Avatar';
+import PageHeader from '../components/PageHeader';
+
+// Colour coding for each booking status badge
+const statusColor = {
+  pending: 'bg-canvas text-muted',
+  confirmed: 'bg-lime text-ink',
+  declined: 'bg-danger/10 text-danger',
+  completed: 'bg-ink text-white',
+};
 
 const Bookings = () => {
   const { user } = useAuth();
@@ -41,26 +52,17 @@ const Bookings = () => {
     }
   };
 
-  // Color coding for each booking status badge
-  const statusColor = {
-    pending: 'text-stone border-stone/30',
-    confirmed: 'text-teal border-teal/30',
-    declined: 'text-signal border-signal/30',
-    completed: 'text-ink border-ink/20',
-  };
-
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="mb-8 border-l-4 border-signal pl-4">
-        <h1 className="font-display text-3xl text-ink">
-          {user.role === 'coach' ? 'BOOKING REQUESTS' : 'MY BOOKINGS'}
-        </h1>
-      </div>
+    <div className="page max-w-5xl">
+      <PageHeader
+        title={user.role === 'coach' ? 'Booking requests' : 'My bookings'}
+        subtitle={user.role === 'coach' ? 'Sessions learners have asked you for' : 'Sessions you have requested'}
+      />
 
       {loading ? (
-        <p className="text-stone">Loading...</p>
+        <p className="empty-state">Loading...</p>
       ) : bookings.length === 0 ? (
-        <p className="text-stone">No bookings yet.</p>
+        <p className="empty-state">No bookings yet.</p>
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => {
@@ -71,64 +73,53 @@ const Bookings = () => {
             return (
               <div
                 key={b._id}
-                className="border border-ink/10 bg-white p-5 flex items-center justify-between"
+                className="flex flex-col gap-4 rounded-[28px] bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
               >
-                <div className="flex items-center gap-3">
-                  {/* Profile photo — shows a placeholder if user hasn't uploaded one */}
-                  <img
-                    src={otherPerson?.profilePhoto || 'https://placehold.co/48x48?text=?'}
-                    alt={otherPerson?.name}
-                    className="w-12 h-12 object-cover border border-ink/10 flex-shrink-0"
-                  />
+                <div className="flex min-w-0 items-center gap-4">
+                  {/* Weekday tile, matching the Upcoming sessions style */}
+                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-canvas">
+                    <span className="text-base font-extrabold leading-none">{b.day?.slice(0, 3).toUpperCase()}</span>
+                  </div>
 
-                  <div>
+                  <Avatar name={otherPerson?.name} photo={otherPerson?.profilePhoto} className="h-11 w-11 text-sm" />
+
+                  <div className="min-w-0">
                     {/* Clicking the name navigates to that user's public profile */}
                     <Link
                       to={`/profile-view/${otherPerson?._id}`}
-                      className="font-medium text-ink hover:text-signal transition-colors"
+                      className="block truncate font-semibold hover:underline"
                     >
                       {otherPerson?.name}
                     </Link>
-                    <p className="text-sm text-stone">
+                    <p className="truncate text-sm text-muted">
                       {b.day} · {b.timeSlot}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs font-semibold border px-2 py-1 ${statusColor[b.status]}`}>
-                    {b.status.toUpperCase()}
+                <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <span className={`badge capitalize ${statusColor[b.status]}`}>
+                    {b.status}
                   </span>
 
                   {/* Accept/Decline buttons only shown to coach, only for pending bookings */}
                   {user.role === 'coach' && b.status === 'pending' && (
                     <>
-                      <button
-                        onClick={() => handleStatusUpdate(b._id, 'confirmed')}
-                        className="text-sm bg-teal text-white px-3 py-1.5 hover:bg-teal/90"
-                      >
+                      <button onClick={() => handleStatusUpdate(b._id, 'confirmed')} className="btn btn-lime">
                         Accept
                       </button>
-                      <button
-                        onClick={() => handleStatusUpdate(b._id, 'declined')}
-                        className="text-sm border border-ink/15 text-ink/70 px-3 py-1.5 hover:border-signal hover:text-signal"
-                      >
+                      <button onClick={() => handleStatusUpdate(b._id, 'declined')} className="btn btn-soft">
                         Decline
                       </button>
                     </>
                   )}
 
                   {b.status === 'confirmed' && (
-                    <Link
-                      to={`/chat/${b._id}`}
-                      className="text-sm bg-ink text-white px-3 py-1.5 hover:bg-ink/90"
-                    >
-                      Chat
+                    <Link to={`/chat/${b._id}`} className="btn btn-dark">
+                      <MessageCircle size={16} /> Chat
                     </Link>
                   )}
                 </div>
-
-
               </div>
             );
           })}

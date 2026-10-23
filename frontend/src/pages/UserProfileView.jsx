@@ -1,8 +1,14 @@
+// UserProfileView.jsx
+// Someone's public profile (route: /profile-view/:userId): header with a
+// Subscribe/Manage plan shortcut, endorsements received, and a form to
+// endorse them (hidden on your own profile).
+
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useSubscription from '../hooks/useSubscription';
+import Avatar from '../components/Avatar';
 
 const UserProfileView = () => {
     const { userId } = useParams();
@@ -43,152 +49,76 @@ const UserProfileView = () => {
     };
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-[#05070D] text-white">
+        <div className="page max-w-4xl space-y-6">
 
-            {/* Background glow */}
-            <div className="pointer-events-none absolute left-1/2 top-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-red-600/10 blur-[120px] sm:top-20 sm:h-[500px] sm:w-[500px] sm:blur-[150px]" />
+            {/* ================= PROFILE HEADER ================= */}
+            {profileUser && (
+                <section className="card flex flex-col gap-5 sm:flex-row sm:items-center">
+                    <Avatar name={profileUser.name} photo={profileUser.profilePhoto} className="h-20 w-20 text-2xl" />
 
-            {/* Background grid */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute left-[8%] top-0 h-full border-l border-white/[0.035] sm:left-[15%]" />
-                <div className="absolute left-1/2 top-0 h-full border-l border-red-500/[0.04]" />
-                <div className="absolute right-[8%] top-0 h-full border-l border-white/[0.035] sm:right-[15%]" />
-
-                <div className="absolute left-0 top-[25%] w-full border-t border-white/[0.025]" />
-                <div className="absolute left-0 top-[75%] w-full border-t border-white/[0.025]" />
-            </div>
-
-            <div className="relative mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
-
-                {/* Profile Header */}
-                {profileUser && (
-                    <div className="mb-6 flex min-w-0 items-center gap-3 border-l-4 border-[#E21B23] pl-4 sm:gap-4">
-
-                        <img
-                            src={
-                                profileUser.profilePhoto ||
-                                "https://placehold.co/72x72?text=?"
-                            }
-                            alt={profileUser.name}
-                            className="h-[60px] w-[60px] shrink-0 rounded-xl border border-white/10 object-cover sm:h-[72px] sm:w-[72px]"
-                        />
-
-                        <div className="min-w-0 flex-1">
-                            <h1 className="break-words text-xl font-black uppercase tracking-tight text-white sm:text-2xl">
-                                {profileUser.name}
-                            </h1>
-
-                            <p className="mt-1 break-words text-[10px] uppercase tracking-[0.12em] text-[#FF2A2A] sm:text-sm">
-                                {profileUser.sport} · {profileUser.location}
-                            </p>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="break-words text-3xl font-extrabold tracking-tight">{profileUser.name}</h1>
+                            {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role}</span>}
                         </div>
-
-                        {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
-                        <Link
-                            to="/subscription"
-                            className="shrink-0 whitespace-nowrap rounded-full bg-[#E11D1D] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#FF2A2A] sm:px-5 sm:text-xs"
-                        >
-                            {isPro ? 'Manage plan' : 'Subscribe'}
-                        </Link>
-
+                        <p className="mt-1 text-sm text-muted">
+                            {[profileUser.sport, profileUser.location].filter(Boolean).join(' · ')}
+                        </p>
+                        {profileUser.bio && <p className="mt-2 text-sm text-ink/80">{profileUser.bio}</p>}
                     </div>
-                )}
 
-                {/* Heading */}
-                <div className="mb-7 border-l-4 border-[#E21B23] pl-4 sm:mb-8">
+                    {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
+                    <Link to="/subscription" className={`btn shrink-0 ${isPro ? 'btn-soft' : 'btn-lime'}`}>
+                        {isPro ? 'Manage plan' : 'Subscribe'}
+                    </Link>
+                </section>
+            )}
 
-                    <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#FF2A2A] sm:text-[9px] sm:tracking-[0.4em]">
-                        ARENAX / COMMUNITY
-                    </p>
+            <div className={`grid gap-6 ${currentUser._id !== userId ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
 
-                    <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl">
-                        ENDORSEMENTS
-                    </h1>
+                {/* ================= ENDORSEMENTS ================= */}
+                <section>
+                    <h2 className="section-title mb-4">Endorsements</h2>
+                    {endorsements.length === 0 ? (
+                        <p className="empty-state">No endorsements yet.</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {endorsements.map((e) => (
+                                <div key={e._id} className="rounded-[28px] bg-surface p-5">
+                                    <span className="badge bg-lime text-ink">{e.skill}</span>
+                                    {e.note && <p className="mt-3 break-words text-sm leading-6">{e.note}</p>}
+                                    <p className="mt-3 text-sm text-muted">
+                                        {e.endorser?.name}{e.endorser?.sport ? ` · ${e.endorser.sport}` : ''}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
 
-                </div>
-
-                {/* Endorse Form */}
+                {/* ================= ENDORSE FORM ================= */}
                 {currentUser._id !== userId && (
-                    <form
-                        onSubmit={handleEndorse}
-                        className="mb-7 space-y-3 rounded-xl border border-white/10 bg-[#071426]/70 p-4 backdrop-blur-md sm:mb-8 sm:p-5"
-                    >
-
-                        <h3 className="text-base font-black uppercase tracking-wide text-white sm:text-lg">
-                            Give an endorsement
-                        </h3>
-
+                    <form onSubmit={handleEndorse} className="card h-fit space-y-3">
+                        <h2 className="text-lg font-bold tracking-tight">Give an endorsement</h2>
                         <input
                             placeholder="Skill (e.g. Fast bowling)"
                             value={skill}
                             onChange={(e) => setSkill(e.target.value)}
                             required
-                            className="w-full min-w-0 rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs text-white outline-none transition-all focus:border-[#E21B23] sm:px-4 sm:text-sm"
+                            className="input"
                         />
-
                         <textarea
                             placeholder="Note (optional)"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             rows={3}
-                            className="w-full min-w-0 resize-none rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs leading-5 text-white outline-none transition-all focus:border-[#E21B23] sm:px-4 sm:text-sm"
+                            className="input resize-none"
                         />
-
-                        <button
-                            type="submit"
-                            className="w-full rounded-lg bg-[#E21B23] px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_25px_rgba(226,27,35,0.25)] active:scale-[0.97] sm:w-auto sm:text-xs"
-                        >
+                        <button type="submit" className="btn btn-dark w-full">
                             Endorse
                         </button>
-
                     </form>
                 )}
-
-                {/* Endorsements */}
-                <div className="space-y-3">
-
-                    {endorsements.length === 0 ? (
-
-                        <div className="rounded-xl border border-white/10 bg-[#071426]/50 px-4 py-10 text-center sm:px-6">
-                            <p className="text-xs text-[#8B95A5] sm:text-sm">
-                                No endorsements yet.
-                            </p>
-                        </div>
-
-                    ) : (
-
-                        endorsements.map((e) => (
-
-                            <div
-                                key={e._id}
-                                className="relative overflow-hidden rounded-xl border border-white/10 bg-[#071426]/70 p-4 transition-all duration-300 hover:border-[#E21B23]/40 sm:p-5"
-                            >
-
-                                {/* Red accent */}
-                                <div className="absolute left-0 top-0 h-full w-1 bg-[#E21B23]" />
-
-                                <p className="break-words text-sm font-bold uppercase tracking-wide text-white sm:text-base">
-                                    {e.skill}
-                                </p>
-
-                                {e.note && (
-                                    <p className="mt-1 break-words text-xs leading-5 text-white/60 sm:text-sm">
-                                        {e.note}
-                                    </p>
-                                )}
-
-                                <p className="mt-2 break-words text-[9px] uppercase tracking-[0.12em] text-[#8B95A5] sm:text-xs">
-                                    — {e.endorser?.name} ({e.endorser?.sport})
-                                </p>
-
-                            </div>
-
-                        ))
-
-                    )}
-
-                </div>
-
             </div>
         </div>
     );

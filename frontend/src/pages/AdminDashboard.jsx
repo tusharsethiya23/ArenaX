@@ -4,6 +4,8 @@
 
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
+import Avatar from '../components/Avatar';
+import PageHeader from '../components/PageHeader';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -38,34 +40,34 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <p className="text-stone text-center mt-10">Loading...</p>;
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8 border-l-4 border-signal pl-4">
-        <h1 className="font-display text-3xl text-ink">ADMIN DASHBOARD</h1>
-        <p className="text-stone mt-1 text-sm">{users.length} total users</p>
-      </div>
+    <div className="page max-w-5xl">
+      <PageHeader title="Admin dashboard" subtitle={loading ? 'Loading users...' : `${users.length} total users`} />
 
-      <div className="space-y-2">
-        {users.map((u) => (
-          <div
-            key={u._id}
-            className="border border-ink/10 bg-white p-4 flex items-center justify-between"
-          >
-            <div>
-              <p className="font-medium text-ink">{u.name}</p>
-              <p className="text-sm text-stone">{u.email} · {u.role}</p>
-            </div>
-            <button
-              onClick={() => handleDelete(u._id, u.name)}
-              className="text-sm border border-signal text-signal px-3 py-1.5 hover:bg-signal hover:text-white transition-colors"
+      {!loading && (
+        <div className="card p-2 sm:p-3">
+          {users.map((u) => (
+            <div
+              key={u._id}
+              className="flex items-center justify-between gap-3 rounded-2xl p-3 transition-colors hover:bg-canvas"
             >
-              Delete
-            </button>
-          </div>
-        ))}
-      </div>
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar name={u.name} photo={u.profilePhoto} />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{u.name}</p>
+                  <p className="truncate text-sm text-muted">{u.email}</p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="badge hidden bg-canvas capitalize text-muted sm:inline-flex">{u.role}</span>
+                <button onClick={() => handleDelete(u._id, u.name)} className="btn btn-danger">
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

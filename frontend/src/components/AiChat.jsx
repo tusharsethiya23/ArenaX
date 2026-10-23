@@ -58,10 +58,10 @@ const AiChat = ({ active = true }) => {
                 {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div
-                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-6 ${
+                            className={`max-w-[85%] whitespace-pre-wrap break-words rounded-3xl px-4 py-2.5 text-sm leading-6 ${
                                 m.role === 'user'
-                                    ? 'rounded-br-sm bg-[#E11D1D] text-white'
-                                    : 'rounded-bl-sm border border-white/10 bg-white/[0.04] text-white/85'
+                                    ? 'rounded-br-md bg-ink text-white'
+                                    : 'rounded-bl-md bg-canvas text-ink'
                             }`}
                         >
                             {m.text}
@@ -71,7 +71,7 @@ const AiChat = ({ active = true }) => {
 
                 {loading && (
                     <div className="flex justify-start">
-                        <div className="rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/40">
+                        <div className="rounded-3xl rounded-bl-md bg-canvas px-4 py-2.5 text-sm text-muted">
                             Thinking...
                         </div>
                     </div>
@@ -79,19 +79,19 @@ const AiChat = ({ active = true }) => {
             </div>
 
             {/* Input row */}
-            <form onSubmit={handleSend} className="flex gap-2 border-t border-white/10 p-3">
+            <form onSubmit={handleSend} className="flex gap-2 border-t border-line p-3">
                 <input
                     ref={inputRef}
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask about training, drills, technique..."
-                    className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#07090F] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#E11D1D]"
+                    className="input rounded-full"
                 />
                 <button
                     type="submit"
                     disabled={loading || !input.trim()}
-                    className="rounded-lg bg-[#E11D1D] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#FF2A2A] disabled:opacity-40"
+                    className="btn btn-lime"
                 >
                     Send
                 </button>

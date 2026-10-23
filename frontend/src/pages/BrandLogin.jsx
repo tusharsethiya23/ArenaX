@@ -1,15 +1,12 @@
 // BrandLogin.jsx
 // Combined login + register page for Brand accounts. Brands have their own
 // endpoints (/brands/login and /brands/register), separate from regular users.
-// Responsive: single column, full-width inputs, comfortable on small screens.
 
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useBrandAuth } from '../context/BrandAuthContext';
-
-const inputClass =
-  'w-full border border-ink/15 bg-white px-3 py-2.5 text-sm sm:text-base text-ink focus:outline-none focus:border-teal';
+import AuthLayout from '../components/AuthLayout';
 
 const BrandLogin = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -43,111 +40,66 @@ const BrandLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-6 sm:mb-8 border-l-4 border-teal pl-4">
-          <h1 className="font-display text-2xl sm:text-3xl text-ink">
-            {isRegistering ? 'REGISTER YOUR BRAND' : 'BRAND LOGIN'}
-          </h1>
-          <p className="text-stone mt-1 text-xs sm:text-sm">
-            Discover and sponsor verified athletic talent
+    <AuthLayout
+      title={isRegistering ? 'Register your brand' : 'Brand login'}
+      subtitle="Discover and sponsor verified athletic talent"
+      footer={
+        <>
+          <p>
+            {isRegistering ? 'Already have a brand account?' : 'New brand?'}{' '}
+            <button
+              type="button"
+              onClick={() => setIsRegistering(!isRegistering)}
+              className="font-semibold text-ink hover:underline"
+            >
+              {isRegistering ? 'Log in' : 'Register here'}
+            </button>
           </p>
-        </div>
+          <p>
+            Not a brand?{' '}
+            <Link to="/login" className="font-semibold text-ink hover:underline">Go to regular login</Link>
+          </p>
+        </>
+      }
+    >
+      {error && <div className="alert-error mb-4">{error}</div>}
 
-        {error && (
-          <div className="mb-4 border border-signal/30 bg-signal/5 text-signal px-4 py-2 text-sm">
-            {error}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {isRegistering && (
+          <div>
+            <label className="label">Company name</label>
+            <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} required className="input" />
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegistering && (
+        <div>
+          <label className="label">Email</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required className="input" />
+        </div>
+
+        <div>
+          <label className="label">Password</label>
+          <input type="password" name="password" value={formData.password} onChange={handleChange} required className="input" />
+        </div>
+
+        {isRegistering && (
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-semibold text-stone mb-1">Company name</label>
-              <input
-                type="text"
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleChange}
-                required
-                className={inputClass}
-              />
+              <label className="label">Industry</label>
+              <input type="text" name="industry" value={formData.industry} onChange={handleChange} className="input" />
             </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-stone mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className={inputClass}
-            />
+            <div>
+              <label className="label">Website</label>
+              <input type="text" name="website" value={formData.website} onChange={handleChange} className="input" />
+            </div>
           </div>
+        )}
 
-          <div>
-            <label className="block text-xs font-semibold text-stone mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className={inputClass}
-            />
-          </div>
-
-          {isRegistering && (
-            <>
-              <div>
-                <label className="block text-xs font-semibold text-stone mb-1">Industry</label>
-                <input
-                  type="text"
-                  name="industry"
-                  value={formData.industry}
-                  onChange={handleChange}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-stone mb-1">Website</label>
-                <input
-                  type="text"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  className={inputClass}
-                />
-              </div>
-            </>
-          )}
-
-          <button
-            type="submit"
-            className="w-full bg-teal text-white font-semibold py-3 mt-2 hover:bg-teal/90 transition-colors"
-          >
-            {isRegistering ? 'Create brand account' : 'Log in'}
-          </button>
-        </form>
-
-        <p className="text-xs sm:text-sm text-stone mt-6">
-          {isRegistering ? 'Already have a brand account?' : 'New brand?'}{' '}
-          <button
-            type="button"
-            onClick={() => setIsRegistering(!isRegistering)}
-            className="text-signal font-medium hover:underline"
-          >
-            {isRegistering ? 'Log in' : 'Register here'}
-          </button>
-        </p>
-
-        <Link to="/login" className="block text-xs text-stone mt-4 hover:underline">
-          ← Not a brand? Go to regular login
-        </Link>
-      </div>
-    </div>
+        <button type="submit" className="btn btn-dark mt-2 w-full py-3.5">
+          {isRegistering ? 'Create brand account' : 'Log in'}
+        </button>
+      </form>
+    </AuthLayout>
   );
 };
 

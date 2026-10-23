@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Avatar } from './PostCard';
+import { ImagePlus, X } from 'lucide-react';
+import Avatar from './Avatar';
 
 // Keep in sync with Backend/models/post.model.js and upload.middleware.js
 const MAX_TEXT_LENGTH = 2000;
@@ -78,12 +79,10 @@ const CreatePost = ({ onPostCreated }) => {
     return (
         <form
             onSubmit={handleSubmit}
-            className="relative overflow-hidden rounded-xl border border-white/10 bg-[#071426]/70 p-4 backdrop-blur-md sm:p-5"
+            className="card"
         >
-            <div className="absolute left-0 top-0 h-full w-1 bg-[#E21B23]" />
-
             <div className="flex gap-3">
-                <Avatar name={user?.name} photo={user?.profilePhoto} />
+                <Avatar name={user?.name} photo={user?.profilePhoto} className="h-11 w-11 text-sm" />
 
                 <textarea
                     value={text}
@@ -91,7 +90,7 @@ const CreatePost = ({ onPostCreated }) => {
                     placeholder="Share a win, a drill, or what you're training for..."
                     rows={3}
                     maxLength={MAX_TEXT_LENGTH}
-                    className="min-w-0 flex-1 resize-y bg-transparent text-sm leading-6 text-white outline-none placeholder:text-white/25"
+                    className="min-w-0 flex-1 resize-y bg-transparent pt-2.5 text-[15px] leading-6 text-ink outline-none placeholder:text-muted"
                 />
             </div>
 
@@ -100,14 +99,14 @@ const CreatePost = ({ onPostCreated }) => {
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {images.map((img, i) => (
                         <div key={img.preview} className="relative">
-                            <img src={img.preview} alt={`Selected ${i + 1}`} className="aspect-square w-full rounded-lg border border-white/10 object-cover" />
+                            <img src={img.preview} alt={`Selected ${i + 1}`} className="aspect-square w-full rounded-2xl object-cover" />
                             <button
                                 type="button"
                                 onClick={() => removeImage(i)}
                                 aria-label="Remove image"
-                                className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-black/70 text-xs text-white transition-colors hover:bg-[#E21B23]"
+                                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/80 text-white transition-colors hover:bg-ink"
                             >
-                                ✕
+                                <X size={14} />
                             </button>
                         </div>
                     ))}
@@ -115,11 +114,11 @@ const CreatePost = ({ onPostCreated }) => {
             )}
 
             {error && (
-                <p className="mt-3 text-xs text-[#FF2A2A]">{error}</p>
+                <p className="alert-error mt-3">{error}</p>
             )}
 
             {/* ================= ACTIONS ================= */}
-            <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+            <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
                 <div className="flex items-center gap-3">
                     <input
                         ref={fileInputRef}
@@ -133,11 +132,11 @@ const CreatePost = ({ onPostCreated }) => {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={images.length >= MAX_IMAGES}
-                        className="rounded-lg border border-white/15 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-white/60 transition-colors hover:border-[#FF2A2A] hover:text-[#FF2A2A] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="btn btn-soft px-4"
                     >
-                        + Photo
+                        <ImagePlus size={16} /> Photo
                     </button>
-                    <span className={`text-[10px] tabular-nums ${text.length > MAX_TEXT_LENGTH * 0.9 ? 'text-[#FF2A2A]' : 'text-white/25'}`}>
+                    <span className={`text-xs tabular-nums ${text.length > MAX_TEXT_LENGTH * 0.9 ? 'text-danger' : 'text-muted'}`}>
                         {text.length}/{MAX_TEXT_LENGTH}
                     </span>
                 </div>
@@ -145,7 +144,7 @@ const CreatePost = ({ onPostCreated }) => {
                 <button
                     type="submit"
                     disabled={!canPost}
-                    className="rounded-lg bg-[#E21B23] px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_25px_rgba(226,27,35,0.25)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none sm:px-6 sm:text-xs"
+                    className="btn btn-dark px-6"
                 >
                     {posting ? 'Posting...' : 'Post'}
                 </button>

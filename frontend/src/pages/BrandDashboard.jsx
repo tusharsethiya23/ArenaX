@@ -1,12 +1,15 @@
 // BrandDashboard.jsx
 // Lets a logged-in brand search talent by sport/location and send deal
 // offers. Responsive: filters stack on mobile and sit in a row on larger
-// screens; talent cards are one column on mobile, two on tablet and up.
+// screens; talent cards are one column on mobile, more on wider screens.
 
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { Search, MapPin } from 'lucide-react';
 import API from '../api/axios';
 import { useBrandAuth } from '../context/BrandAuthContext';
+import Avatar from '../components/Avatar';
+import PageHeader from '../components/PageHeader';
 
 const BrandDashboard = () => {
   const { brand, brandLogout } = useBrandAuth();
@@ -58,69 +61,60 @@ const BrandDashboard = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8 border-l-4 border-teal pl-4">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl text-ink">BRAND DASHBOARD</h1>
-          <p className="text-stone text-xs sm:text-sm mt-1">{brand.companyName}</p>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="border border-ink/15 px-4 py-2 text-xs sm:text-sm text-ink/70 hover:border-signal hover:text-signal w-full sm:w-auto"
-        >
-          Log out
-        </button>
-      </div>
+    <div className="page">
+      <PageHeader
+        title="Brand dashboard"
+        subtitle={brand.companyName}
+        action={<button onClick={handleLogout} className="btn btn-soft bg-surface">Log out</button>}
+      />
 
-      {/* Search filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-8">
-        <input
-          placeholder="Sport"
-          value={filters.sport}
-          onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
-          className="border border-ink/15 px-3 py-2.5 text-sm flex-1 focus:outline-none focus:border-teal"
-        />
-        <input
-          placeholder="Location"
-          value={filters.location}
-          onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-          className="border border-ink/15 px-3 py-2.5 text-sm flex-1 focus:outline-none focus:border-teal"
-        />
-        <button
-          onClick={searchTalent}
-          className="bg-ink text-white px-6 py-2.5 text-sm font-semibold hover:bg-ink/90 w-full sm:w-auto"
-        >
-          Search
-        </button>
-      </div>
+      {/* Search filters: same white search pill as Discover */}
+      <form
+        onSubmit={(e) => { e.preventDefault(); searchTalent(); }}
+        className="mb-8 flex max-w-3xl flex-col gap-1 rounded-3xl bg-surface p-1.5 sm:flex-row sm:items-center sm:rounded-full"
+      >
+        <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
+          <Search size={18} className="shrink-0 text-muted" />
+          <input
+            placeholder="Sport"
+            value={filters.sport}
+            onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
+            className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted"
+          />
+        </label>
+        <span className="mx-4 h-px bg-line sm:mx-0 sm:h-8 sm:w-px" />
+        <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
+          <MapPin size={18} className="shrink-0 text-muted" />
+          <input
+            placeholder="Location"
+            value={filters.location}
+            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+            className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted"
+          />
+        </label>
+        <button type="submit" className="btn btn-lime px-8 py-3">Search</button>
+      </form>
 
       {talent.length === 0 ? (
-        <p className="text-sm text-stone">No talent found. Try a different search.</p>
+        <p className="empty-state">No talent found. Try a different search.</p>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {talent.map((t) => (
-            <div key={t._id} className="border border-ink/10 bg-white p-4 sm:p-5">
-              <div className="flex items-start gap-3">
-                <img
-                  src={t.profilePhoto || 'https://placehold.co/48x48?text=?'}
-                  alt={t.name}
-                  className="w-12 h-12 object-cover border border-ink/10 flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-display text-base sm:text-lg text-ink truncate">{t.name}</h3>
-                    <span className="text-xs text-teal font-semibold whitespace-nowrap">{t.sport}</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-stone">{t.location}</p>
+            <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
+              <div className="flex items-center gap-3">
+                <Avatar name={t.name} photo={t.profilePhoto} className="h-14 w-14 text-base" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-lg font-bold tracking-tight">{t.name}</h3>
+                  <p className="truncate text-sm text-muted">{t.location}</p>
                 </div>
+                {t.sport && <span className="badge shrink-0 bg-lime text-ink">{t.sport}</span>}
               </div>
-              {t.bio && <p className="text-xs sm:text-sm text-ink/70 mt-3">{t.bio}</p>}
-              <button
-                onClick={() => setDealTarget(t._id)}
-                className="mt-3 w-full sm:w-auto border border-teal text-teal px-4 py-1.5 text-xs sm:text-sm font-semibold hover:bg-teal hover:text-white transition-colors"
-              >
-                Send deal offer
-              </button>
+              {t.bio && <p className="mt-4 text-sm text-ink/80">{t.bio}</p>}
+              <div className="mt-auto pt-5">
+                <button onClick={() => setDealTarget(t._id)} className="btn btn-dark">
+                  Send deal offer
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -128,9 +122,9 @@ const BrandDashboard = () => {
 
       {/* Deal offer modal */}
       {dealTarget && (
-        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center px-4 z-50">
-          <div className="bg-paper border border-ink/10 max-w-sm w-full p-5 sm:p-6">
-            <h2 className="font-display text-lg sm:text-xl text-ink mb-4">SEND DEAL OFFER</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 backdrop-blur-sm">
+          <div className="card w-full max-w-sm">
+            <h2 className="mb-4 text-xl font-extrabold tracking-tight">Send deal offer</h2>
             <form onSubmit={handleSendDeal} className="space-y-3">
               <input
                 type="number"
@@ -138,26 +132,20 @@ const BrandDashboard = () => {
                 value={dealForm.offerAmount}
                 onChange={(e) => setDealForm({ ...dealForm, offerAmount: e.target.value })}
                 required
-                className="w-full border border-ink/15 px-3 py-2 text-sm focus:outline-none focus:border-teal"
+                className="input"
               />
               <textarea
                 placeholder="Message to the athlete"
                 value={dealForm.message}
                 onChange={(e) => setDealForm({ ...dealForm, message: e.target.value })}
-                className="w-full border border-ink/15 px-3 py-2 text-sm focus:outline-none focus:border-teal"
+                rows={3}
+                className="input resize-none"
               />
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setDealTarget(null)}
-                  className="flex-1 border border-ink/15 text-ink/70 py-2 text-sm hover:border-signal hover:text-signal"
-                >
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setDealTarget(null)} className="btn btn-soft flex-1">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-teal text-white py-2 text-sm font-semibold hover:bg-teal/90"
-                >
+                <button type="submit" className="btn btn-dark flex-1">
                   Send
                 </button>
               </div>

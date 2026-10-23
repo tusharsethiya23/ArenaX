@@ -78,35 +78,35 @@ const NotificationBell = () => {
                 onClick={toggle}
                 aria-label={hasUnread ? 'Notifications (unread)' : 'Notifications'}
                 aria-expanded={open}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/70 transition-colors hover:border-white/25 hover:text-white"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full bg-surface text-ink transition-shadow hover:shadow-sm"
             >
-                <Bell size={17} strokeWidth={1.8} />
+                <Bell size={18} strokeWidth={1.8} />
                 {hasUnread && (
-                    <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#E11D1D] ring-2 ring-[#07090F]" />
+                    <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-danger ring-2 ring-surface" />
                 )}
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full z-50 mt-3 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/10 bg-[#0D1220] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                    <p className="border-b border-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+                <div className="absolute right-0 top-full z-50 mt-3 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                    <p className="border-b border-line px-5 py-3.5 text-sm font-bold">
                         Notifications
                     </p>
 
                     {notifications.length === 0 ? (
-                        <p className="px-4 py-6 text-center text-sm text-white/40">You're all caught up.</p>
+                        <p className="px-5 py-8 text-center text-sm text-muted">You're all caught up.</p>
                     ) : (
-                        <ul className="max-h-80 overflow-y-auto py-1">
+                        <ul className="max-h-80 overflow-y-auto p-2">
                             {notifications.map((n) => (
                                 <li key={n.id}>
                                     <Link
                                         to="/bookings"
                                         onClick={close}
-                                        className="flex gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04]"
+                                        className="flex gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-canvas"
                                     >
-                                        <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${n.time > highlightBefore ? 'bg-[#E11D1D]' : 'bg-transparent'}`} />
+                                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.time > highlightBefore ? 'bg-lime ring-1 ring-ink/20' : 'bg-transparent'}`} />
                                         <span className="min-w-0">
-                                            <span className="block text-sm text-white/90">{n.text}</span>
-                                            <span className="block text-xs text-white/40">{n.detail}</span>
+                                            <span className="block text-sm font-medium">{n.text}</span>
+                                            <span className="block text-xs text-muted">{n.detail}</span>
                                         </span>
                                     </Link>
                                 </li>

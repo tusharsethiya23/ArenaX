@@ -1,6 +1,7 @@
 // UserMenu.jsx
-// Avatar pill (initials or photo + chevron) that opens the account dropdown.
-// Closes on outside click, Escape, or after choosing an item.
+// White profile pill (avatar, short name, "Pro member"/role, chevron) that
+// opens the account dropdown. Closes on outside click, Escape, or after
+// choosing an item.
 
 import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,19 +12,13 @@ import {
 import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
 import useSubscription from '../hooks/useSubscription';
+import Avatar from './Avatar';
 
-// "Virat Kohli" -> "VK", "Madonna" -> "M"
-const getInitials = (name = '') =>
-    name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '?';
-
-export const NavAvatar = ({ user, size = 'h-8 w-8 text-xs' }) =>
-    user.profilePhoto ? (
-        <img src={user.profilePhoto} alt={user.name} className={`${size} shrink-0 rounded-full object-cover`} />
-    ) : (
-        <span className={`${size} flex shrink-0 items-center justify-center rounded-full bg-[#E11D1D] font-bold text-white`}>
-            {getInitials(user.name)}
-        </span>
-    );
+// "Virat Kohli" -> "Virat K."
+const shortName = (name = '') => {
+    const [first, ...rest] = name.trim().split(/\s+/);
+    return rest.length ? `${first} ${rest[rest.length - 1][0]}.` : first;
+};
 
 const UserMenu = () => {
     const { user, logout } = useAuth();
@@ -41,7 +36,7 @@ const UserMenu = () => {
         navigate('/login');
     };
 
-    // Menu items. Role-specific pages (stats, deals, admin) only show for that role,
+    // Role-specific pages (stats, deals, admin) only show for that role,
     // matching which routes exist for them in App.jsx.
     const items = [
         { to: '/bookings', label: 'My bookings', icon: CalendarDays },
@@ -54,63 +49,63 @@ const UserMenu = () => {
 
     return (
         <div ref={wrapperRef} className="relative">
-            {/* Trigger: avatar + chevron in a thin red pill */}
+            {/* Trigger */}
             <button
                 onClick={() => setOpen(!open)}
                 aria-label="Account menu"
                 aria-haspopup="menu"
                 aria-expanded={open}
-                className="flex items-center gap-1.5 rounded-full border border-[#E11D1D]/50 p-1 pr-2.5 transition-colors hover:border-[#E11D1D]"
+                className="flex items-center gap-2.5 rounded-full bg-surface py-1.5 pl-1.5 pr-3 transition-shadow hover:shadow-sm"
             >
-                <NavAvatar user={user} />
-                <ChevronDown size={14} className={`text-white/70 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                <Avatar name={user.name} photo={user.profilePhoto} className="h-9 w-9 text-xs" />
+                <span className="hidden text-left leading-tight sm:block md:hidden lg:block">
+                    <span className="block max-w-[120px] truncate text-sm font-semibold">{shortName(user.name)}</span>
+                    <span className="block text-xs text-muted">{isPro ? 'Pro member' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
+                </span>
+                <ChevronDown size={16} className={`text-ink transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
 
             {open && (
                 <div
                     role="menu"
-                    className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-xl border border-white/10 bg-[#0D1220] shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                    className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
                 >
                     {/* Header: avatar, name, profile link, PRO badge */}
-                    <div className="flex items-center gap-3 border-b border-white/10 p-4">
-                        <NavAvatar user={user} size="h-10 w-10 text-sm" />
+                    <div className="flex items-center gap-3 border-b border-line p-4">
+                        <Avatar name={user.name} photo={user.profilePhoto} className="h-11 w-11 text-sm" />
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold text-white">{user.name}</p>
-                            <Link to="/profile" onClick={close} className="text-xs text-white/50 transition-colors hover:text-white">
+                            <p className="truncate text-sm font-semibold">{user.name}</p>
+                            <Link to="/profile" onClick={close} className="text-xs text-muted transition-colors hover:text-ink">
                                 View profile
                             </Link>
                         </div>
-                        {isPro && (
-                            <span className="shrink-0 rounded border border-[#E11D1D]/60 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#FF4D4D]">
-                                PRO
-                            </span>
-                        )}
+                        {isPro && <span className="badge bg-lime text-ink">PRO</span>}
                     </div>
 
                     {/* Links */}
-                    <div className="py-1.5">
+                    <div className="p-2">
                         {items.map(({ to, label, icon: Icon }) => (
                             <Link
                                 key={to}
                                 to={to}
                                 role="menuitem"
                                 onClick={close}
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/[0.04] hover:text-white"
+                                className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-canvas"
                             >
-                                <Icon size={16} strokeWidth={1.8} className="text-white/50" />
+                                <Icon size={17} strokeWidth={1.8} className="text-muted" />
                                 {label}
                             </Link>
                         ))}
                     </div>
 
                     {/* Log out, separated by a divider */}
-                    <div className="border-t border-white/10 py-1.5">
+                    <div className="border-t border-line p-2">
                         <button
                             onClick={handleLogout}
                             role="menuitem"
-                            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#FF4D4D] transition-colors hover:bg-[#E11D1D]/10"
+                            className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
                         >
-                            <LogOut size={16} strokeWidth={1.8} />
+                            <LogOut size={17} strokeWidth={1.8} />
                             Log out
                         </button>
                     </div>

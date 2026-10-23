@@ -1,8 +1,15 @@
+// Feed.jsx
+// Homepage: posts from everyone, newest first, with infinite scroll.
+// Layout matches Discover: feed column + SideRail on xl screens. Below xl the
+// sidebar is hidden, so a compact Upcoming session card shows above the composer.
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import API from '../api/axios';
 import CreatePost from '../components/CreatePost';
 import PostCard from '../components/PostCard';
 import UpcomingSession from '../components/UpcomingSession';
+import PageHeader from '../components/PageHeader';
+import SideRail from '../components/SideRail';
 
 const PAGE_SIZE = 10;
 
@@ -50,85 +57,54 @@ const Feed = () => {
     const handlePostCreated = (post) => setPosts((prev) => [post, ...prev]);
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-[#05070D]">
+        <div className="page grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
 
-            {/* Background glow */}
-            <div className="pointer-events-none absolute left-1/2 top-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-red-600/10 blur-[120px] sm:top-20 sm:h-[500px] sm:w-[500px] sm:blur-[150px]" />
+            {/* ===================== FEED COLUMN ===================== */}
+            <div className="mx-auto w-full min-w-0 max-w-2xl xl:max-w-3xl">
+                <PageHeader title="Feed" subtitle="Updates from coaches and athletes across ArenaX" />
 
-            {/* Grid lines */}
-            <div className="pointer-events-none absolute left-[8%] top-0 h-full border-l border-white/[0.035] sm:left-[15%]" />
-            <div className="pointer-events-none absolute right-[8%] top-0 h-full border-l border-white/[0.035] sm:right-[15%]" />
+                <div className="space-y-5">
+                    <UpcomingSession className="xl:hidden" />
 
-            <div className="relative mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-12 md:py-16">
+                    <CreatePost onPostCreated={handlePostCreated} />
 
-                {/* ================= HEADING ================= */}
-                <div className="mb-8 border-l-4 border-[#E21B23] pl-4 sm:mb-10 sm:pl-6">
-                    <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#FF2A2A] sm:mb-3 sm:text-[10px] sm:tracking-[0.4em]">
-                        ARENAX / FEED
-                    </p>
-                    <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl md:text-5xl">
-                        THE LOCKER ROOM
-                    </h1>
-                    <p className="mt-3 text-xs text-[#8B95A5] sm:mt-4 sm:text-sm">
-                        Updates from coaches and athletes across ArenaX
-                    </p>
-                </div>
-
-                <UpcomingSession />
-
-                <CreatePost onPostCreated={handlePostCreated} />
-
-                {/* ================= POSTS ================= */}
-                <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:gap-5">
                     {posts.map((post) => (
                         <PostCard key={post._id} post={post} />
                     ))}
                 </div>
 
                 {/* ================= STATUS ================= */}
-                <div ref={sentinelRef} className="mt-6 sm:mt-8">
-                    {loading && (
-                        <p className="border-y border-white/10 py-6 text-center text-[9px] uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[10px] sm:tracking-[0.3em]">
-                            Loading posts...
-                        </p>
-                    )}
+                <div ref={sentinelRef} className="mt-5">
+                    {loading && <p className="empty-state">Loading posts...</p>}
 
                     {error && !loading && (
-                        <div className="rounded-xl border border-red-500/30 bg-[#071426]/50 px-4 py-6 text-center">
-                            <p className="mb-3 text-xs text-[#FF2A2A]">{error}</p>
-                            <button
-                                onClick={loadMore}
-                                className="rounded-lg border border-white/15 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-white/70 transition-colors hover:border-[#FF2A2A] hover:text-[#FF2A2A]"
-                            >
-                                Try again
-                            </button>
+                        <div className="empty-state">
+                            <p className="mb-4 text-danger">{error}</p>
+                            <button onClick={loadMore} className="btn btn-dark">Try again</button>
                         </div>
                     )}
 
                     {!loading && !error && hasMore && posts.length > 0 && (
                         // Fallback for when the observer doesn't fire (e.g. very tall screens)
-                        <button
-                            onClick={loadMore}
-                            className="w-full rounded-lg border border-white/10 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 transition-colors hover:border-[#FF2A2A] hover:text-[#FF2A2A]"
-                        >
+                        <button onClick={loadMore} className="btn btn-soft w-full bg-surface">
                             Load more
                         </button>
                     )}
 
                     {!loading && !error && !hasMore && posts.length === 0 && (
-                        <div className="rounded-xl border border-white/10 bg-[#071426]/50 px-4 py-12 text-center sm:px-6 sm:py-16">
-                            <p className="text-xs text-[#8B95A5] sm:text-sm">
-                                No posts yet. Be the first to share something.
-                            </p>
-                        </div>
+                        <p className="empty-state">No posts yet. Be the first to share something.</p>
                     )}
 
                     {!loading && !hasMore && posts.length > 0 && (
-                        <div className="flex flex-col gap-2 border-t border-white/10 pt-5 text-[7px] uppercase tracking-[0.25em] text-white/20 sm:flex-row sm:items-center sm:justify-between sm:text-[9px] sm:tracking-[0.3em]">
-                            <span>ARENAX</span>
-                            <span>YOU'RE ALL CAUGHT UP</span>
-                        </div>
+                        <p className="py-4 text-center text-sm text-muted">You're all caught up.</p>
                     )}
+                </div>
+            </div>
+
+            {/* ===================== RIGHT COLUMN ===================== */}
+            <div className="hidden xl:block">
+                <div className="sticky top-24">
+                    <SideRail />
                 </div>
             </div>
         </div>

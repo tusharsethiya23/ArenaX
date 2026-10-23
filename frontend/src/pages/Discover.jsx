@@ -1,11 +1,82 @@
+// Discover.jsx
+// Find a coach. Layout follows the design mockup:
+//   main column: black hero with search, athlete spotlight, recommendations
+//                (learners), then "Top coaches" with sport filter chips
+//   right column (xl screens): SideRail (profile card + upcoming sessions)
+// Search hits the backend (/users/coaches with sport/location); the sport
+// chips then filter the loaded results in the browser.
+
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Search, MapPin, Star } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router';
+import StadiumArt from '../components/StadiumArt';
+import SideRail from '../components/SideRail';
+
+// Card header colours, cycled through like the mockup (blue, orange, teal)
+const CARD_GRADIENTS = [
+    'from-[#5B7FB5] to-[#9CC08F]',
+    'from-[#E8A07A] to-[#C9663D]',
+    'from-[#8DB3C2] to-[#5E8F78]',
+];
+
+// "cricket " -> "Cricket", so chips don't duplicate on case/spacing
+const normalizeSport = (s = '') => s.trim().charAt(0).toUpperCase() + s.trim().slice(1).toLowerCase();
+
+const CoachCard = ({ coach, index, canBook, onBook }) => (
+    <div className="flex flex-col rounded-[28px] bg-surface p-3">
+        {/* Photo area */}
+        <div className={`relative flex h-44 items-end justify-center overflow-hidden rounded-[22px] bg-gradient-to-b ${CARD_GRADIENTS[index % CARD_GRADIENTS.length]}`}>
+            {coach.profilePhoto ? (
+                <img src={coach.profilePhoto} alt={coach.name} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+                // Silhouette placeholder when there's no photo
+                <div className="flex flex-col items-center" aria-hidden="true">
+                    <div className="h-12 w-12 rounded-full bg-black/35" />
+                    <div className="mt-1.5 h-24 w-24 rounded-t-[48px] bg-black/35" />
+                </div>
+            )}
+            {coach.sport && (
+                <span className="badge absolute left-3 top-3 bg-surface text-ink">{coach.sport}</span>
+            )}
+        </div>
+
+        {/* Details */}
+        <div className="flex flex-1 flex-col px-2 pb-2 pt-4">
+            <div className="flex items-start justify-between gap-2">
+                <Link to={`/profile-view/${coach._id}`} className="truncate text-lg font-bold tracking-tight hover:underline">
+                    {coach.name}
+                </Link>
+                {coach.avgRating > 0 && (
+                    <span className="flex shrink-0 items-center gap-1 text-sm font-semibold">
+                        <Star size={14} className="fill-ink" /> {coach.avgRating}
+                    </span>
+                )}
+            </div>
+            <p className="mt-0.5 truncate text-sm capitalize text-muted">
+                {[coach.skillLevelTaught, coach.location].filter(Boolean).join(' · ') || 'Location not set'}
+            </p>
+
+            <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+                <p className="text-xl font-extrabold tracking-tight">
+                    {coach.pricePerSession ? <>₹{coach.pricePerSession}<span className="text-sm font-normal text-muted"> /session</span></> : <span className="text-sm font-normal text-muted">Price on request</span>}
+                </p>
+                {canBook ? (
+                    <button onClick={() => onBook(coach._id)} className="btn btn-dark">Book</button>
+                ) : (
+                    <Link to={`/profile-view/${coach._id}`} className="btn btn-soft">View</Link>
+                )}
+            </div>
+        </div>
+    </div>
+);
 
 const Discover = () => {
     const [coaches, setCoaches] = useState([]);
+    const [totalCoaches, setTotalCoaches] = useState(null);
     const [filters, setFilters] = useState({ sport: '', location: '' });
+    const [sportChip, setSportChip] = useState('All');
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const [spotlight, setSpotlight] = useState(null);
@@ -20,6 +91,8 @@ const Discover = () => {
 
             const res = await API.get('/users/coaches', { params });
             setCoaches(res.data);
+            // Remember the unfiltered total for the hero badge
+            if (!filters.sport && !filters.location) setTotalCoaches(res.data.length);
         } catch (err) {
             console.error(err);
         }
@@ -36,6 +109,7 @@ const Discover = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
+        setSportChip('All');
         fetchCoaches();
     };
 
@@ -58,317 +132,140 @@ const Discover = () => {
         }
     }, []);
 
+    // Sport chips come from the coaches actually loaded
+    const sports = [...new Set(coaches.map((c) => normalizeSport(c.sport)).filter(Boolean))].sort();
+    const visibleCoaches = sportChip === 'All' ? coaches : coaches.filter((c) => normalizeSport(c.sport) === sportChip);
+
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-[#05070D]">
+        <div className="page grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
 
-            {/* Background glow */}
-            <div className="pointer-events-none absolute left-1/2 top-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-red-600/10 blur-[120px] sm:top-20 sm:h-[500px] sm:w-[500px] sm:blur-[150px]" />
+            {/* ===================== MAIN COLUMN ===================== */}
+            <div className="min-w-0 space-y-6">
 
-            {/* Grid lines */}
-            <div className="pointer-events-none absolute left-[8%] top-0 h-full border-l border-white/[0.035] sm:left-[15%]" />
-            <div className="pointer-events-none absolute left-1/2 top-0 h-full border-l border-red-500/[0.04]" />
-            <div className="pointer-events-none absolute right-[8%] top-0 h-full border-l border-white/[0.035] sm:right-[15%]" />
+                {/* ---------- Hero ---------- */}
+                <section className="relative overflow-hidden rounded-[32px] bg-ink p-6 sm:p-10">
+                    <StadiumArt className="left-[30%] opacity-50 md:left-[45%] md:opacity-100" />
 
-            <div className="relative mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 md:py-16">
+                    <div className="relative">
+                        {totalCoaches > 0 && (
+                            <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-sm font-medium text-white backdrop-blur">
+                                <span className="h-6 w-6 rounded-full bg-lime" />
+                                {totalCoaches} {totalCoaches === 1 ? 'coach' : 'coaches'} on ArenaX
+                            </span>
+                        )}
 
-                {/* ================= HEADING ================= */}
+                        <h1 className="text-5xl font-black leading-[0.95] tracking-tighter text-white sm:text-6xl lg:text-7xl">
+                            Find your<br /><span className="text-lime">coach.</span>
+                        </h1>
 
-                <div className="mb-8 border-l-4 border-[#E21B23] pl-4 sm:mb-10 sm:pl-6">
-
-                    <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#FF2A2A] sm:mb-3 sm:text-[10px] sm:tracking-[0.4em]">
-                        ARENAX / DISCOVER
-                    </p>
-
-                    <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl md:text-6xl">
-                        FIND YOUR COACH
-                    </h1>
-
-                    <p className="mt-3 text-xs text-[#8B95A5] sm:mt-4 sm:text-sm">
-                        Search by sport or location
-                    </p>
-
-                </div>
-
-
-                {/* ================= ATHLETE SPOTLIGHT ================= */}
-
-                {spotlight && (
-                    <div className="relative mb-6 overflow-hidden rounded-xl border border-red-500/20 bg-[#071426]/70 p-4 backdrop-blur-md sm:mb-8 sm:p-5">
-
-                        {/* Red accent */}
-                        <div className="absolute left-0 top-0 h-full w-1 bg-[#E21B23]" />
-
-                        <div className="flex items-start justify-between gap-4">
-
-                            <div className="min-w-0">
-
-                                <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.25em] text-[#FF2A2A] sm:text-[9px] sm:tracking-[0.35em]">
-                                    ATHLETE OF THE MONTH
-                                </p>
-
-                                <p className="break-words text-lg font-black uppercase tracking-tight text-white sm:text-xl">
-                                    {spotlight.athlete.name}
-                                </p>
-
-                                <p className="mt-1 flex flex-wrap items-center text-[10px] uppercase tracking-[0.1em] text-[#8B95A5] sm:text-xs sm:tracking-[0.12em]">
-                                    <span>{spotlight.athlete.sport}</span>
-
-                                    <span className="mx-2 text-[#E21B23]">
-                                        /
-                                    </span>
-
-                                    <span>
-                                        Sponsored by {spotlight.sponsorBrand.companyName}
-                                    </span>
-                                </p>
-
-                            </div>
-
-                            <div className="hidden shrink-0 text-[9px] font-bold uppercase tracking-[0.3em] text-white/20 sm:block">
-                                SPOTLIGHT / 01
-                            </div>
-
-                        </div>
-
+                        {/* Search: one white pill on desktop, stacked on mobile */}
+                        <form
+                            onSubmit={handleSearch}
+                            className="mt-8 flex max-w-2xl flex-col gap-1 rounded-3xl bg-surface p-1.5 sm:flex-row sm:items-center sm:rounded-full"
+                        >
+                            <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
+                                <Search size={18} className="shrink-0 text-muted" />
+                                <input
+                                    type="text"
+                                    placeholder="Sport, e.g. Cricket"
+                                    value={filters.sport}
+                                    onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
+                                    className="w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-muted"
+                                />
+                            </label>
+                            <span className="mx-4 h-px bg-line sm:mx-0 sm:h-8 sm:w-px" />
+                            <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
+                                <MapPin size={18} className="shrink-0 text-muted" />
+                                <input
+                                    type="text"
+                                    placeholder="Location, e.g. Indore"
+                                    value={filters.location}
+                                    onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                                    className="w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-muted"
+                                />
+                            </label>
+                            <button type="submit" className="btn btn-lime px-8 py-3 text-base">Search</button>
+                        </form>
                     </div>
+                </section>
+
+                {/* ---------- Athlete spotlight ---------- */}
+                {spotlight && (
+                    <section className="flex flex-wrap items-center gap-4 rounded-[28px] bg-surface p-5">
+                        <span className="badge bg-lime text-ink">Athlete of the month</span>
+                        <p className="min-w-0 flex-1 truncate">
+                            <span className="font-bold">{spotlight.athlete.name}</span>
+                            <span className="text-muted"> · {spotlight.athlete.sport} · Sponsored by {spotlight.sponsorBrand.companyName}</span>
+                        </p>
+                    </section>
                 )}
 
-
-                {/* ================= SEARCH ================= */}
-
-
+                {/* ---------- Recommended (learners) ---------- */}
                 {user?.role === 'learner' && recommended.length > 0 && (
-                    <div className="mb-10">
-                        <h2 className="font-display text-lg text-ink mb-3">RECOMMENDED FOR YOU</h2>
-                        <div className="grid sm:grid-cols-2 gap-4">
+                    <section>
+                        <h2 className="section-title mb-4">Recommended for you</h2>
+                        <div className="grid gap-3 sm:grid-cols-2">
                             {recommended.slice(0, 4).map((coach) => (
-                                <div key={coach._id} className="border border-teal/30 bg-teal/5 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <Link to={`/profile-view/${coach._id}`} className="font-medium text-ink hover:text-signal">
-                                            {coach.name}
-                                        </Link>
-                                        <span className="text-xs text-teal font-semibold">{coach.avgRating} ★</span>
+                                <Link
+                                    key={coach._id}
+                                    to={`/profile-view/${coach._id}`}
+                                    className="flex items-center justify-between gap-3 rounded-3xl bg-surface p-4 transition-shadow hover:shadow-sm"
+                                >
+                                    <div className="min-w-0">
+                                        <p className="truncate font-semibold">{coach.name}</p>
+                                        <p className="truncate text-sm text-muted">{coach.sport} · {coach.location}</p>
                                     </div>
-                                    <p className="text-sm text-stone">{coach.sport} · {coach.location}</p>
-                                </div>
+                                    {/* avgRating is "0.0" for coaches with no reviews yet */}
+                                    <span className="badge shrink-0 bg-lime text-ink">
+                                        {Number(coach.avgRating) > 0 ? `★ ${coach.avgRating}` : 'New'}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* ---------- Top coaches ---------- */}
+                <section>
+                    <div className="mb-5 flex flex-wrap items-center gap-3">
+                        <h2 className="section-title mr-2">Top coaches</h2>
+                        {/* Chips scroll sideways on small screens instead of wrapping */}
+                        <div className="-mx-1 flex max-w-full gap-2 overflow-x-auto px-1 pb-1">
+                            {['All', ...sports].map((s) => (
+                                <button
+                                    key={s}
+                                    onClick={() => setSportChip(s)}
+                                    className={`chip ${sportChip === s ? 'chip-active' : ''}`}
+                                >
+                                    {s}
+                                </button>
                             ))}
                         </div>
                     </div>
-                )}
 
-                <form
-                    onSubmit={handleSearch}
-                    className="mb-10 grid overflow-hidden rounded-xl border border-white/10 bg-[#071426]/70 backdrop-blur-md sm:mb-16 md:grid-cols-[1fr_1fr_auto]"
-                >
-
-                    {/* Sport */}
-                    <input
-                        type="text"
-                        placeholder="SPORT — e.g. Cricket"
-                        value={filters.sport}
-                        onChange={(e) =>
-                            setFilters({
-                                ...filters,
-                                sport: e.target.value
-                            })
-                        }
-                        className="min-w-0 border-b border-white/10 bg-transparent px-4 py-4 text-xs uppercase tracking-wide text-white outline-none placeholder:text-white/25 focus:border-[#E21B23] sm:px-5 sm:py-5 sm:text-sm md:border-b-0 md:border-r"
-                    />
-
-                    {/* Location */}
-                    <input
-                        type="text"
-                        placeholder="LOCATION — e.g. Delhi"
-                        value={filters.location}
-                        onChange={(e) =>
-                            setFilters({
-                                ...filters,
-                                location: e.target.value
-                            })
-                        }
-                        className="min-w-0 border-b border-white/10 bg-transparent px-4 py-4 text-xs uppercase tracking-wide text-white outline-none placeholder:text-white/25 focus:border-[#E21B23] sm:px-5 sm:py-5 sm:text-sm md:border-b-0 md:border-r"
-                    />
-
-                    {/* Search */}
-                    <button
-                        type="submit"
-                        className="bg-[#E21B23] px-6 py-4 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_25px_rgba(226,27,35,0.25)] active:scale-[0.98] sm:px-10 sm:py-5 sm:text-xs sm:tracking-[0.2em]"
-                    >
-                        Search
-                    </button>
-
-                </form>
-
-
-                {/* ================= RESULTS ================= */}
-
-                {loading ? (
-
-                    <div className="border-y border-white/10 py-10 sm:py-12">
-                        <p className="text-[9px] uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[10px] sm:tracking-[0.3em]">
-                            Loading coaches...
-                        </p>
-                    </div>
-
-                ) : coaches.length === 0 ? (
-
-                    <div className="rounded-xl border border-white/10 bg-[#071426]/50 px-4 py-12 text-center sm:px-6 sm:py-16">
-                        <p className="text-xs text-[#8B95A5] sm:text-sm">
-                            No coaches found. Try a different search.
-                        </p>
-                    </div>
-
-                ) : (
-
-                    <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-
-                        {coaches.map((coach, index) => (
-
-                            <div
-                                key={coach._id}
-                                className="group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-[#071426]/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:bg-[#071426]/90 hover:shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-6"
-                            >
-
-                                {/* Red side accent */}
-                                <div className="absolute left-0 top-0 h-0 w-1 bg-[#E21B23] transition-all duration-500 group-hover:h-full" />
-
-
-                                {/* ================= TOP ROW ================= */}
-
-                                <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
-
-                                    <span className="text-[9px] font-bold tracking-[0.25em] text-[#FF2A2A] sm:text-[10px] sm:tracking-[0.3em]">
-                                        {String(index + 1).padStart(2, "0")}
-                                    </span>
-
-                                    {coach.pricePerSession && (
-                                        <span className="text-[10px] uppercase tracking-wide text-white/50 sm:text-xs">
-                                            ₹{coach.pricePerSession}
-
-                                            <span className="text-white/25">
-                                                {" "} / SESSION
-                                            </span>
-                                        </span>
-                                    )}
-
-                                </div>
-
-
-                                {/* ================= PROFILE ================= */}
-
-                                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-
-                                    {/* Image */}
-                                    <div className="relative shrink-0">
-
-                                        {/* Image glow */}
-                                        <div className="absolute inset-0 rounded-xl bg-[#E21B23]/20 blur-md transition-all duration-300 group-hover:bg-[#E21B23]/30" />
-
-                                        <img
-                                            src={
-                                                coach.profilePhoto ||
-                                                "https://placehold.co/100x100?text=?"
-                                            }
-                                            alt={coach.name}
-                                            className="relative h-16 w-16 rounded-xl border-2 border-white/10 object-cover shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-all duration-300 group-hover:border-[#E21B23]/60 sm:h-20 sm:w-20"
-                                        />
-
-                                    </div>
-
-
-                                    {/* Name + sport */}
-                                    <div className="min-w-0">
-
-                                        <h3 className="break-words text-lg font-black uppercase tracking-tight text-white sm:text-xl">
-
-                                            <Link
-                                                to={`/profile-view/${coach._id}`}
-                                                className="transition-colors duration-200 hover:text-[#FF2A2A]"
-                                            >
-                                                {coach.name}
-                                            </Link>
-
-                                        </h3>
-
-                                        <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#FF2A2A] sm:mt-2 sm:text-xs sm:tracking-[0.2em]">
-                                            {coach.sport}
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* Divider */}
-                                <div className="my-5 h-px bg-white/10 sm:my-6" />
-
-
-                                {/* ================= LOCATION ================= */}
-
-                                <div className="flex min-w-0 items-start gap-3">
-
-                                    <span className="shrink-0 text-[8px] font-bold uppercase tracking-[0.2em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.25em]">
-                                        LOCATION
-                                    </span>
-
-                                    <span className="min-w-0 break-words text-[10px] uppercase tracking-[0.1em] text-white/60 sm:text-xs sm:tracking-[0.12em]">
-                                        {coach.location}
-                                    </span>
-
-                                </div>
-
-
-                                {/* ================= FIXED BIO ================= */}
-
-                                <div className="mt-4 h-[66px] overflow-hidden sm:mt-5 sm:h-[72px]">
-
-                                    {coach.bio ? (
-
-                                        <p className="line-clamp-3 text-xs leading-5 text-white/45 sm:text-sm sm:leading-6">
-                                            {coach.bio}
-                                        </p>
-
-                                    ) : (
-
-                                        <p className="text-xs leading-5 text-white/20 sm:text-sm sm:leading-6">
-                                            No bio available.
-                                        </p>
-
-                                    )}
-
-                                </div>
-
-
-                                {/* ================= BOOKING ================= */}
-
-                                {user?.role === "learner" && (
-                                    <button
-                                        onClick={() => handleBook(coach._id)}
-                                        className="mt-5 w-full rounded-lg border border-[#E21B23] bg-[#E21B23] px-5 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_25px_rgba(226,27,35,0.25)] active:scale-[0.97] sm:mt-6 sm:px-6 sm:text-xs sm:tracking-[0.15em]"
-                                    >
-                                        Request Booking
-                                    </button>
-                                )}
-
-                            </div>
-
-                        ))}
-
-                    </div>
-
-                )}
-
-
-                {/* ================= FOOTER ================= */}
-
-                <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-5 text-[7px] uppercase tracking-[0.25em] text-white/20 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:text-[9px] sm:tracking-[0.3em]">
-
-                    <span>ARENAX</span>
-
-                    <span>DISCOVER / COACHES</span>
-
-                </div>
-
+                    {loading ? (
+                        <p className="empty-state">Loading coaches...</p>
+                    ) : visibleCoaches.length === 0 ? (
+                        <p className="empty-state">No coaches found. Try a different search.</p>
+                    ) : (
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {visibleCoaches.map((coach, index) => (
+                                <CoachCard
+                                    key={coach._id}
+                                    coach={coach}
+                                    index={index}
+                                    canBook={user?.role === 'learner'}
+                                    onBook={handleBook}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </div>
+
+            {/* ===================== RIGHT COLUMN ===================== */}
+            <div className="hidden xl:block">
+                <SideRail />
             </div>
         </div>
     );
