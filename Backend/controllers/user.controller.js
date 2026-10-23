@@ -2,6 +2,7 @@ const User = require('../models/user.model');
 const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
 const Endorsement = require('../models/endorsement.model.js');
+const Post = require('../models/post.model.js');
 
 const getCoaches = async (req, res) => {
   try {
@@ -132,6 +133,7 @@ const deleteAccount = async (req, res) => {
     }
 
     await User.findByIdAndDelete(req.user._id);
+    await Post.deleteMany({ author: req.user._id });
 
     res.json({ message: 'Account deleted successfully' });
   } catch (error) {
@@ -158,6 +160,7 @@ const adminDeleteUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     await User.findByIdAndDelete(req.params.id);
+    await Post.deleteMany({ author: req.params.id });
     res.json({ message: 'User deleted by admin' });
   } catch (error) {
     res.status(500).json({ message: error.message });

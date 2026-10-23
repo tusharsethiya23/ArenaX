@@ -52,6 +52,7 @@ app.use('/api/subscriptions', require('./routes/subscription.routes.js'));
 app.use('/api/spotlight', require('./routes/spotlight.routes.js'));
 app.use('/api/analytics', require('./routes/analytics.routes.js'));
 app.use('/api/tournaments', tournamentRoutes);
+app.use('/api/posts', require('./routes/post.routes.js'));
 
 app.get('/', (req, res) => {
   res.send('Sports Mentor Platform API is running 🎉');
