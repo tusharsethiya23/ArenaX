@@ -28,26 +28,39 @@ const Navbar = () => {
 
                 {/* ---------- CENTER: primary links (desktop) ---------- */}
                 {user && (
-                    <div className="hidden items-center gap-1 rounded-full bg-surface p-1.5 md:flex">
+                    <div className="hidden items-center gap-1 rounded-full bg-surface p-1 md:flex">
                         {NAV_LINKS.map(({ to, label, end, icon: Icon, accent }) => (
-                            <NavLink
-                                key={to}
-                                to={to}
-                                end={end}
-                                className={({ isActive }) =>
-                                    accent
-                                        // "Post" in the middle: a lime pill with a + icon
-                                        ? `mx-1 flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-semibold transition-colors ${
-                                            isActive ? 'bg-ink text-lime' : 'bg-lime text-ink hover:brightness-95'
+                            accent ? (
+                                // "Post" in the middle: round icon-only button that grows and glows on hover
+                                <NavLink
+                                    key={to}
+                                    to={to}
+                                    aria-label="New post"
+                                    title="New post"
+                                    className={({ isActive }) =>
+                                        `mx-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
+                                            isActive
+                                                ? 'bg-ink text-lime'
+                                                : 'bg-lime text-ink shadow-[0_4px_14px_rgba(212,242,59,0.55)] hover:shadow-[0_6px_22px_rgba(212,242,59,0.9)]'
                                         }`
-                                        : `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
+                                    }
+                                >
+                                    <Icon size={22} strokeWidth={2.75} />
+                                </NavLink>
+                            ) : (
+                                <NavLink
+                                    key={to}
+                                    to={to}
+                                    end={end}
+                                    className={({ isActive }) =>
+                                        `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
                                             isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'
                                         }`
-                                }
-                            >
-                                {accent && <Icon size={17} strokeWidth={2.5} />}
-                                {label}
-                            </NavLink>
+                                    }
+                                >
+                                    {label}
+                                </NavLink>
+                            )
                         ))}
                     </div>
                 )}

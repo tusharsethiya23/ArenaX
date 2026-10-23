@@ -12,14 +12,14 @@ const MobileTabBar = () => (
         <div className="grid h-16 grid-cols-5">
             {NAV_LINKS.map(({ to, label, icon: Icon, end, accent }) =>
                 accent ? (
-                    <NavLink key={to} to={to} aria-label="New post" className="flex items-start justify-center">
+                    <NavLink key={to} to={to} aria-label="New post" className="group flex items-start justify-center">
                         {({ isActive }) => (
                             <span
-                                className={`-mt-5 flex h-14 w-14 items-center justify-center rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.18)] ring-4 ring-canvas transition-colors ${
-                                    isActive ? 'bg-ink text-lime' : 'bg-lime text-ink'
+                                className={`-mt-5 flex h-14 w-14 items-center justify-center rounded-full ring-4 ring-surface transition-all duration-200 group-active:scale-90 ${
+                                    isActive ? 'bg-ink text-lime' : 'bg-lime text-ink shadow-[0_6px_18px_rgba(212,242,59,0.6)]'
                                 }`}
                             >
-                                <Icon size={26} strokeWidth={2.5} />
+                                <Icon size={26} strokeWidth={2.75} />
                             </span>
                         )}
                     </NavLink>
