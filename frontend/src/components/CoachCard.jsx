@@ -1,10 +1,10 @@
 // CoachCard.jsx
 // Coach card on Discover: avatar, name + verified badge, sport and rating,
-// detail chips, the next open slot, price, and Profile / Book actions.
-// The heart follows/unfollows the coach.
+// detail chips, the next open slot, and a Book button. The avatar and name
+// open the coach's profile; the Follow button follows/unfollows them.
 
 import { Link } from 'react-router-dom';
-import { Heart, Clock, Star } from 'lucide-react';
+import { Clock, Star, Check } from 'lucide-react';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import { nextOpenSlot } from '../utils/slots';
@@ -19,15 +19,18 @@ const capitalize = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
 const CoachCard = ({ coach, isFollowing, canFollow, onToggleFollow, canBook, onBook }) => {
     const next = nextOpenSlot(coach.availability, coach.takenSlots);
     const hasSlots = coach.availability?.length > 0;
+    const profileUrl = `/profile-view/${coach._id}`;
 
     return (
         <article className="flex flex-col rounded-[28px] bg-surface p-5">
-            {/* ---------- Header ---------- */}
+            {/* ---------- Header: avatar + name link to the profile ---------- */}
             <div className="flex items-start gap-3">
-                <Avatar name={coach.name} photo={coach.profilePhoto} pastel className="h-14 w-14 text-lg" />
+                <Link to={profileUrl} aria-label={`${coach.name}'s profile`} className="shrink-0 rounded-full transition-opacity hover:opacity-85">
+                    <Avatar name={coach.name} photo={coach.profilePhoto} pastel className="h-14 w-14 text-lg" />
+                </Link>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                        <Link to={`/profile-view/${coach._id}`} className="truncate text-lg font-bold tracking-tight hover:underline">
+                        <Link to={profileUrl} className="truncate text-lg font-bold tracking-tight hover:underline">
                             {coach.name}
                         </Link>
                         {coach.verified && <VerifiedBadge />}
@@ -48,12 +51,9 @@ const CoachCard = ({ coach, isFollowing, canFollow, onToggleFollow, canBook, onB
                     <button
                         onClick={() => onToggleFollow(coach._id)}
                         aria-label={isFollowing ? `Unfollow ${coach.name}` : `Follow ${coach.name}`}
-                        title={isFollowing ? 'Following' : 'Follow'}
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
-                            isFollowing ? 'bg-lime' : 'bg-canvas hover:bg-[#E2E2E2]'
-                        }`}
+                        className={`btn shrink-0 px-4 py-2 ${isFollowing ? 'btn-soft' : 'btn-dark'}`}
                     >
-                        <Heart size={16} className={isFollowing ? 'fill-ink' : ''} />
+                        {isFollowing ? <><Check size={15} /> Following</> : 'Follow'}
                     </button>
                 )}
             </div>
@@ -77,20 +77,15 @@ const CoachCard = ({ coach, isFollowing, canFollow, onToggleFollow, canBook, onB
                 )}
             </div>
 
-            {/* ---------- Price + actions ---------- */}
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
-                <p className="whitespace-nowrap text-xl font-extrabold tracking-tight">
-                    {coach.pricePerSession
-                        ? <>₹{coach.pricePerSession}<span className="text-sm font-normal text-muted"> /session</span></>
-                        : <span className="text-sm font-normal text-muted">Price on request</span>}
-                </p>
-                <div className="flex shrink-0 items-center gap-1">
-                    <Link to={`/profile-view/${coach._id}`} className="btn px-3 text-ink hover:bg-canvas">Profile</Link>
-                    {canBook && next && (
-                        <button onClick={() => onBook(coach, next)} className="btn btn-dark">Book</button>
-                    )}
+            {/* ---------- Book (learners, when a slot is open) ---------- */}
+            {/* mt-auto keeps Book at the bottom so buttons line up across a row */}
+            {canBook && next && (
+                <div className="mt-auto pt-4">
+                    <button onClick={() => onBook(coach, next)} className="btn btn-dark w-full py-3">
+                        Book
+                    </button>
                 </div>
-            </div>
+            )}
         </article>
     );
 };
