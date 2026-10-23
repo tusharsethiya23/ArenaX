@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import MobileTabBar from './components/MobileTabBar';
+import AiAssistantButton from './components/AiAssistantButton';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,7 +11,6 @@ import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Marketplace from './pages/MarketPlace';
 import UserProfileView from './pages/UserProfileView';
-import Analytics from './pages/Analytics';
 import Subscription from './pages/Subscription';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
@@ -18,14 +20,24 @@ import BrandLogin from './pages/BrandLogin';
 import BrandDashboard from './pages/BrandDashboard';
 import MyDeals from './pages/MyDeals';
 import AiAssistant from './pages/AiAssistant';
+import Feed from './pages/Feed';
 
 function App() {
   const { user } = useAuth();
   return (
     <>
       <Navbar />
+      {/* On mobile, leave room at the bottom for the fixed tab bar */}
+      <main className={user ? 'pb-16 md:pb-0' : ''}>
       <Routes>
-        <Route path="/" element={<Navigate to="/discover" />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Feed />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
@@ -76,17 +88,17 @@ function App() {
           }
         />
 
-        {user?.role === 'coach' && (
-          <Route
-            path="/analytics"
-            element={
-              <ProtectedRoute>
-                <Analytics />
-              </ProtectedRoute>
+        {/* Old Analytics page now lives in the Profile page's Stats tab */}
+        <Route path="/analytics" element={<Navigate to="/profile?tab=stats" replace />} />
 
-            }
-          />
-        )}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
 
         {user?.role === 'admin' && (
           <Route
@@ -148,8 +160,15 @@ function App() {
         />
 
       </Routes>
+      </main>
 
-
+      {/* Logged-in extras: bottom tabs (mobile) and the floating AI coach (every page) */}
+      {user && (
+        <>
+          <MobileTabBar />
+          <AiAssistantButton />
+        </>
+      )}
     </>
   );
 }

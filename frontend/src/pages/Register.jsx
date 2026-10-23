@@ -24,7 +24,7 @@ const Register = () => {
         try {
             const res = await API.post('/auth/register', formData);
             login(res.data);
-            navigate('/discover');
+            navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
         }

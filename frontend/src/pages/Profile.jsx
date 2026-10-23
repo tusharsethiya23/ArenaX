@@ -1,24 +1,28 @@
+// Profile.jsx
+// The logged-in user's own profile (route: /profile).
+// Tabs (driven by ?tab= so the avatar menu can link straight to one):
+//   - Profile: photo upload + current details
+//   - Stats (coaches only, /profile?tab=stats): performance stats, replaces /analytics
+// Editing details and deleting the account live on /settings.
+
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-
-import { useNavigate } from 'react-router-dom';
+import StatsPanel from '../components/StatsPanel';
 
 const Profile = () => {
-    const { user, login, logout } = useAuth();
+    const { user, login } = useAuth();
     const [photoFile, setPhotoFile] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-
-    const [formData, setFormData] = useState({
-        bio: user.bio || '',
-        location: user.location || '',
-        sport: user.sport || '',
-        pricePerSession: user.pricePerSession || '',
-    });
-    const [message, setMessage] = useState('');
+    const tabs = [
+        { id: 'profile', label: 'Profile' },
+        user.role === 'coach' && { id: 'stats', label: 'Stats' },
+    ].filter(Boolean);
+    // Unknown or not-allowed ?tab values fall back to the profile tab
+    const activeTab = tabs.some((t) => t.id === searchParams.get('tab')) ? searchParams.get('tab') : 'profile';
 
     const handlePhotoUpload = async (e) => {
         e.preventDefault();
@@ -38,37 +42,6 @@ const Profile = () => {
             alert(err.response?.data?.message || 'Upload failed');
         }
         setUploading(false);
-    };
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await API.put('/users/profile', formData);
-            login({ ...user, ...res.data, token: localStorage.getItem('token') });
-            setMessage('Profile updated!');
-        } catch (err) {
-            setMessage(err.response?.data?.message || 'Something went wrong');
-        }
-    };
-
-    // Handles permanent account deletion after user confirmation
-    const handleDeleteAccount = async () => {
-        const confirmed = window.confirm(
-            'Are you sure you want to delete your account? This cannot be undone.'
-        );
-        if (!confirmed) return;
-
-        try {
-            await API.delete('/users/profile');
-            logout(); // clear local auth state
-            navigate('/register'); // send them back to the landing/register page
-        } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
-        }
     };
 
     return (
@@ -102,276 +75,186 @@ const Profile = () => {
 
                 </div>
 
-                {/* 🆕 Profile photo section */}
-                <div className="relative mb-5 flex flex-col gap-4 overflow-hidden rounded-xl border border-white/10 bg-[#071426] p-4 shadow-[0_10px_35px_rgba(0,0,0,0.3)] sm:mb-6 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
-
-                    {/* Red accent */}
-                    <div className="absolute left-0 top-0 h-full w-1 bg-[#E21B23]" />
-
-                    {/* Profile photo */}
-                    <img
-                        src={
-                            user.profilePhoto ||
-                            "https://via.placeholder.com/80x80?text=No+Photo"
-                        }
-                        alt="Profile"
-                        className="h-20 w-20 shrink-0 rounded-xl border border-white/10 object-cover"
-                    />
-
-                    <div className="min-w-0 flex-1">
-
-                        {/* Label */}
-                        <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
-                            Profile Photo
-                        </p>
-
-                        {/* File input */}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhotoFile(e.target.files[0])}
-                            className="mb-3 block w-full min-w-0 text-[10px] text-white/50 file:mr-2 file:border-0 file:bg-[#05070D] file:px-3 file:py-2 file:text-[9px] file:font-bold file:uppercase file:tracking-[0.1em] file:text-white/70 file:transition-colors hover:file:bg-[#E21B23] hover:file:text-white sm:text-xs sm:file:mr-3 sm:file:text-[10px] sm:file:tracking-[0.12em]"
-                        />
-
-                        {/* Upload button */}
-                        <button
-                            onClick={handlePhotoUpload}
-                            disabled={!photoFile || uploading}
-                            className="w-full rounded-lg border border-[#E21B23] bg-[#E21B23] px-4 py-2 text-[9px] font-black uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_20px_rgba(226,27,35,0.25)] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-[10px] sm:tracking-[0.15em]"
-                        >
-                            {uploading ? "Uploading..." : "Upload Photo"}
-                        </button>
-
-                    </div>
-
-                </div>
-
-                {/* Current profile summary */}
-                <div className="mb-6 rounded-xl border border-white/10 bg-[#071426]/70 p-4 backdrop-blur-md sm:mb-8 sm:p-6">
-
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 sm:mb-5">
-
-                        <h3 className="text-base font-black uppercase tracking-wide text-white sm:text-lg">
-                            Current Details
-                        </h3>
-
-                        <span className="shrink-0 border border-red-500/40 px-3 py-1 text-[8px] font-bold uppercase tracking-[0.15em] text-[#FF2A2A] sm:text-[9px] sm:tracking-[0.2em]">
-                            {user.role}
-                        </span>
-
-                    </div>
-
-                    <div className="space-y-3 text-xs leading-5 sm:text-sm">
-
-                        <p className="break-words">
-                            <span className="text-[#8B95A5]">Name: </span>
-                            <span className="text-white">{user.name}</span>
-                        </p>
-
-                        <p className="break-words">
-                            <span className="text-[#8B95A5]">Email: </span>
-                            <span className="text-white">{user.email}</span>
-                        </p>
-
-                        <p className="break-words">
-                            <span className="text-[#8B95A5]">Bio: </span>
-                            <span className="text-white">{user.bio || "—"}</span>
-                        </p>
-
-                        <p className="break-words">
-                            <span className="text-[#8B95A5]">Location: </span>
-                            <span className="text-white">{user.location || "—"}</span>
-                        </p>
-
-                        {user.role === "coach" && (
-                            <>
-                                <p className="break-words">
-                                    <span className="text-[#8B95A5]">Sport: </span>
-                                    <span className="text-white">
-                                        {user.sport || "—"}
-                                    </span>
-                                </p>
-
-                                <p className="break-words">
-                                    <span className="text-[#8B95A5]">Price/session: </span>
-                                    <span className="text-white">
-                                        {user.pricePerSession
-                                            ? `₹${user.pricePerSession}`
-                                            : "—"}
-                                    </span>
-                                </p>
-
-                                <p className="break-words">
-                                    <span className="text-[#8B95A5]">Skill level taught: </span>
-                                    <span className="text-white">
-                                        {user.skillLevelTaught || "—"}
-                                    </span>
-                                </p>
-                            </>
-                        )}
-
-                        {user.role === "learner" && (
-                            <>
-
-                                <div>
-                                    <label className="block text-xs font-semibold text-stone mb-1">Preferred Sport</label>
-                                    <input
-                                        type="text"
-                                        name="sport"
-                                        value={formData.sport}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Cricket"
-                                        className="w-full border border-ink/15 bg-white px-3 py-2.5 focus:outline-none focus:border-signal"
-                                    />
-                                </div>
-
-                                <p className="break-words">
-                                    <span className="text-[#8B95A5]">Goals: </span>
-                                    <span className="text-white">
-                                        {user.goals || "—"}
-                                    </span>
-                                </p>
-
-                                <p className="break-words">
-                                    <span className="text-[#8B95A5]">Skill level: </span>
-                                    <span className="text-white">
-                                        {user.skillLevel || "—"}
-                                    </span>
-                                </p>
-                            </>
-                        )}
-
-                    </div>
-
-                    {/* Public profile */}
-                    <Link
-                        to={`/profile-view/${user._id}`}
-                        className="mt-5 inline-block text-[10px] font-bold uppercase tracking-[0.1em] text-[#FF2A2A] transition-colors hover:text-white sm:mt-6 sm:text-xs sm:tracking-[0.12em]"
-                    >
-                        View my public profile
-                        <span className="ml-2">→</span>
-                    </Link>
-
-                </div>
-
-                {/* Message */}
-                {message && (
-                    <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs leading-5 text-red-400 sm:mb-6 sm:px-5 sm:text-sm">
-                        {message}
+                {/* Tabs (only shown when there's more than one) */}
+                {tabs.length > 1 && (
+                    <div className="mb-6 flex gap-6 border-b border-white/10 sm:mb-8">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setSearchParams(tab.id === 'profile' ? {} : { tab: tab.id })}
+                                className={`relative pb-3 text-sm uppercase tracking-wider transition-colors ${
+                                    activeTab === tab.id ? 'text-white' : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {tab.label}
+                                {activeTab === tab.id && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-[#E11D1D]" />}
+                            </button>
+                        ))}
                     </div>
                 )}
 
-                {/* Edit heading */}
-                <div className="mb-4 flex items-center gap-2 sm:gap-3">
+                {activeTab === 'stats' ? (
+                    <StatsPanel />
+                ) : (
+                    <>
+                        {/* Profile photo section */}
+                        <div className="relative mb-5 flex flex-col gap-4 overflow-hidden rounded-xl border border-white/10 bg-[#071426] p-4 shadow-[0_10px_35px_rgba(0,0,0,0.3)] sm:mb-6 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
 
-                    <div className="h-px flex-1 bg-white/10" />
+                            {/* Red accent */}
+                            <div className="absolute left-0 top-0 h-full w-1 bg-[#E21B23]" />
 
-                    <h3 className="shrink-0 text-[10px] font-black uppercase tracking-[0.15em] text-white sm:text-sm sm:tracking-[0.2em]">
-                        Edit Details
-                    </h3>
-
-                    <div className="h-px flex-1 bg-white/10" />
-
-                </div>
-
-                {/* Edit form */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="rounded-xl border border-white/10 bg-[#071426]/70 p-4 backdrop-blur-md sm:p-6"
-                >
-
-                    <div className="space-y-4 sm:space-y-5">
-
-                        {/* Bio */}
-                        <div>
-                            <label className="mb-2 block text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
-                                Bio
-                            </label>
-
-                            <textarea
-                                name="bio"
-                                value={formData.bio}
-                                onChange={handleChange}
-                                rows={3}
-                                className="w-full resize-none rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs leading-5 text-white outline-none transition-all duration-300 placeholder:text-white/20 focus:border-[#E21B23] focus:shadow-[0_0_20px_rgba(226,27,35,0.1)] sm:px-4 sm:text-sm sm:leading-6"
+                            {/* Profile photo */}
+                            <img
+                                src={
+                                    user.profilePhoto ||
+                                    "https://via.placeholder.com/80x80?text=No+Photo"
+                                }
+                                alt="Profile"
+                                className="h-20 w-20 shrink-0 rounded-xl border border-white/10 object-cover"
                             />
+
+                            <div className="min-w-0 flex-1">
+
+                                {/* Label */}
+                                <p className="mb-2 text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
+                                    Profile Photo
+                                </p>
+
+                                {/* File input */}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setPhotoFile(e.target.files[0])}
+                                    className="mb-3 block w-full min-w-0 text-[10px] text-white/50 file:mr-2 file:border-0 file:bg-[#05070D] file:px-3 file:py-2 file:text-[9px] file:font-bold file:uppercase file:tracking-[0.1em] file:text-white/70 file:transition-colors hover:file:bg-[#E21B23] hover:file:text-white sm:text-xs sm:file:mr-3 sm:file:text-[10px] sm:file:tracking-[0.12em]"
+                                />
+
+                                {/* Upload button */}
+                                <button
+                                    onClick={handlePhotoUpload}
+                                    disabled={!photoFile || uploading}
+                                    className="w-full rounded-lg border border-[#E21B23] bg-[#E21B23] px-4 py-2 text-[9px] font-black uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_20px_rgba(226,27,35,0.25)] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-[10px] sm:tracking-[0.15em]"
+                                >
+                                    {uploading ? "Uploading..." : "Upload Photo"}
+                                </button>
+
+                            </div>
+
                         </div>
 
-                        {/* Location */}
-                        <div>
-                            <label className="mb-2 block text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
-                                Location
-                            </label>
+                        {/* Current profile summary */}
+                        <div className="mb-6 rounded-xl border border-white/10 bg-[#071426]/70 p-4 backdrop-blur-md sm:mb-8 sm:p-6">
 
-                            <input
-                                type="text"
-                                name="location"
-                                value={formData.location}
-                                onChange={handleChange}
-                                className="w-full min-w-0 rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs text-white outline-none transition-all duration-300 focus:border-[#E21B23] focus:shadow-[0_0_20px_rgba(226,27,35,0.1)] sm:px-4 sm:text-sm"
-                            />
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 sm:mb-5">
+
+                                <h3 className="text-base font-black uppercase tracking-wide text-white sm:text-lg">
+                                    Current Details
+                                </h3>
+
+                                <span className="shrink-0 border border-red-500/40 px-3 py-1 text-[8px] font-bold uppercase tracking-[0.15em] text-[#FF2A2A] sm:text-[9px] sm:tracking-[0.2em]">
+                                    {user.role}
+                                </span>
+
+                            </div>
+
+                            <div className="space-y-3 text-xs leading-5 sm:text-sm">
+
+                                <p className="break-words">
+                                    <span className="text-[#8B95A5]">Name: </span>
+                                    <span className="text-white">{user.name}</span>
+                                </p>
+
+                                <p className="break-words">
+                                    <span className="text-[#8B95A5]">Email: </span>
+                                    <span className="text-white">{user.email}</span>
+                                </p>
+
+                                <p className="break-words">
+                                    <span className="text-[#8B95A5]">Bio: </span>
+                                    <span className="text-white">{user.bio || "—"}</span>
+                                </p>
+
+                                <p className="break-words">
+                                    <span className="text-[#8B95A5]">Location: </span>
+                                    <span className="text-white">{user.location || "—"}</span>
+                                </p>
+
+                                {user.role === "coach" && (
+                                    <>
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Sport: </span>
+                                            <span className="text-white">
+                                                {user.sport || "—"}
+                                            </span>
+                                        </p>
+
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Price/session: </span>
+                                            <span className="text-white">
+                                                {user.pricePerSession
+                                                    ? `₹${user.pricePerSession}`
+                                                    : "—"}
+                                            </span>
+                                        </p>
+
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Skill level taught: </span>
+                                            <span className="text-white">
+                                                {user.skillLevelTaught || "—"}
+                                            </span>
+                                        </p>
+                                    </>
+                                )}
+
+                                {user.role === "learner" && (
+                                    <>
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Preferred sport: </span>
+                                            <span className="text-white">
+                                                {user.sport || "—"}
+                                            </span>
+                                        </p>
+
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Goals: </span>
+                                            <span className="text-white">
+                                                {user.goals || "—"}
+                                            </span>
+                                        </p>
+
+                                        <p className="break-words">
+                                            <span className="text-[#8B95A5]">Skill level: </span>
+                                            <span className="text-white">
+                                                {user.skillLevel || "—"}
+                                            </span>
+                                        </p>
+                                    </>
+                                )}
+
+                            </div>
+
+                            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 sm:mt-6">
+                                {/* Public profile */}
+                                <Link
+                                    to={`/profile-view/${user._id}`}
+                                    className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#FF2A2A] transition-colors hover:text-white sm:text-xs sm:tracking-[0.12em]"
+                                >
+                                    View my public profile
+                                    <span className="ml-2">→</span>
+                                </Link>
+
+                                {/* Editing moved to Settings */}
+                                <Link
+                                    to="/settings"
+                                    className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/60 transition-colors hover:text-white sm:text-xs sm:tracking-[0.12em]"
+                                >
+                                    Edit details
+                                    <span className="ml-2">→</span>
+                                </Link>
+                            </div>
+
                         </div>
-
-                        {/* Coach fields */}
-                        {user.role === "coach" && (
-                            <>
-                                {/* Sport */}
-                                <div>
-                                    <label className="mb-2 block text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
-                                        Sport
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="sport"
-                                        value={formData.sport}
-                                        onChange={handleChange}
-                                        className="w-full min-w-0 rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs text-white outline-none transition-all duration-300 focus:border-[#E21B23] focus:shadow-[0_0_20px_rgba(226,27,35,0.1)] sm:px-4 sm:text-sm"
-                                    />
-                                </div>
-
-                                {/* Price */}
-                                <div>
-                                    <label className="mb-2 block text-[8px] font-bold uppercase tracking-[0.25em] text-[#8B95A5] sm:text-[9px] sm:tracking-[0.3em]">
-                                        Price Per Session (₹)
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="pricePerSession"
-                                        value={formData.pricePerSession}
-                                        onChange={handleChange}
-                                        className="w-full min-w-0 rounded-lg border border-white/10 bg-[#05070D] px-3 py-3 text-xs text-white outline-none transition-all duration-300 focus:border-[#E21B23] focus:shadow-[0_0_20px_rgba(226,27,35,0.1)] sm:px-4 sm:text-sm"
-                                    />
-                                </div>
-                            </>
-                        )}
-
-                        {/* Save button */}
-                        <button
-                            type="submit"
-                            className="mt-1 w-full rounded-lg bg-[#E21B23] py-3 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_30px_rgba(226,27,35,0.25)] active:scale-[0.98] sm:mt-2 sm:py-3.5 sm:text-xs sm:tracking-[0.2em]"
-                        >
-                            Save Changes
-                        </button>
-
-                        {/* Danger zone — account deletion */}
-                        <div className="mt-10 pt-6 border-t border-ink/10">
-                            <h3 className="font-display text-sm text-signal mb-2">DANGER ZONE</h3>
-                            <p className="text-sm text-stone mb-3">
-                                Deleting your account is permanent and cannot be undone.
-                            </p>
-                            <button
-                                onClick={handleDeleteAccount}
-                                className="border border-signal text-signal px-4 py-2 text-sm font-semibold hover:bg-signal hover:text-white transition-colors"
-                            >
-                                Delete my account
-                            </button>
-                        </div>
-
-                    </div>
-
-                </form>
+                    </>
+                )}
 
                 {/* Footer detail */}
                 <div className="mt-6 flex flex-col gap-2 border-t border-white/10 pt-4 text-[7px] uppercase tracking-[0.25em] text-white/20 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-[8px] sm:tracking-[0.3em]">

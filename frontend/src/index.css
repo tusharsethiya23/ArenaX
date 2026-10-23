@@ -12,3 +12,10 @@
 
   --radius-default: 2px;
 }
+
+/* The navbar is 85% opaque. Paint the 72px strip behind it dark so it reads as
+   #07090F at the top of every page, including the light-themed ones
+   (Login, Bookings...) that rely on the default white background. */
+body {
+  background: linear-gradient(#07090F, #07090F) top / 100% 72px no-repeat, #fff;
+}

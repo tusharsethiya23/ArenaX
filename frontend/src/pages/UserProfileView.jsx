@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import useSubscription from '../hooks/useSubscription';
 
 const UserProfileView = () => {
     const { userId } = useParams();
     const { user: currentUser } = useAuth();
+    const isPro = useSubscription();
 
     const [endorsements, setEndorsements] = useState([]);
     const [profileUser, setProfileUser] = useState(null);
@@ -71,7 +73,7 @@ const UserProfileView = () => {
                             className="h-[60px] w-[60px] shrink-0 rounded-xl border border-white/10 object-cover sm:h-[72px] sm:w-[72px]"
                         />
 
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <h1 className="break-words text-xl font-black uppercase tracking-tight text-white sm:text-2xl">
                                 {profileUser.name}
                             </h1>
@@ -80,6 +82,14 @@ const UserProfileView = () => {
                                 {profileUser.sport} · {profileUser.location}
                             </p>
                         </div>
+
+                        {/* Shortcut to the user's own plan page (subscriptions are per-user plans) */}
+                        <Link
+                            to="/subscription"
+                            className="shrink-0 whitespace-nowrap rounded-full bg-[#E11D1D] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#FF2A2A] sm:px-5 sm:text-xs"
+                        >
+                            {isPro ? 'Manage plan' : 'Subscribe'}
+                        </Link>
 
                     </div>
                 )}

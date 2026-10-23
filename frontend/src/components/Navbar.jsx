@@ -1,256 +1,83 @@
-import { Link, useNavigate } from 'react-router-dom';
+// Navbar.jsx
+// Sticky top bar, 72px tall, translucent with blur.
+//   LEFT:   ARENAX logo (red X)
+//   CENTER: 4 primary links (desktop only; mobile uses MobileTabBar instead)
+//   RIGHT:  notification bell + avatar menu (or Log in / Join when logged out)
+// Everything else (bookings, plan, settings, logout...) lives in UserMenu.
+
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import NAV_LINKS from './navLinks';
+import NotificationBell from './NotificationBell';
+import UserMenu from './UserMenu';
 
 const Navbar = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+    const { user } = useAuth();
 
     return (
-        <nav className="border-b border-white/10 bg-[#05070D]">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
+        <nav className="sticky top-0 z-40 h-[72px] border-b border-white/[0.08] bg-[#07090F]/85 backdrop-blur-md">
+            {/* 2 columns on mobile (logo | right), 3 on desktop so the links sit truly centered */}
+            <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-6 px-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
-                {/* Logo */}
+                {/* ---------- LEFT: logo ---------- */}
                 <Link
-                    to="/discover"
-                    className="shrink-0 text-lg font-black uppercase tracking-[0.15em] text-white transition-colors hover:text-[#FF2A2A] sm:text-xl sm:tracking-[0.2em]"
+                    to="/"
+                    className="justify-self-start whitespace-nowrap text-lg font-black tracking-[0.25em] text-white sm:text-xl"
                 >
-                    ARENAX
+                    ARENA<span className="text-[#E11D1D]">X</span>
                 </Link>
 
-                {user ? (
-                    <>
-                        {/* Desktop Menu */}
-                        <div className="hidden items-center gap-6 text-xs uppercase tracking-[0.15em] md:flex lg:gap-7">
-
-                            <Link
-                                to="/discover"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
+                {/* ---------- CENTER: primary links (desktop) ---------- */}
+                {user && (
+                    <div className="hidden h-full items-stretch gap-8 md:flex lg:gap-10">
+                        {NAV_LINKS.map(({ to, label, end }) => (
+                            <NavLink
+                                key={to}
+                                to={to}
+                                end={end}
+                                className={({ isActive }) =>
+                                    `relative flex items-center whitespace-nowrap text-sm uppercase tracking-wider transition-colors ${
+                                        isActive ? 'text-white' : 'text-gray-400 hover:text-white'
+                                    }`
+                                }
                             >
-                                Discover
-                            </Link>
-
-                            <Link
-                                to="/bookings"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
-                            >
-                                Bookings
-                            </Link>
-
-                            <Link
-                                to="/marketplace"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
-                            >
-                                Market Place
-                            </Link>
-
-                            <Link
-                                to="/subscription"
-                                className="text-white/50 transition-colors hover:text-signal"
-                            >
-                                Subscription
-                            </Link>
-
-                            <Link
-                                to="/tournaments"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]">
-                                Tournaments
-                            </Link>
-
-                            {user.role === "coach" && (
-                                <Link
-                                    to="/analytics"
-                                    className="text-white/50 transition-colors hover:text-signal"
-                                >
-                                    Analytics
-                                </Link>
-                            )}
-
-                            <Link
-                                to="/bookings"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                            >
-                                Bookings
-                            </Link>
-
-                            <Link
-                                to="/ai-assistant"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
-                            >
-                                AI Assistant
-                            </Link>
-
-                            {user.role === 'admin' && (
-                                <Link
-                                    to="/admin"
-                                    className="text-white/50 transition-colors hover:text-[#FF2A2A]"
-                                >
-                                    Admin
-                                </Link>
-                            )}
-                            <Link
-                                to="/profile"
-                                className="text-white/50 transition-colors hover:text-[#FF2A2A]"
-                            >
-                                Profile
-                            </Link>
-
-                            <span className="h-4 w-px bg-white/15" />
-
-                            <span className="max-w-[120px] truncate text-white/70 normal-case tracking-normal">
-                                {user.name}
-                            </span>
-
-                            <button
-                                onClick={handleLogout}
-                                className="shrink-0 border border-red-500/50 px-4 py-2 text-[10px] uppercase tracking-[0.15em] text-white transition-all duration-300 hover:border-[#FF2A2A] hover:bg-[#E21B23] active:scale-95"
-                            >
-                                Log out
-                            </button>
-
-                        </div>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="border border-white/15 px-3 py-2 text-xl text-white transition-colors hover:border-[#FF2A2A] hover:text-[#FF2A2A] md:hidden"
-                        >
-                            {isMenuOpen ? "✕" : "☰"}
-                        </button>
-
-                    </>
-                ) : (
-                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.12em] sm:gap-6 sm:text-xs sm:tracking-[0.15em]">
-
-                        <Link
-                            to="/login"
-                            className="text-white/50 transition-colors hover:text-white"
-                        >
-                            Log in
-                        </Link>
-
-                        <Link
-                            to="/register"
-                            className="bg-[#E21B23] px-4 py-2 font-bold text-white transition-all duration-300 hover:bg-[#FF2A2A] hover:shadow-[0_0_25px_rgba(226,27,35,0.35)] active:scale-95 sm:px-5 sm:py-2.5"
-                        >
-                            Join
-                        </Link>
-
+                                {({ isActive }) => (
+                                    <>
+                                        {label}
+                                        {/* Active indicator: 2px red bar on the navbar's bottom edge */}
+                                        {isActive && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-[#E11D1D]" />}
+                                    </>
+                                )}
+                            </NavLink>
+                        ))}
                     </div>
                 )}
 
-            </div>
-
-            {/* Mobile Dropdown */}
-            {user && isMenuOpen && (
-                <div className="border-t border-white/10 bg-[#071426] px-4 py-4 md:hidden">
-                    <div className="flex flex-col gap-4 text-xs uppercase tracking-[0.15em]">
-
-                        <Link
-                            to="/discover"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            Discover
-                        </Link>
-
-                        <Link
-                            to="/bookings"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            Bookings
-                        </Link>
-
-                        <Link
-                            to="/marketplace"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            Market Place
-                        </Link>
-
-                        <Link
-                            to="/subscription"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            Subscription
-                        </Link>
-
-                        <Link
-                            to="/tournaments"
-                            className="text-white/50 transition-colors hover:text-[#FF2A2A]">
-                            Tournaments
-                        </Link>
-
-                        <Link
-                            to="/ai-assistant"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            AI Assistant
-                        </Link>
-
-
-                        {user.role === "coach" && (
+                {/* ---------- RIGHT ---------- */}
+                <div className={`flex items-center gap-3 justify-self-end ${user ? '' : 'md:col-start-3'}`}>
+                    {user ? (
+                        <>
+                            <NotificationBell />
+                            <UserMenu />
+                        </>
+                    ) : (
+                        <>
                             <Link
-                                to="/analytics"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-white/60 transition-colors hover:text-[#FF2A2A]"
+                                to="/login"
+                                className="whitespace-nowrap text-xs uppercase tracking-wider text-gray-400 transition-colors hover:text-white"
                             >
-                                Analytics
+                                Log in
                             </Link>
-                        )}
-
-                        {user.role === 'coach' && (
-                            <Link to="/deals" className="text-white/50 transition-colors hover:text-[#FF2A2A]">
-                                Deals
-                            </Link>
-                        )}
-
-                        {user.role === 'admin' && (
                             <Link
-                                to="/admin"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-white/60 transition-colors hover:text-[#FF2A2A]"
+                                to="/register"
+                                className="whitespace-nowrap rounded-full bg-[#E11D1D] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#FF2A2A]"
                             >
-                                Admin
+                                Join
                             </Link>
-                        )}
-
-                        <Link
-                            to="/profile"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="text-white/60 transition-colors hover:text-[#FF2A2A]"
-                        >
-                            Profile
-                        </Link>
-
-                        <div className="border-t border-white/10 pt-4">
-                            <p className="mb-3 text-white/50 normal-case tracking-normal">
-                                {user.name}
-                            </p>
-
-                            <button
-                                onClick={handleLogout}
-                                className="w-full border border-red-500/50 px-4 py-2 text-left text-[10px] uppercase tracking-[0.15em] text-white transition-all duration-300 hover:border-[#FF2A2A] hover:bg-[#E21B23]"
-                            >
-                                Log out
-                            </button>
-                        </div>
-
-                    </div>
+                        </>
+                    )}
                 </div>
-            )}
+            </div>
         </nav>
     );
 };
