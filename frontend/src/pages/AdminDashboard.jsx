@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import Avatar from '../components/Avatar';
 import PageHeader from '../components/PageHeader';
+import VerificationQueue from '../components/portfolio/VerificationQueue';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -43,6 +44,8 @@ const AdminDashboard = () => {
   return (
     <div className="page max-w-5xl">
       <PageHeader title="Admin dashboard" subtitle={loading ? 'Loading users...' : `${users.length} total users`} />
+
+      <VerificationQueue title="Coach achievements to verify" />
 
       {!loading && (
         <div className="card p-2 sm:p-3">

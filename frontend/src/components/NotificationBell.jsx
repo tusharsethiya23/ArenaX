@@ -28,8 +28,29 @@ const readSeenAt = (key) => {
     }
 };
 
+// Portfolio verification: requests waiting for me (coaches / admins), and
+// reviews of my own achievements
+const buildVerificationItems = (requests, reviewed, role) => [
+    ...requests.map((a) => ({
+        id: `verify-${a._id}`,
+        to: role === 'admin' ? '/admin' : '/my-athletes',
+        text: `${a.owner?.name || 'Someone'} asked you to verify an achievement`,
+        detail: a.title,
+        time: new Date(a.requestedAt).getTime(),
+    })),
+    ...reviewed.map((a) => ({
+        id: `reviewed-${a._id}`,
+        to: '/profile?tab=portfolio',
+        text: a.status === 'verified'
+            ? `${a.verifiedBy?.name || 'ArenaX team'} verified your achievement`
+            : 'An achievement verification was declined',
+        detail: a.title,
+        time: new Date(a.reviewedAt).getTime(),
+    })),
+];
+
 // Turn bookings and new followers into notification items, newest first
-const buildNotifications = (bookings, followers, role) => {
+const buildNotifications = (bookings, followers, role, verificationItems = []) => {
     const bookingItems = role === 'coach'
         ? bookings
             .filter((b) => b.status === 'pending')
@@ -56,7 +77,7 @@ const buildNotifications = (bookings, followers, role) => {
         detail: [f.user.role, f.user.sport].filter(Boolean).join(' · '),
         time: new Date(f.followedAt).getTime(),
     }));
-    return [...bookingItems, ...followerItems].sort((a, b) => b.time - a.time).slice(0, 8);
+    return [...bookingItems, ...followerItems, ...verificationItems].sort((a, b) => b.time - a.time).slice(0, 8);
 };
 
 const NotificationBell = () => {
@@ -84,10 +105,28 @@ const NotificationBell = () => {
         return () => { cancelled = true; };
     }, [user._id]);
 
+    // Achievement verification requests (coaches / admins) and reviews of mine
+    const [verifyRequests, setVerifyRequests] = useState([]);
+    const [reviewed, setReviewed] = useState([]);
+    useEffect(() => {
+        let cancelled = false;
+        if (user.role === 'coach' || user.role === 'admin') {
+            API.get('/achievements/requests/pending')
+                .then((res) => !cancelled && setVerifyRequests(res.data))
+                .catch(() => {});
+        }
+        if (user.role !== 'admin') {
+            API.get(`/achievements/${user._id}`)
+                .then((res) => !cancelled && setReviewed(res.data.filter((a) => a.reviewedAt && a.status !== 'pending')))
+                .catch(() => {});
+        }
+        return () => { cancelled = true; };
+    }, [user._id, user.role]);
+
     // Follow requests waiting for me (private accounts), shown first with Accept / Decline
     const { requests, busyId, accept, decline, reload: reloadRequests } = useFollowRequests();
 
-    const notifications = buildNotifications(bookings, followers, user.role);
+    const notifications = buildNotifications(bookings, followers, user.role, buildVerificationItems(verifyRequests, reviewed, user.role));
     const hasUnread = notifications.some((n) => n.time > seenAt)
         || requests.some((r) => new Date(r.requestedAt).getTime() > seenAt);
 

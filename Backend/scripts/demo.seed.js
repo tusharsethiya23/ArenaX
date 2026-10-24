@@ -364,11 +364,42 @@ const REVIEWS = [
     console.log(`Athlete DNA: ${assessments.filter((a) => a.source === 'self').length} self + ${assessments.filter((a) => a.source === 'coach').length} coach assessments, ${activityLogs.length} logged activities`);
 
     // ---------- Achievements, endorsements, profile views ----------
+    // Coaches: verified by the ArenaX team (verifiedBy null) for five of them,
+    // plus a certification for others still waiting in the admin queue
     const verifiedCoaches = coaches.filter((c) => ['Vikram Singh', 'Priya Nair', 'Meera Iyer', 'Farhan Ali', 'Rahul Sharma'].includes(c.name));
-    await Achievement.insertMany([
-      ...verifiedCoaches.map((c) => ({ user: c._id, title: `${c.sport} state champion`, description: `Won the state ${c.sport.toLowerCase()} championship.`, date: daysAgo(400, 2000), verified: true })),
-      ...sample(athletes, 4).map((a) => ({ user: a._id, title: 'District meet medal', description: 'Podium finish at the district meet.', date: daysAgo(30, 300), verified: false })),
-    ]);
+    const reviewedAt = daysAgo(20, 60);
+    const achievementDocs = [
+      ...verifiedCoaches.map((c) => ({
+        user: c._id, title: `${c.sport} state champion`, category: 'competition', level: 'state',
+        description: `Won the state ${c.sport.toLowerCase()} championship.`, date: daysAgo(400, 2000),
+        proofLink: 'https://example.com/demo-proof', status: 'verified', verified: true, reviewedAt,
+      })),
+      ...sample(coaches.filter((c) => !verifiedCoaches.includes(c)), 3).map((c) => ({
+        user: c._id, title: `Level 2 ${c.sport} coaching certificate`, category: 'certification', level: 'national',
+        description: 'National federation coaching course.', date: daysAgo(200, 900), status: 'pending', verified: false, requestedFrom: null,
+      })),
+    ];
+    // Athletes: verified by a coach they trained with, pending with that coach, or not yet sent
+    const ATHLETE_WINS = [
+      ['District championship: gold', 'competition', 'district'], ['Selected for the state U-19 camp', 'selection', 'state'],
+      ['Inter-college tournament: runner-up', 'competition', 'club'], ['School sports day: best athlete', 'award', 'school'],
+      ['Club record: fastest 100 m', 'record', 'club'],
+    ];
+    for (const athlete of athletes) {
+      const theirCoaches = [...new Set(bookings
+        .filter((b) => b.learner === athlete._id && ['confirmed', 'completed'].includes(b.status))
+        .map((b) => b.coach))];
+      for (const [title, category, level] of sample(ATHLETE_WINS, int(1, 3))) {
+        const coach = theirCoaches.length ? pick(theirCoaches) : null;
+        const roll = rand();
+        const doc = { user: athlete._id, title, category, level, description: `${athlete.sport} · ${athlete.location}`, date: daysAgo(30, 700), status: 'unverified', verified: false };
+        if (coach && roll < 0.45) Object.assign(doc, { status: 'verified', verified: true, verifiedBy: coach, reviewedAt: daysAgo(2, 20), reviewNote: 'Confirmed, I was there.' });
+        else if (coach && roll < 0.85) Object.assign(doc, { status: 'pending', requestedFrom: coach });
+        achievementDocs.push(doc);
+      }
+    }
+    await Achievement.insertMany(achievementDocs);
+    console.log(`Achievements: ${achievementDocs.length} (${achievementDocs.filter((a) => a.status === 'verified').length} verified, ${achievementDocs.filter((a) => a.status === 'pending').length} waiting for review)`);
     const endorsements = [];
     for (let i = 0; i < 24; i++) {
       const coach = pick(coaches);

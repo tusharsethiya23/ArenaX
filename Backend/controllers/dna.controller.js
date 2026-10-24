@@ -14,13 +14,12 @@ const {
   DIMENSIONS, GOALS, ACTIVITY_BY_KEY, combineScores, overallOf, history, gapsFor,
   buildPlan, planProgress, readinessFor, cleanScores,
 } = require('../utils/dna.util');
+// A coach may assess / view an athlete they've had a confirmed or completed session with
+const { hasCoachingRelation } = require('../utils/coaching.util');
 
 const isId = (id) => mongoose.Types.ObjectId.isValid(id);
 const LOG_WINDOW_DAYS = 35; // enough for 4 full weeks of consistency + this week
 
-// A coach may assess / view an athlete they've had a confirmed or completed session with
-const hasCoachingRelation = (coachId, athleteId) =>
-  Booking.exists({ coach: coachId, learner: athleteId, status: { $in: ['confirmed', 'completed'] } });
 
 // Everything the dashboard shows for one athlete
 const buildDashboard = async (athlete, { withOpportunities = false } = {}) => {

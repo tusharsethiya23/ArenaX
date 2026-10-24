@@ -12,6 +12,7 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import StatsPanel from '../components/StatsPanel';
+import Portfolio from '../components/portfolio/Portfolio';
 import FollowCounts from '../components/FollowCounts';
 import useFollow from '../hooks/useFollow';
 
@@ -24,6 +25,7 @@ const Profile = () => {
 
     const tabs = [
         { id: 'profile', label: 'Profile' },
+        user.role !== 'admin' && { id: 'portfolio', label: 'Portfolio' },
         user.role === 'coach' && { id: 'stats', label: 'Stats' },
     ].filter(Boolean);
     // Unknown or not-allowed ?tab values fall back to the profile tab
@@ -109,6 +111,8 @@ const Profile = () => {
 
             {activeTab === 'stats' ? (
                 <StatsPanel />
+            ) : activeTab === 'portfolio' ? (
+                <Portfolio userId={user._id} isOwn role={user.role} />
             ) : (
                 <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
 

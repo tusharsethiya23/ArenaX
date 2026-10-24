@@ -9,6 +9,7 @@ import { ArrowUpRight } from 'lucide-react';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import Avatar from '../components/Avatar';
+import VerificationQueue from '../components/portfolio/VerificationQueue';
 
 const fmtDate = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 
@@ -25,6 +26,8 @@ const MyAthletes = () => {
     return (
         <div className="page max-w-4xl">
             <PageHeader title="My athletes" subtitle="Athletes you've coached. Assess their skills to update their DNA." />
+
+            <VerificationQueue />
 
             {error && <p className="empty-state">{error}</p>}
             {!error && !athletes && <p className="empty-state">Loading...</p>}

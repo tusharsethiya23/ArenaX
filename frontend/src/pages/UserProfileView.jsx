@@ -15,6 +15,7 @@ import Avatar from '../components/Avatar';
 import FollowButton from '../components/FollowButton';
 import FollowCounts from '../components/FollowCounts';
 import CoachProfileCard from '../components/CoachProfileCard';
+import Portfolio from '../components/portfolio/Portfolio';
 import useFollow from '../hooks/useFollow';
 
 const UserProfileView = () => {
@@ -130,6 +131,7 @@ const UserProfileView = () => {
                         <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
                         <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-4" />
                     </section>
+                    <Portfolio key={userId} userId={userId} isOwn={isOwnProfile} role={profileUser.role} />
                     {endorsementsSection}
                     {endorseForm}
                 </div>
@@ -162,6 +164,8 @@ const UserProfileView = () => {
                     </div>
                 )}
             </section>
+
+            {profileUser.role !== 'admin' && <Portfolio key={userId} userId={userId} isOwn={isOwnProfile} role={profileUser.role} />}
 
             <div className={`grid gap-6 ${!isOwnProfile ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
                 {endorsementsSection}
