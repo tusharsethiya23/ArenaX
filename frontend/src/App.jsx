@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Discover from './pages/Discover';
 import Profile from './pages/Profile';
-import Bookings from './pages/Bookings';
+import Calendar from './pages/Calendar';
 import Marketplace from './pages/MarketPlace';
 import UserProfileView from './pages/UserProfileView';
 import Subscription from './pages/Subscription';
@@ -90,13 +90,15 @@ function App() {
           }
         />
         <Route
-          path="/bookings"
+          path="/calendar"
           element={
             <ProtectedRoute>
-              <Bookings />
+              <Calendar />
             </ProtectedRoute>
           }
         />
+        {/* Old address of the Calendar page */}
+        <Route path="/bookings" element={<Navigate to="/calendar" replace />} />
         <Route
           path="/marketplace"
           element={

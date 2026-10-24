@@ -1,23 +1,22 @@
 // NextSessionCard.jsx
-// "Upcoming session" card on Discover: the user's next booking with a date
-// tile, status, and actions. Bookings store a weekday, so the date shown is
-// the next date that falls on that weekday.
+// "Upcoming session" card on Discover: the user's next session with a date
+// tile, status, and actions.
 
 import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
-import { nextDateFor } from '../utils/slots';
+import { fromISODate } from '../utils/slots';
+import { upcomingSessions } from '../utils/sessions';
 
 const NextSessionCard = ({ user, bookings }) => {
-    // Confirmed first, then ones still waiting for the coach
-    const booking = bookings.find((b) => b.status === 'confirmed') || bookings.find((b) => b.status === 'pending');
+    const booking = upcomingSessions(bookings)[0];
     const other = booking && (user.role === 'coach' ? booking.learner : booking.coach);
-    const date = booking && nextDateFor(booking.day);
+    const date = booking?.date && fromISODate(booking.date);
 
     return (
         <section className="card">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-bold tracking-tight">Upcoming session</h2>
-                <Link to="/bookings" className="text-sm text-muted hover:text-ink">See all</Link>
+                <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>
             </div>
 
             {!booking ? (
@@ -43,11 +42,11 @@ const NextSessionCard = ({ user, bookings }) => {
                     </div>
 
                     <div className="mt-5 grid grid-cols-2 gap-2">
-                        <Link to="/bookings" className="btn btn-soft">My bookings</Link>
+                        <Link to="/calendar" className="btn btn-soft">Calendar</Link>
                         {booking.status === 'confirmed' ? (
                             <Link to={`/chat/${booking._id}`} className="btn btn-dark"><MessageCircle size={16} /> Chat</Link>
                         ) : (
-                            <Link to="/bookings" className="btn btn-dark">View details</Link>
+                            <Link to="/calendar" className="btn btn-dark">View details</Link>
                         )}
                     </div>
                 </>

@@ -1,9 +1,22 @@
+const mongoose = require('mongoose');
 const Review = require('../models/review.model');
 const Booking = require('../models/booking.model');
 
 const createReview = async (req, res) => {
   try {
-    const { bookingId, rating, comment } = req.body;
+    const { bookingId } = req.body;
+    const rating = Number(req.body.rating);
+    const comment = typeof req.body.comment === 'string' ? req.body.comment.trim() : '';
+
+    if (!req.user || !mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be 1 to 5 stars' });
+    }
+    if (comment.length > 500) {
+      return res.status(400).json({ message: 'Keep the review under 500 characters' });
+    }
 
     const booking = await Booking.findById(bookingId);
 
@@ -19,6 +32,11 @@ const createReview = async (req, res) => {
     // Sirf completed booking pe review ho sake
     if (booking.status !== 'completed') {
       return res.status(400).json({ message: 'Can only review completed sessions' });
+    }
+
+    // Ek session ka ek hi review
+    if (await Review.exists({ booking: booking._id })) {
+      return res.status(409).json({ message: 'You have already reviewed this session' });
     }
 
     const review = await Review.create({

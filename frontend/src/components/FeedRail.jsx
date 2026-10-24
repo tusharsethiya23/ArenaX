@@ -4,7 +4,6 @@
 //   1. Session requests (coaches): pending bookings with Accept / Decline
 //   2. Upcoming: confirmed and pending sessions with date tiles
 //   3. Coaches to follow: most-followed coaches you don't follow yet
-// Bookings store a weekday, so dates shown are the next date on that weekday.
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -12,13 +11,9 @@ import API from '../api/axios';
 import { X } from 'lucide-react';
 import Avatar from './Avatar';
 import useFollowRequests from '../hooks/useFollowRequests';
-import { nextDateFor } from '../utils/slots';
+import { fromISODate } from '../utils/slots';
+import { fmtSession, upcomingSessions, hasStarted } from '../utils/sessions';
 import { compact } from '../utils/format';
-
-const fmtDay = (day) => {
-    const date = nextDateFor(day);
-    return date ? date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : day;
-};
 
 const STATUS_BADGE = {
     pending: 'bg-[#FBF0D2] text-[#8A5B00]',
@@ -26,7 +21,7 @@ const STATUS_BADGE = {
 };
 
 const SessionRequests = ({ bookings, onChanged }) => {
-    const pending = bookings.filter((b) => b.status === 'pending');
+    const pending = bookings.filter((b) => b.status === 'pending' && !hasStarted(b));
     const [busyId, setBusyId] = useState(null);
     if (pending.length === 0) return null;
 
@@ -47,7 +42,7 @@ const SessionRequests = ({ bookings, onChanged }) => {
                 <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
                     Session requests <span className="badge bg-lime px-2 py-0.5 text-ink">{pending.length}</span>
                 </h2>
-                <Link to="/bookings" className="text-sm text-muted hover:text-ink">See all</Link>
+                <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>
             </div>
             <ul className="space-y-5">
                 {pending.slice(0, 2).map((b) => (
@@ -56,7 +51,7 @@ const SessionRequests = ({ bookings, onChanged }) => {
                             <Avatar name={b.learner?.name} photo={b.learner?.profilePhoto} pastel className="h-12 w-12 text-sm" />
                             <div className="min-w-0">
                                 <p className="truncate font-semibold">{b.learner?.name || 'Learner'}</p>
-                                <p className="truncate text-sm text-muted">{fmtDay(b.day)} · {b.timeSlot}</p>
+                                <p className="truncate text-sm text-muted">{fmtSession(b)}</p>
                             </div>
                         </Link>
                         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -71,27 +66,24 @@ const SessionRequests = ({ bookings, onChanged }) => {
 };
 
 const Upcoming = ({ bookings, role }) => {
-    const items = [
-        ...bookings.filter((b) => b.status === 'confirmed'),
-        ...bookings.filter((b) => b.status === 'pending'),
-    ].slice(0, 3);
+    const items = upcomingSessions(bookings).slice(0, 3);
 
     return (
         <section className="card">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-bold tracking-tight">Upcoming</h2>
-                <Link to="/bookings" className="text-sm text-muted hover:text-ink">See all</Link>
+                <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>
             </div>
             {items.length === 0 ? (
-                <p className="text-sm text-muted">No sessions yet.</p>
+                <p className="text-sm text-muted">No upcoming sessions.</p>
             ) : (
                 <ul className="space-y-3">
                     {items.map((b, i) => {
                         const other = role === 'coach' ? b.learner : b.coach;
-                        const date = nextDateFor(b.day);
+                        const date = b.date && fromISODate(b.date);
                         return (
                             <li key={b._id}>
-                                <Link to="/bookings" className="flex items-center gap-3">
+                                <Link to="/calendar" className="flex items-center gap-3">
                                     <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-white' : 'bg-canvas'}`}>
                                         <span className="text-xl font-extrabold leading-none">{date ? date.getDate() : '—'}</span>
                                         <span className={`mt-0.5 text-[10px] font-bold uppercase ${i === 0 ? 'text-lime' : 'text-muted'}`}>{b.day?.slice(0, 3)}</span>

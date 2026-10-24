@@ -2,8 +2,9 @@
 // Bell button with a red dot for unread notifications.
 // There's no notification service on the backend, so notifications are built
 // from data the app already has:
-//   - coaches: pending booking requests they still need to answer
-//   - learners: bookings a coach has confirmed or declined
+//   - coaches: pending session requests they still need to answer
+//   - learners: sessions a coach has confirmed or declined, and finished ones to rate
+//   - both: a new time suggested by the other person, or a cancellation
 //   - everyone: new followers, and (private accounts) follow requests to
 //     accept or decline right in the dropdown
 // "Unread" = newer than the last time this user opened the bell. That time is
@@ -19,6 +20,7 @@ import useDismiss from '../hooks/useDismiss';
 import useFollowRequests from '../hooks/useFollowRequests';
 import Avatar from './Avatar';
 import { timeAgo } from '../utils/format';
+import { fmtSession, hasStarted } from '../utils/sessions';
 
 const readSeenAt = (key) => {
     try {
@@ -49,27 +51,30 @@ const buildVerificationItems = (requests, reviewed, role) => [
     })),
 ];
 
+// Session updates that need my attention or tell me what changed
+const bookingNotifications = (bookings, role, myId) => bookings.flatMap((b) => {
+    const isCoach = role === 'coach';
+    const other = (isCoach ? b.learner?.name : b.coach?.name) || (isCoach ? 'A learner' : 'Your coach');
+    const item = (suffix, text, at, detail = fmtSession(b)) => ({ id: `${b._id}-${suffix}`, to: '/calendar', text, detail, time: new Date(at).getTime() });
+    const items = [];
+
+    if (isCoach && b.status === 'pending' && !hasStarted(b)) items.push(item('req', `${other} requested a session`, b.createdAt));
+    if (!isCoach && (b.status === 'confirmed' || b.status === 'declined') && !b.reschedule) {
+        items.push(item(b.status, `${other} ${b.status} your session`, b.updatedAt));
+    }
+    if (!isCoach && b.status === 'completed' && !b.reviewed) items.push(item('rate', `How was your session with ${other}? Rate it`, b.completedAt || b.updatedAt));
+    if (b.reschedule && String(b.reschedule.by) !== String(myId)) {
+        items.push(item('move', `${other} suggested a new time`, b.reschedule.at, fmtSession(b.reschedule)));
+    }
+    if (b.status === 'cancelled' && b.cancelledBy && String(b.cancelledBy) !== String(myId)) {
+        items.push(item('cancel', `${other} cancelled your session`, b.updatedAt));
+    }
+    return items;
+});
+
 // Turn bookings and new followers into notification items, newest first
-const buildNotifications = (bookings, followers, role, verificationItems = []) => {
-    const bookingItems = role === 'coach'
-        ? bookings
-            .filter((b) => b.status === 'pending')
-            .map((b) => ({
-                id: b._id,
-                to: '/bookings',
-                text: `${b.learner?.name || 'A learner'} requested a session`,
-                detail: `${b.day} · ${b.timeSlot}`,
-                time: new Date(b.createdAt).getTime(),
-            }))
-        : bookings
-            .filter((b) => b.status === 'confirmed' || b.status === 'declined')
-            .map((b) => ({
-                id: b._id,
-                to: '/bookings',
-                text: `${b.coach?.name || 'Your coach'} ${b.status} your session`,
-                detail: `${b.day} · ${b.timeSlot}`,
-                time: new Date(b.updatedAt).getTime(),
-            }));
+const buildNotifications = (bookings, followers, role, myId, verificationItems = []) => {
+    const bookingItems = bookingNotifications(bookings, role, myId);
     const followerItems = followers.map((f) => ({
         id: `follow-${f.user._id}`,
         to: `/profile-view/${f.user._id}`,
@@ -126,7 +131,7 @@ const NotificationBell = () => {
     // Follow requests waiting for me (private accounts), shown first with Accept / Decline
     const { requests, busyId, accept, decline, reload: reloadRequests } = useFollowRequests();
 
-    const notifications = buildNotifications(bookings, followers, user.role, buildVerificationItems(verifyRequests, reviewed, user.role));
+    const notifications = buildNotifications(bookings, followers, user.role, user._id, buildVerificationItems(verifyRequests, reviewed, user.role));
     const hasUnread = notifications.some((n) => n.time > seenAt)
         || requests.some((r) => new Date(r.requestedAt).getTime() > seenAt);
 

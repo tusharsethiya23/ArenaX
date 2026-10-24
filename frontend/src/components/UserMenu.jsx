@@ -41,7 +41,7 @@ const UserMenu = () => {
     const items = [
         user.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
         user.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
-        { to: '/bookings', label: 'My bookings', icon: CalendarDays },
+        { to: '/calendar', label: 'Calendar', icon: CalendarDays },
         user.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },
         { to: '/subscription', label: 'Plan and billing', icon: CreditCard },

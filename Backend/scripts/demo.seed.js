@@ -21,6 +21,7 @@ const {
   Endorsement, ProfileView, Content, Tournament, Team, Assessment, ActivityLog,
 } = models;
 const { DIMENSION_KEYS, combineScores, gapsFor, buildPlan } = require('../utils/dna.util');
+const { dateInZone, addDays, weekdayOf, sessionTimes } = require('../utils/slots.util');
 
 const PASSWORD = 'demo1234';
 const DAY = 24 * 60 * 60 * 1000;
@@ -278,27 +279,74 @@ const REVIEWS = [
     }
     await SavedPost.insertMany(saves, { timestamps: false });
 
-    // ---------- Bookings (pending/confirmed hold their slot; completed get reviews) ----------
+    // ---------- Bookings on real dates ----------
+    // Past sessions are completed (most reviewed) or still waiting for the coach
+    // to mark them done; upcoming ones are confirmed or pending; a few were
+    // declined or cancelled, and some have a new time suggested.
     const bookings = [];
-    const held = new Set();
-    const statuses = [...Array(12).fill('completed'), ...Array(8).fill('confirmed'), ...Array(8).fill('pending'), ...Array(4).fill('declined')];
-    for (const status of statuses) {
-      for (let attempt = 0; attempt < 20; attempt++) {
-        const coach = pick(coaches);
-        const slot = pick(coach.availability);
-        const key = `${coach._id}|${slot.day}|${slot.timeSlot}`;
-        const holds = status === 'pending' || status === 'confirmed';
-        if (holds && held.has(key)) continue;
-        if (holds) held.add(key);
-        const learner = pick(athletes.filter((a) => a.sport === coach.sport).concat(athletes));
-        const createdAt = daysAgo(status === 'completed' ? 8 : 0.5, status === 'completed' ? 28 : 7);
-        bookings.push({ _id: idAt(createdAt), learner: learner._id, coach: coach._id, day: slot.day, timeSlot: slot.timeSlot, status, createdAt, updatedAt: createdAt });
-        break;
-      }
-    }
-    await Booking.insertMany(bookings, { timestamps: false });
+    const held = new Set(); // coach|date|slot held by pending/confirmed bookings or suggestions
+    const today = dateInZone(new Date(NOW));
+    const rahul = coaches.find((c) => c.name === 'Rahul Sharma');
+    const tushar = athletes.find((a) => a.name === 'Tushar Singh');
+    const plan = [
+      // Featured for the demo logins (rahul.sharma / tushar.singh)
+      { coach: rahul, learner: tushar, status: 'confirmed', range: [1, 6] },
+      { coach: rahul, learner: tushar, status: 'confirmed', range: [-6, -1] }, // waiting to be marked completed
+      { coach: rahul, learner: tushar, status: 'completed', range: [-20, -8], noReview: true },
+      { coach: rahul, status: 'pending', range: [2, 10] },
+      { coach: rahul, status: 'confirmed', range: [3, 12], suggestBy: 'learner' },
+      ...Array(11).fill({ status: 'completed', range: [-28, -3] }),
+      ...Array(3).fill({ status: 'confirmed', range: [-6, -1] }),
+      ...Array(7).fill({ status: 'confirmed', range: [0, 20] }),
+      ...Array(7).fill({ status: 'pending', range: [0, 14] }),
+      ...Array(2).fill({ status: 'confirmed', range: [2, 14], suggestBy: 'coach' }),
+      ...Array(4).fill({ status: 'declined', range: [1, 14] }),
+      ...Array(2).fill({ status: 'cancelled', range: [1, 14] }),
+    ];
 
-    const reviews = bookings.filter((b) => b.status === 'completed').map((b) => ({
+    // A free date + slot for this coach within `range` days of today (past or upcoming)
+    const findSlot = (coach, [from, to], upcoming) => {
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const date = addDays(today, int(from, to));
+        const slots = coach.availability.filter((s) => s.day === weekdayOf(date));
+        if (!slots.length) continue;
+        const { timeSlot } = pick(slots);
+        const times = sessionTimes(date, timeSlot);
+        if (upcoming ? times.startsAt <= new Date(NOW) : times.endsAt >= new Date(NOW)) continue;
+        if (held.has(`${coach._id}|${date}|${timeSlot}`)) continue;
+        return { date, day: weekdayOf(date), timeSlot, ...times };
+      }
+      return null;
+    };
+
+    for (const item of plan) {
+      const coach = item.coach || pick(coaches);
+      const upcoming = item.range[0] >= 0;
+      const slot = findSlot(coach, item.range, upcoming);
+      if (!slot) continue;
+      const holds = ['pending', 'confirmed'].includes(item.status);
+      if (holds) held.add(`${coach._id}|${slot.date}|${slot.timeSlot}`);
+
+      const learner = item.learner || pick(athletes.filter((a) => a.sport === coach.sport && a !== tushar).concat(athletes.filter((a) => a !== tushar)));
+      const createdAt = upcoming ? daysAgo(0.5, 7) : new Date(slot.startsAt.getTime() - int(2, 6) * DAY);
+      const booking = {
+        _id: idAt(createdAt), learner: learner._id, coach: coach._id, ...slot, status: item.status,
+        createdAt, updatedAt: createdAt, noReview: item.noReview,
+      };
+      if (item.status === 'completed') booking.completedAt = slot.endsAt;
+      if (item.status === 'cancelled') booking.cancelledBy = chance(0.5) ? learner._id : coach._id;
+      if (item.suggestBy) {
+        const next = findSlot(coach, [Math.max(1, item.range[0]), item.range[1] + 7], true);
+        if (next) {
+          held.add(`${coach._id}|${next.date}|${next.timeSlot}`);
+          booking.reschedule = { ...next, by: item.suggestBy === 'coach' ? coach._id : learner._id, at: daysAgo(0.1, 1) };
+        }
+      }
+      bookings.push(booking);
+    }
+    await Booking.insertMany(bookings.map(({ noReview, ...b }) => b), { timestamps: false });
+
+    const reviews = bookings.filter((b) => b.status === 'completed' && !b.noReview).map((b) => ({
       booking: b._id, learner: b.learner, coach: b.coach, rating: pick([5, 5, 5, 4, 4, 3]), comment: pick(REVIEWS),
     }));
     await Review.insertMany(reviews);
@@ -308,7 +356,8 @@ const REVIEWS = [
       { booking: b._id, sender: b.coach, receiver: b.learner, text: 'See you there. Bring water and come 10 minutes early to warm up.' },
     ]);
     await Message.insertMany(messages);
-    console.log(`Bookings: ${bookings.length} (${statuses.length} planned), ${reviews.length} reviews, ${messages.length} chat messages`);
+    const byStatus = Object.entries(bookings.reduce((m, b) => ({ ...m, [b.status]: (m[b.status] || 0) + 1 }), {})).map(([s, n]) => `${n} ${s}`).join(', ');
+    console.log(`Bookings: ${bookings.length} (${byStatus}; ${bookings.filter((b) => b.reschedule).length} with a new time suggested), ${reviews.length} reviews, ${messages.length} chat messages`);
 
     // ---------- Athlete DNA: goals, self + coach assessments, 4 weeks of activity ----------
     const GOAL_FOR_LEVEL = { beginner: ['recreational', 'club'], intermediate: ['district', 'state'], advanced: ['state', 'national'] };

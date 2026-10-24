@@ -2,8 +2,8 @@
 // Left column of the Feed (large screens):
 //   1. Profile summary: avatar, name, "<sport> coach · <city>", and
 //      followers / following / sessions counts
-//   2. Menu: Home feed, My DNA (athletes) / My athletes (coaches), My bookings
-//      (with a badge for bookings waiting on a reply), My stats (coaches),
+//   2. Menu: Home feed, My DNA (athletes) / My athletes (coaches), Calendar
+//      (with a badge for sessions waiting on my answer), My stats (coaches),
 //      Saved posts, Settings
 
 import { Link, NavLink } from 'react-router-dom';
@@ -12,6 +12,7 @@ import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import useFollow from '../hooks/useFollow';
 import { compact } from '../utils/format';
+import { hasStarted } from '../utils/sessions';
 
 const roleTitle = (profile) => {
     const role = profile.role === 'learner' ? 'athlete' : profile.role;
@@ -23,7 +24,10 @@ const FeedSidebar = ({ profile, bookings }) => {
     const follow = useFollow(profile._id);
     // Sessions that actually happen or will: confirmed + completed
     const sessions = bookings.filter((b) => b.status === 'confirmed' || b.status === 'completed').length;
-    const pending = bookings.filter((b) => b.status === 'pending').length;
+    const pending = bookings.filter((b) => ['pending', 'confirmed'].includes(b.status) && (
+        (profile.role === 'coach' && b.status === 'pending' && !b.reschedule && !hasStarted(b))
+        || (b.reschedule && String(b.reschedule.by) !== String(profile._id))
+    )).length;
 
     const stats = [
         { label: 'Followers', value: follow.followers },
@@ -35,7 +39,7 @@ const FeedSidebar = ({ profile, bookings }) => {
         { to: '/', label: 'Home feed', icon: Home, end: true },
         profile.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
         profile.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
-        { to: '/bookings', label: 'My bookings', icon: CalendarDays, badge: pending },
+        { to: '/calendar', label: 'Calendar', icon: CalendarDays, badge: pending },
         profile.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },
         { to: '/settings', label: 'Settings', icon: Settings },

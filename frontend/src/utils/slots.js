@@ -1,10 +1,11 @@
 // slots.js
 // Helpers for coach availability. A coach lists weekly slots like
-// { day: "Saturday", timeSlot: "5 PM - 6 PM" }. Bookings use the same
-// weekday + time slot, so a slot is "taken" while a pending or confirmed
-// booking holds it (the backend sends those as `takenSlots`).
+// { day: "Saturday", timeSlot: "5 PM - 6 PM" }; a booking is one of those
+// slots on a real date ("2026-10-31"). The backend sends the held ones as
+// `takenSlots` ({ date, day, timeSlot }; `date` is null for old weekly bookings).
 
 export const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export const BOOKING_WINDOW_DAYS = 28; // keep in sync with Backend/utils/slots.util.js
 
 // "sat", " Saturday " -> "Saturday"; unknown -> null
 export const normalizeDay = (day = '') => {
@@ -13,6 +14,14 @@ export const normalizeDay = (day = '') => {
 };
 
 export const slotKey = (day, timeSlot) => `${normalizeDay(day)}|${String(timeSlot).trim().toLowerCase()}`;
+
+// Local calendar date <-> "YYYY-MM-DD"
+export const toISODate = (date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+export const fromISODate = (iso) => {
+    const [y, m, d] = String(iso).split('-').map(Number);
+    return new Date(y, m - 1, d);
+};
 
 const TIME_RE = /(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i;
 
@@ -31,45 +40,49 @@ export const slotStartLabel = (timeSlot = '') => {
     return m ? `${m[1]}${m[2] ? `:${m[2]}` : ''} ${m[3].toUpperCase()}` : timeSlot;
 };
 
-// The next `count` days starting today: [{ dayName, label: "Today"|"Tomorrow"|"Sat", date }]
+// The next `count` days starting today:
+// [{ dayName, iso, date, label: "Today" | "Tomorrow" | "Sat 31" }]
 export const upcomingDays = (count = 7, now = new Date()) =>
     Array.from({ length: count }, (_, i) => {
-        const date = new Date(now);
-        date.setDate(now.getDate() + i);
+        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
         const dayName = WEEKDAYS[date.getDay()];
-        return { dayName, date, label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dayName.slice(0, 3) };
+        return {
+            dayName,
+            iso: toISODate(date),
+            date,
+            label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${dayName.slice(0, 3)} ${date.getDate()}`,
+        };
     });
 
-// A coach's slots on one weekday, sorted by time, each marked taken / already past
+// A coach's slots on one date, sorted by time, each marked taken / already past
 export const slotsForDay = (availability = [], takenSlots = [], day, now = new Date()) => {
-    const taken = new Set(takenSlots.map((s) => slotKey(s.day, s.timeSlot)));
-    const isToday = day.date.toDateString() === now.toDateString();
+    const taken = new Set(takenSlots.map((s) => (s.date ? `${s.date}|${slotKey(s.day, s.timeSlot)}` : slotKey(s.day, s.timeSlot))));
+    const isToday = day.iso === toISODate(now);
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
     return availability
         .filter((s) => normalizeDay(s.day) === day.dayName)
         .map((s) => {
             const start = slotStartMinutes(s.timeSlot);
+            const key = slotKey(s.day, s.timeSlot);
             return {
                 timeSlot: s.timeSlot,
                 label: slotStartLabel(s.timeSlot),
                 start,
-                taken: taken.has(slotKey(s.day, s.timeSlot)),
+                taken: taken.has(`${day.iso}|${key}`) || taken.has(key),
                 past: isToday && start !== null && start <= nowMinutes,
             };
         })
         .sort((a, b) => (a.start ?? 9999) - (b.start ?? 9999));
 };
 
-// First bookable slot in the next 7 days: { day, slot } or null
-export const nextOpenSlot = (availability, takenSlots, now = new Date()) => {
-    for (const day of upcomingDays(7, now)) {
-        const slot = slotsForDay(availability, takenSlots, day, now).find((s) => !s.taken && !s.past);
+export const isOpenSlot = (s) => !s.taken && !s.past;
+
+// First bookable slot in the next `days` days: { day, slot } or null
+export const nextOpenSlot = (availability, takenSlots, days = 14, now = new Date()) => {
+    for (const day of upcomingDays(days, now)) {
+        const slot = slotsForDay(availability, takenSlots, day, now).find(isOpenSlot);
         if (slot) return { day, slot };
     }
     return null;
 };
-
-// The next calendar date that falls on `dayName` (today counts)
-export const nextDateFor = (dayName, now = new Date()) =>
-    upcomingDays(7, now).find((d) => d.dayName === normalizeDay(dayName))?.date || null;

@@ -159,7 +159,7 @@ const Discover = () => {
     const handleBook = async (coach, next) => {
         if (!window.confirm(`Book ${coach.name} for ${next.day.label}, ${next.slot.timeSlot}?`)) return;
         try {
-            await API.post('/bookings', { coachId: coach._id, day: next.day.dayName, timeSlot: next.slot.timeSlot });
+            await API.post('/bookings', { coachId: coach._id, date: next.day.iso, timeSlot: next.slot.timeSlot });
             alert('Booking request sent! The coach will confirm it.');
             reloadBookings();
             fetchCoaches(currentParams()).catch(console.error); // refresh taken slots

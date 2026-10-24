@@ -62,7 +62,7 @@ const Chat = () => {
   return (
     <div className="mx-auto flex h-[calc(100dvh-80px-4rem)] w-full max-w-3xl flex-col px-4 pb-4 pt-4 sm:px-6 md:h-[calc(100dvh-80px)] md:pb-28">
       <div className="mb-4 flex items-center gap-3">
-        <Link to="/bookings" aria-label="Back to bookings" className="flex h-10 w-10 items-center justify-center rounded-full bg-surface">
+        <Link to="/calendar" aria-label="Back to calendar" className="flex h-10 w-10 items-center justify-center rounded-full bg-surface">
           <ArrowLeft size={18} />
         </Link>
         <h1 className="text-2xl font-extrabold tracking-tight">Chat</h1>

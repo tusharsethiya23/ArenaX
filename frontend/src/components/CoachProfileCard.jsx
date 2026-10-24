@@ -4,7 +4,7 @@
 //     rating pill and a "Free today" pill when a slot is open today
 //   - name + verified badge, level / experience / location
 //   - who follows them
-//   - day tabs (Today, Tomorrow, next two days) and that day's time slots;
+//   - date tabs for the next two weeks (SlotPicker) and that day's time slots;
 //     taken or already-past slots are crossed out
 //   - price and a "Book today, 6 PM" button that books the picked slot
 
@@ -16,22 +16,19 @@ import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import StadiumArt from './StadiumArt';
 import FollowListModal from './FollowListModal';
-import { upcomingDays, slotsForDay } from '../utils/slots';
+import SlotPicker from './SlotPicker';
+import { upcomingDays, slotsForDay, nextOpenSlot, isOpenSlot } from '../utils/slots';
 import { sportEmoji } from '../utils/sports';
 import { compact } from '../utils/format';
 
-const DAY_TABS = 4;
+const DAY_TABS = 14;
 
 const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
-    const days = upcomingDays(DAY_TABS);
     const availability = coach.availability || [];
-    const slotsByDay = days.map((d) => slotsForDay(availability, coach.takenSlots, d));
-    const isOpen = (s) => !s.taken && !s.past;
+    const freeToday = slotsForDay(availability, coach.takenSlots, upcomingDays(1)[0]).some(isOpenSlot);
 
-    // Start on the first day with an open slot, with that slot selected
-    const firstOpenDay = Math.max(0, slotsByDay.findIndex((slots) => slots.some(isOpen)));
-    const [dayIndex, setDayIndex] = useState(firstOpenDay);
-    const [selected, setSelected] = useState(() => slotsByDay[firstOpenDay]?.find(isOpen)?.timeSlot || null);
+    // Start with the first open slot selected
+    const [pick, setPick] = useState(() => nextOpenSlot(availability, coach.takenSlots, DAY_TABS));
     const [booking, setBooking] = useState(false);
     const [message, setMessage] = useState(null); // { text, error }
     const [followers, setFollowers] = useState([]);
@@ -42,26 +39,17 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
         API.get(`/follows/${coach._id}/followers`).then((res) => setFollowers(res.data)).catch(() => {});
     }, [coach._id, follow.followers]);
 
-    const pickDay = (i) => {
-        setDayIndex(i);
-        setSelected(slotsByDay[i].find(isOpen)?.timeSlot || null);
-        setMessage(null);
-    };
-
-    const day = days[dayIndex];
-    const daySlots = slotsByDay[dayIndex];
-    const selectedSlot = daySlots.find((s) => s.timeSlot === selected);
-    const freeToday = slotsByDay[0].some(isOpen);
-    const dayWord = dayIndex === 0 ? 'today' : dayIndex === 1 ? 'tomorrow' : day.label;
+    const selectedSlot = pick?.slot;
+    const dayWord = pick && (['Today', 'Tomorrow'].includes(pick.day.label) ? pick.day.label.toLowerCase() : pick.day.label);
 
     const handleBook = async () => {
         if (!selectedSlot) return;
         setBooking(true);
         setMessage(null);
         try {
-            await API.post('/bookings', { coachId: coach._id, day: day.dayName, timeSlot: selectedSlot.timeSlot });
+            await API.post('/bookings', { coachId: coach._id, date: pick.day.iso, timeSlot: selectedSlot.timeSlot });
             setMessage({ text: `Request sent for ${dayWord}, ${selectedSlot.label}. ${coach.name.split(' ')[0]} will confirm it.` });
-            setSelected(null);
+            setPick({ day: pick.day, slot: null });
             onBooked();
         } catch (err) {
             setMessage({ text: err.response?.data?.message || 'Could not book that slot', error: true });
@@ -154,54 +142,18 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                     <span className="text-sm [&_b]:text-ink">{followText}</span>
                 </button>
 
-                {/* ---------- Day tabs ---------- */}
+                {/* ---------- Dates + time slots ---------- */}
                 {availability.length > 0 ? (
-                    <>
-                        <div className="mt-6 flex gap-6 border-b border-line" role="tablist">
-                            {days.map((d, i) => (
-                                <button
-                                    key={d.dayName}
-                                    role="tab"
-                                    aria-selected={i === dayIndex}
-                                    onClick={() => pickDay(i)}
-                                    className={`-mb-px border-b-2 pb-2.5 font-semibold transition-colors ${
-                                        i === dayIndex ? 'border-ink text-ink' : 'border-transparent text-muted hover:text-ink'
-                                    }`}
-                                >
-                                    {d.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* ---------- Time slots ---------- */}
-                        {daySlots.length === 0 ? (
-                            <p className="mt-4 rounded-2xl bg-canvas px-4 py-3 text-sm text-muted">No slots on {day.dayName}.</p>
-                        ) : (
-                            <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                                {daySlots.map((s) => {
-                                    const unavailable = s.taken || s.past;
-                                    const isSelected = s.timeSlot === selected;
-                                    return (
-                                        <button
-                                            key={s.timeSlot}
-                                            onClick={() => { setSelected(s.timeSlot); setMessage(null); }}
-                                            disabled={unavailable || !canBook}
-                                            title={s.taken ? 'Already booked' : s.past ? 'Already passed' : s.timeSlot}
-                                            className={`rounded-2xl px-2 py-3 text-sm font-bold transition-colors ${
-                                                isSelected
-                                                    ? 'bg-ink text-lime'
-                                                    : unavailable
-                                                        ? 'cursor-not-allowed bg-canvas/50 text-muted/60 line-through'
-                                                        : canBook ? 'bg-canvas hover:bg-[#E2E2E2]' : 'cursor-default bg-canvas'
-                                            }`}
-                                        >
-                                            {s.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </>
+                    <div className="mt-6">
+                        <SlotPicker
+                            availability={availability}
+                            takenSlots={coach.takenSlots}
+                            dayCount={DAY_TABS}
+                            value={pick}
+                            onChange={(p) => { setPick(p); setMessage(null); }}
+                            readOnly={!canBook}
+                        />
+                    </div>
                 ) : (
                     <p className="mt-6 rounded-2xl bg-canvas px-4 py-3 text-sm text-muted">
                         {isOwn ? 'You haven\'t listed any slots yet.' : 'This coach hasn\'t listed any slots yet.'}
