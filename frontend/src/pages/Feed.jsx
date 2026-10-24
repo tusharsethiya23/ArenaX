@@ -41,6 +41,11 @@ const EMPTY = {
     coaches: <p className="empty-state">No posts from coaches yet.</p>,
 };
 
+// Side columns stay in view while the feed scrolls (below the 96px navbar), are
+// never taller than the screen (24px gap at the bottom), and scroll inside
+// themselves when their content is taller.
+const SIDE_COLUMN = 'sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain rounded-[28px] [scrollbar-width:thin]';
+
 const Feed = () => {
     const { user } = useAuth();
     const { profile } = useMyProfile();
@@ -55,7 +60,7 @@ const Feed = () => {
 
             {/* ===================== LEFT ===================== */}
             <div className="hidden xl:block">
-                <div className="sticky top-24"><FeedSidebar profile={profile} bookings={bookings} /></div>
+                <div className={SIDE_COLUMN}><FeedSidebar profile={profile} bookings={bookings} /></div>
             </div>
 
             {/* ===================== FEED ===================== */}
@@ -102,7 +107,7 @@ const Feed = () => {
 
             {/* ===================== RIGHT ===================== */}
             <div className="hidden lg:block">
-                <div className="sticky top-24">
+                <div className={SIDE_COLUMN}>
                     <FeedRail
                         profile={profile}
                         bookings={bookings}
