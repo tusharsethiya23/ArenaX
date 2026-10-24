@@ -1,34 +1,43 @@
 // GoogleRolePicker.jsx
-// Shown once to brand-new Google users: are you joining as a learner or a coach?
+// Shown once to brand-new Google users: are you joining as a learner, a coach,
+// or a brand? Brand accounts are separate (company sign-up with a work email,
+// no Google sign-in), so "brand" goes to the brand sign-up page instead.
 
-import { GraduationCap, Whistle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { GraduationCap, Whistle, Building2 } from 'lucide-react';
 
 const OPTIONS = [
-    { role: 'learner', label: 'Learner', hint: 'Find coaches and track your game', icon: GraduationCap },
-    { role: 'coach', label: 'Coach', hint: 'Offer sessions and grow your athletes', icon: Whistle },
+    { role: 'learner', label: "I'm a learner", hint: 'Find coaches and track your game', icon: GraduationCap },
+    { role: 'coach', label: "I'm a coach", hint: 'Offer sessions and grow your athletes', icon: Whistle },
+    { role: 'brand', label: "I'm a brand", hint: 'Sponsor athletes (sign up with your work email)', icon: Building2 },
 ];
 
-const GoogleRolePicker = ({ onChoose, onCancel, busy }) => (
-    <div>
-        <p className="text-lg font-bold">One more step</p>
-        <p className="mb-4 text-sm text-muted">You're new to ArenaX. How will you use it?</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-            {OPTIONS.map(({ role, label, hint, icon: Icon }) => (
-                <button
-                    key={role}
-                    type="button"
-                    disabled={busy}
-                    onClick={() => onChoose(role)}
-                    className="flex flex-col items-start gap-2 rounded-3xl border border-line p-4 text-left transition-colors hover:border-ink disabled:opacity-60"
-                >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-lime"><Icon size={18} /></span>
-                    <span className="font-semibold">I'm a {label.toLowerCase()}</span>
-                    <span className="text-sm text-muted">{hint}</span>
-                </button>
-            ))}
+const GoogleRolePicker = ({ onChoose, onCancel, busy }) => {
+    const navigate = useNavigate();
+    return (
+        <div>
+            <p className="text-lg font-bold">One more step</p>
+            <p className="mb-4 text-sm text-muted">You're new to ArenaX. How will you use it?</p>
+            <div className="grid gap-3">
+                {OPTIONS.map(({ role, label, hint, icon: Icon }) => (
+                    <button
+                        key={role}
+                        type="button"
+                        disabled={busy}
+                        onClick={() => (role === 'brand' ? navigate('/brand/register') : onChoose(role))}
+                        className="flex items-center gap-3 rounded-3xl border border-line p-4 text-left transition-colors hover:border-ink disabled:opacity-60"
+                    >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lime"><Icon size={18} /></span>
+                        <span className="min-w-0">
+                            <span className="block font-semibold">{label}</span>
+                            <span className="block text-sm text-muted">{hint}</span>
+                        </span>
+                    </button>
+                ))}
+            </div>
+            <button type="button" onClick={onCancel} className="btn btn-soft mt-4 w-full">Back</button>
         </div>
-        <button type="button" onClick={onCancel} className="btn btn-soft mt-4 w-full">Back</button>
-    </div>
-);
+    );
+};
 
 export default GoogleRolePicker;
