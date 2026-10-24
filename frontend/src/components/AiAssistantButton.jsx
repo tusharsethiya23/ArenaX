@@ -31,7 +31,7 @@ const AiAssistantButton = () => {
                 role="dialog"
                 aria-label="AI coach"
                 inert={!open}
-                className={`fixed bottom-[9rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10.5rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] border border-line bg-surface shadow-[0_25px_60px_rgba(0,0,0,0.18)] transition-all duration-300 ease-out md:bottom-24 md:right-6 md:max-h-[calc(100dvh-80px-7.5rem)] lg:right-10 ${
+                className={`fixed bottom-[8.5rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] border border-line bg-surface shadow-[0_25px_60px_rgba(0,0,0,0.18)] transition-all duration-300 ease-out md:bottom-20 md:right-6 md:max-h-[calc(100dvh-80px-6.5rem)] lg:right-10 ${
                     open ? 'visible translate-y-0 opacity-100' : 'invisible translate-y-6 opacity-0'
                 }`}
             >
@@ -58,12 +58,12 @@ const AiAssistantButton = () => {
                 onClick={() => setOpen(!open)}
                 aria-label={open ? 'Close AI coach' : 'Ask AI coach'}
                 aria-expanded={open}
-                className="fixed bottom-20 right-4 z-50 flex h-12 items-center gap-2 rounded-full bg-ink p-1.5 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition-transform active:scale-95 md:bottom-6 md:right-6 md:pr-4 lg:right-10"
+                className="fixed bottom-20 right-4 z-50 flex h-10 items-center gap-1.5 rounded-full bg-ink p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition-transform active:scale-95 md:bottom-6 md:right-6 md:pr-3.5 lg:right-10"
             >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lime text-ink">
-                    {open ? <X size={16} /> : <Sparkles size={16} />}
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lime text-ink">
+                    {open ? <X size={14} /> : <Sparkles size={14} />}
                 </span>
-                <span className="hidden whitespace-nowrap text-sm font-semibold md:block">
+                <span className="hidden whitespace-nowrap text-[13px] font-semibold md:block">
                     {open ? 'Close' : 'Ask AI coach'}
                 </span>
             </button>
