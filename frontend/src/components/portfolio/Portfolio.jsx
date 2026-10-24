@@ -13,6 +13,7 @@ import { CATEGORY_BY_KEY, achievementMeta } from '../../utils/achievements';
 import AchievementForm from './AchievementForm';
 import VerificationStatus from './VerificationStatus';
 import ReviewActions from './ReviewActions';
+import Select from '../Select';
 
 // "Ask for verification": athletes choose a coach; coaches send to the ArenaX team
 const RequestVerification = ({ achievement, role, verifiers, onDone }) => {
@@ -44,9 +45,14 @@ const RequestVerification = ({ achievement, role, verifiers, onDone }) => {
         <div className="mt-3">
             <div className="flex flex-wrap items-center gap-2">
                 {role === 'learner' && (
-                    <select value={coachId} onChange={(e) => setCoachId(e.target.value)} aria-label="Coach to verify" className="input w-auto py-2">
-                        {verifiers.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-                    </select>
+                    <Select
+                        value={coachId}
+                        onChange={setCoachId}
+                        aria-label="Coach to verify"
+                        className="w-auto min-w-44"
+                        buttonClassName="py-2"
+                        options={verifiers.map((c) => ({ value: c._id, label: c.name }))}
+                    />
                 )}
                 <button onClick={send} disabled={busy || (role === 'learner' && !coachId)} className="btn btn-dark px-4 py-2">
                     <Send size={14} /> {achievement.status === 'pending' ? 'Re-send' : role === 'learner' ? 'Ask to verify' : 'Send to ArenaX team'}
@@ -113,7 +119,7 @@ const Portfolio = ({ userId, isOwn, role }) => {
             </div>
 
             {editing === 'new' && (
-                <div className="mb-6 rounded-3xl bg-canvas p-4 sm:p-5">
+                <div className="mb-6 rounded-3xl border border-line p-4 sm:p-5">
                     <AchievementForm onSubmit={save} onCancel={() => setEditing(null)} />
                 </div>
             )}
@@ -136,7 +142,7 @@ const Portfolio = ({ userId, isOwn, role }) => {
                             </span>
 
                             {editing === a._id ? (
-                                <div className="rounded-3xl bg-canvas p-4 sm:p-5">
+                                <div className="rounded-3xl border border-line p-4 sm:p-5">
                                     <AchievementForm initial={a} onSubmit={save} onCancel={() => setEditing(null)} />
                                 </div>
                             ) : (

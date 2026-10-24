@@ -14,8 +14,10 @@ import useMyProfile from '../hooks/useMyProfile';
 import PageHeader from '../components/PageHeader';
 import { WEEKDAYS, slotStartMinutes } from '../utils/slots';
 import { DNA_SKILLS, MAX_COACH_FOCUS } from '../utils/dna';
+import Select from '../components/Select';
 
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
+const LEVEL_OPTIONS = [{ value: '', label: 'Not set' }, ...LEVELS.map((l) => ({ value: l, label: l.charAt(0).toUpperCase() + l.slice(1) }))];
 
 // Sort slots Monday-first, then by start time
 const DAY_ORDER = [...WEEKDAYS.slice(1), WEEKDAYS[0]];
@@ -209,11 +211,8 @@ const SettingsContent = ({ profile }) => {
                                     <input type="number" min="0" name="pricePerSession" value={formData.pricePerSession} onChange={handleChange} className="input" />
                                 </div>
                                 <div>
-                                    <label className="label">Level you teach</label>
-                                    <select name="skillLevelTaught" value={formData.skillLevelTaught} onChange={handleChange} className="input capitalize">
-                                        <option value="">Not set</option>
-                                        {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-                                    </select>
+                                    <label className="label" htmlFor="set-level-taught">Level you teach</label>
+                                    <Select id="set-level-taught" value={formData.skillLevelTaught} onChange={(v) => setFormData({ ...formData, skillLevelTaught: v })} options={LEVEL_OPTIONS} />
                                 </div>
                                 <div>
                                     <label className="label">Years of experience</label>
@@ -250,11 +249,8 @@ const SettingsContent = ({ profile }) => {
                         {user.role === 'learner' && (
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label className="label">Your level</label>
-                                    <select name="skillLevel" value={formData.skillLevel} onChange={handleChange} className="input capitalize">
-                                        <option value="">Not set</option>
-                                        {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-                                    </select>
+                                    <label className="label" htmlFor="set-level">Your level</label>
+                                    <Select id="set-level" value={formData.skillLevel} onChange={(v) => setFormData({ ...formData, skillLevel: v })} options={LEVEL_OPTIONS} />
                                 </div>
                                 <div>
                                     <label className="label">Goals</label>
@@ -294,14 +290,13 @@ const SettingsContent = ({ profile }) => {
                             )}
 
                             <div className="flex flex-col gap-2 sm:flex-row">
-                                <select
+                                <Select
                                     value={newSlot.day}
-                                    onChange={(e) => setNewSlot({ ...newSlot, day: e.target.value })}
-                                    className="input sm:w-44"
+                                    onChange={(day) => setNewSlot({ ...newSlot, day })}
                                     aria-label="Day"
-                                >
-                                    {DAY_ORDER.map((d) => <option key={d}>{d}</option>)}
-                                </select>
+                                    className="sm:w-44 sm:shrink-0"
+                                    options={DAY_ORDER.map((d) => ({ value: d, label: d }))}
+                                />
                                 <input
                                     value={newSlot.timeSlot}
                                     onChange={(e) => setNewSlot({ ...newSlot, timeSlot: e.target.value })}

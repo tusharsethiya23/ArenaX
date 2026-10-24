@@ -21,6 +21,7 @@ import CoachCard from '../components/CoachCard';
 import NextSessionCard from '../components/NextSessionCard';
 import Avatar from '../components/Avatar';
 import MatchBadge from '../components/MatchBadge';
+import Select from '../components/Select';
 import { nextOpenSlot } from '../utils/slots';
 import { normalizeSport, sportEmoji } from '../utils/sports';
 
@@ -36,15 +37,24 @@ const SORTS = {
 
 // ---------- Small pieces ----------
 
-const SearchField = ({ icon: Icon, label, children }) => (
-    <label className="flex min-w-0 flex-1 items-center gap-3 px-5 py-2.5">
+// A labelled field in the search bar. Dropdowns use a <div> wrapper: a <label>
+// would re-open the list on every click inside it.
+const SearchField = ({ icon: Icon, label, children, as: Tag = 'label' }) => (
+    <Tag className="flex min-w-0 flex-1 items-center gap-3 px-5 py-2.5">
         <Icon size={18} className="shrink-0" />
         <span className="min-w-0 flex-1">
             <span className="block text-xs text-muted">{label}</span>
             {children}
         </span>
-    </label>
+    </Tag>
 );
+
+const LEVEL_OPTIONS = [
+    { value: '', label: 'Any level' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' },
+];
 
 const PromoCard = ({ showPremium }) => (
     <section className="flex flex-col justify-between rounded-[32px] bg-lime p-6 sm:p-8">
@@ -94,7 +104,7 @@ const FiltersButton = ({ filters, setFilters }) => {
                         />
                     </div>
                     <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
-                        Open slot this week
+                        Open slot in the next 2 weeks
                         <input
                             type="checkbox"
                             checked={filters.openOnly}
@@ -297,17 +307,16 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={BarChart3} label="Level">
-                                <select
+                            <SearchField icon={BarChart3} label="Level" as="div">
+                                <Select
+                                    variant="inline"
+                                    aria-label="Level"
                                     value={search.level}
-                                    onChange={(e) => setSearch({ ...search, level: e.target.value })}
-                                    className="w-full cursor-pointer bg-transparent font-medium outline-none"
-                                >
-                                    <option value="">Any level</option>
-                                    <option value="beginner">Beginner</option>
-                                    <option value="intermediate">Intermediate</option>
-                                    <option value="advanced">Advanced</option>
-                                </select>
+                                    onChange={(level) => setSearch({ ...search, level })}
+                                    options={LEVEL_OPTIONS}
+                                    className="w-full"
+                                    buttonClassName="w-full justify-between"
+                                />
                             </SearchField>
                             </div>
                             <button type="submit" className="btn btn-dark w-full px-7 py-3.5 text-base @2xl:w-auto">
@@ -336,14 +345,18 @@ const Discover = () => {
                             ))}
                         </div>
                         <div className="flex items-center gap-2">
-                            <label className="chip gap-1 pr-2">
+                            <div className="chip gap-1 pr-3">
                                 <span className="text-muted">Sort:</span>
-                                <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} className="cursor-pointer bg-transparent font-medium outline-none">
-                                    {Object.entries(SORTS)
+                                <Select
+                                    variant="inline"
+                                    aria-label="Sort coaches"
+                                    value={sortKey}
+                                    onChange={setSortKey}
+                                    options={Object.entries(SORTS)
                                         .filter(([k]) => k !== 'match' || isLearner)
-                                        .map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
-                                </select>
-                            </label>
+                                        .map(([k, s]) => ({ value: k, label: s.label }))}
+                                />
+                            </div>
                             <FiltersButton filters={filters} setFilters={setFilters} />
                         </div>
                     </div>

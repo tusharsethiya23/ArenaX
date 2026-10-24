@@ -17,6 +17,7 @@ import PostList from '../components/PostList';
 import FeedSidebar from '../components/FeedSidebar';
 import FeedRail from '../components/FeedRail';
 import UpcomingSession from '../components/UpcomingSession';
+import Select from '../components/Select';
 
 const TABS = [
     { id: 'all', label: 'For you', endpoint: '/posts' },
@@ -76,15 +77,15 @@ const Feed = () => {
                             </button>
                         ))}
                     </div>
-                    <select
-                        value={sort}
-                        onChange={(e) => setSort(e.target.value)}
+                    <Select
+                        variant="inline"
                         aria-label="Sort posts"
-                        className="shrink-0 cursor-pointer bg-transparent text-sm font-medium text-muted outline-none hover:text-ink"
-                    >
-                        <option value="latest">Latest</option>
-                        <option value="popular">Most liked</option>
-                    </select>
+                        value={sort}
+                        onChange={setSort}
+                        className="shrink-0"
+                        buttonClassName="text-sm text-muted hover:text-ink"
+                        options={[{ value: 'latest', label: 'Latest' }, { value: 'popular', label: 'Most liked' }]}
+                    />
                 </div>
 
                 {/* New key on tab/sort change = fresh list from the top */}

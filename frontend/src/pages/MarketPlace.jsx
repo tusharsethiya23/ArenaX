@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
+import Select from '../components/Select';
 
 const TYPE_LABELS = { drill: 'Drill', training_plan: 'Training plan', video_course: 'Video course' };
 
@@ -120,12 +121,17 @@ const Marketplace = () => {
                                 <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="input" />
                             </div>
                             <div className="min-w-0">
-                                <label className="label">Type</label>
-                                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="input">
-                                    <option value="drill">Drill</option>
-                                    <option value="training_plan">Training Plan</option>
-                                    <option value="video_course">Video Course</option>
-                                </select>
+                                <label className="label" htmlFor="content-type">Type</label>
+                                <Select
+                                    id="content-type"
+                                    value={form.type}
+                                    onChange={(type) => setForm({ ...form, type })}
+                                    options={[
+                                        { value: 'drill', label: 'Drill' },
+                                        { value: 'training_plan', label: 'Training plan' },
+                                        { value: 'video_course', label: 'Video course' },
+                                    ]}
+                                />
                             </div>
                         </div>
 

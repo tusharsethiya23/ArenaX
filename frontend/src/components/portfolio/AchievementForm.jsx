@@ -4,7 +4,10 @@
 
 import { useState } from 'react';
 import { CATEGORIES, LEVELS } from '../../utils/achievements';
+import Select from '../Select';
 
+
+const LEVEL_OPTIONS = [{ value: '', label: 'Not set' }, ...LEVELS.map((l) => ({ value: l, label: l.charAt(0).toUpperCase() + l.slice(1) }))];
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -42,16 +45,11 @@ const AchievementForm = ({ initial, onSubmit, onCancel }) => {
             <div className="grid gap-4 sm:grid-cols-3">
                 <div>
                     <label className="label" htmlFor="ach-category">Type</label>
-                    <select id="ach-category" value={form.category} onChange={set('category')} className="input">
-                        {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
-                    </select>
+                    <Select id="ach-category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} options={CATEGORIES.map((c) => ({ value: c.key, label: c.label }))} />
                 </div>
                 <div>
                     <label className="label" htmlFor="ach-level">Level</label>
-                    <select id="ach-level" value={form.level} onChange={set('level')} className="input capitalize">
-                        <option value="">Not set</option>
-                        {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-                    </select>
+                    <Select id="ach-level" value={form.level} onChange={(v) => setForm({ ...form, level: v })} options={LEVEL_OPTIONS} />
                 </div>
                 <div>
                     <label className="label" htmlFor="ach-date">Date</label>
