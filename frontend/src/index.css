@@ -22,6 +22,35 @@ body {
   @apply bg-canvas font-sans text-ink antialiased;
 }
 
+/* Hand cursor on everything clickable (Tailwind v4 gives buttons the plain
+   arrow by default). In the base layer, so a cursor-* class still wins. */
+@layer base {
+  button,
+  summary,
+  select,
+  label[for],
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  [role="radio"],
+  [role="switch"],
+  [role="menuitem"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="range"],
+  input[type="color"],
+  input[type="submit"],
+  input[type="button"] {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 /* ============================================================
    Reusable building blocks
    ============================================================ */
