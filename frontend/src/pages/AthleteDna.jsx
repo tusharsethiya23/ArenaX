@@ -12,6 +12,7 @@ import { Plus, Undo2, Trophy, Megaphone, ArrowUpRight } from 'lucide-react';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import Avatar from '../components/Avatar';
+import MatchBadge from '../components/MatchBadge';
 import SkillBars from '../components/dna/SkillBars';
 import ProgressChart from '../components/dna/ProgressChart';
 import AssessmentForm from '../components/dna/AssessmentForm';
@@ -292,22 +293,27 @@ const AthleteDna = () => {
                             </div>
 
                             {/* Coaches */}
-                            <p className="label">Coaches at your level</p>
+                            <div className="flex items-baseline justify-between gap-2">
+                                <p className="label">Best coaches for your gaps</p>
+                                <Link to="/discover?sort=match" className="text-xs text-muted hover:text-ink">See all</Link>
+                            </div>
                             {dna.opportunities.coaches.length === 0 ? (
-                                <p className="mb-4 text-sm text-muted">No matching coaches yet.</p>
+                                <p className="mb-4 text-sm text-muted">No coaches in your sport yet.</p>
                             ) : (
-                                <ul className="mb-5 space-y-3">
+                                <ul className="mb-5 space-y-4">
                                     {dna.opportunities.coaches.map((c) => (
                                         <li key={c._id}>
-                                            <Link to={`/profile-view/${c._id}`} className="group flex items-center gap-3">
+                                            <Link to={`/profile-view/${c._id}`} className="group flex items-start gap-3">
                                                 <Avatar name={c.name} photo={c.profilePhoto} pastel className="h-10 w-10 text-xs" />
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate font-semibold">{c.name}</p>
-                                                    <p className="truncate text-xs capitalize text-muted">
-                                                        {[c.skillLevelTaught, c.location, c.rating && `★ ${c.rating}`].filter(Boolean).join(' · ')}
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <p className="truncate font-semibold group-hover:underline">{c.name}</p>
+                                                        {c.match && <MatchBadge score={c.match.score} />}
+                                                    </div>
+                                                    <p className="text-xs text-muted">
+                                                        {c.match?.reasons[0]?.text || [c.skillLevelTaught, c.location].filter(Boolean).join(' · ')}
                                                     </p>
                                                 </div>
-                                                <ArrowUpRight size={16} className="shrink-0 text-muted group-hover:text-ink" />
                                             </Link>
                                         </li>
                                     ))}

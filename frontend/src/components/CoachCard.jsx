@@ -1,12 +1,14 @@
 // CoachCard.jsx
 // Coach card on Discover: avatar, name + verified badge, sport and rating,
-// detail chips, the next open slot, and a Book button. The avatar and name
-// open the coach's profile; the Follow button follows/unfollows them.
+// detail chips, how well they match the athlete (athletes only), the next
+// open slot, and a Book button. The avatar and name open the coach's
+// profile; the Follow button follows/unfollows them.
 
 import { Link } from 'react-router-dom';
 import { Clock, Star, Check, Hourglass } from 'lucide-react';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
+import MatchBadge from './MatchBadge';
 import { nextOpenSlot } from '../utils/slots';
 
 const Chip = ({ children }) => (
@@ -16,7 +18,7 @@ const Chip = ({ children }) => (
 // "advanced" -> "Advanced"
 const capitalize = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
 
-const CoachCard = ({ coach, followState = 'none', canFollow, onToggleFollow, canBook, onBook }) => {
+const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFollow, canBook, onBook }) => {
     const next = nextOpenSlot(coach.availability, coach.takenSlots);
     const hasSlots = coach.availability?.length > 0;
     const profileUrl = `/profile-view/${coach._id}`;
@@ -67,6 +69,14 @@ const CoachCard = ({ coach, followState = 'none', canFollow, onToggleFollow, can
                 {coach.location && <Chip>{coach.location}</Chip>}
             </div>
 
+            {/* ---------- Match for the logged-in athlete ---------- */}
+            {match && (
+                <div className="mt-3 flex items-start gap-2 text-sm">
+                    <MatchBadge score={match.score} />
+                    {match.reasons[0] && <span className="min-w-0 pt-0.5 text-muted">{match.reasons[0].text}</span>}
+                </div>
+            )}
+
             {/* ---------- Next slot ---------- */}
             <div className={`mt-4 flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm ${next ? 'bg-lime/25' : 'bg-canvas text-muted'}`}>
                 <Clock size={15} className="shrink-0" />
@@ -75,7 +85,7 @@ const CoachCard = ({ coach, followState = 'none', canFollow, onToggleFollow, can
                         Next slot: <span className="font-bold">{next.day.label}, {next.slot.label}</span>
                     </span>
                 ) : (
-                    <span>{hasSlots ? 'Fully booked this week' : 'No slots listed yet'}</span>
+                    <span>{hasSlots ? 'Fully booked for 2 weeks' : 'No slots listed yet'}</span>
                 )}
             </div>
 

@@ -1,13 +1,16 @@
 const User = require('../models/user.model');
 const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
-const Endorsement = require('../models/endorsement.model.js');
 const { removeUserFeedContent } = require('./post.controller.js');
 const Follow = require('../models/follow.model.js');
 const Assessment = require('../models/assessment.model.js');
 const ActivityLog = require('../models/activityLog.model.js');
 const Achievement = require('../models/achievement.model.js');
 const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
+const { DIMENSION_KEYS } = require('../utils/dna.util.js');
+const { matchCoachesFor } = require('../utils/match.util.js');
+
+const MAX_COACH_FOCUS = 3;
 
 const getCoaches = async (req, res) => {
   try {
@@ -83,7 +86,7 @@ const updateProfile = async (req, res) => {
     // Jo bhi field bheji hai, wahi update karo — baaki purani value rakho
     const fieldsToUpdate = [
       'name', 'bio', 'location', 'profilePhoto',
-      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability', 'isPrivate',
+      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability', 'isPrivate', 'coachFocus',
       'goals', 'skillLevel',
     ];
 
@@ -92,6 +95,15 @@ const updateProfile = async (req, res) => {
       const { value, error } = cleanAvailability(req.body.availability);
       if (error) return res.status(400).json({ message: error });
       req.body.availability = value;
+    }
+    // Coaches pick up to 3 DNA skills they focus on
+    if (req.body.coachFocus !== undefined) {
+      const focus = Array.isArray(req.body.coachFocus) ? [...new Set(req.body.coachFocus)] : null;
+      if (user.role !== 'coach') return res.status(400).json({ message: 'Only coaches have focus skills' });
+      if (!focus || focus.length > MAX_COACH_FOCUS || focus.some((k) => !DIMENSION_KEYS.includes(k))) {
+        return res.status(400).json({ message: `Pick up to ${MAX_COACH_FOCUS} focus skills` });
+      }
+      req.body.coachFocus = focus;
     }
     // Empty inputs from the form clear these fields instead of failing validation
     for (const field of ['skillLevelTaught', 'skillLevel', 'yearsExperience', 'pricePerSession']) {
@@ -129,6 +141,7 @@ const updateProfile = async (req, res) => {
       skillLevelTaught: updatedUser.skillLevelTaught,
       yearsExperience: updatedUser.yearsExperience,
       availability: updatedUser.availability,
+      coachFocus: updatedUser.coachFocus,
       isPrivate: updatedUser.isPrivate,
       goals: updatedUser.goals,
       skillLevel: updatedUser.skillLevel,
@@ -252,45 +265,10 @@ const getRecommendedCoaches = async (req, res) => {
       return res.status(403).json({ message: 'Only learners can view recommendations' });
     }
 
-    const learner = req.user;
-
-    // Base filter: only coaches, and matching the learner's preferred sport
-    // if they've set one
-    let filter = { role: 'coach' };
-    if (learner.sport) filter.sport = learner.sport;
-
-    const coaches = await User.find(filter).select('-password');
-
-    // Score each coach: rating + endorsements + skill-level match bonus
-    const scoredCoaches = await Promise.all(
-      coaches.map(async (coach) => {
-        const reviews = await Review.find({ coach: coach._id });
-        const avgRating = reviews.length
-          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-          : 0;
-
-        const endorsementCount = await Endorsement.countDocuments({ endorsedUser: coach._id });
-
-        let matchScore = avgRating * 2 + endorsementCount * 0.5;
-
-        // Bonus if the coach teaches at the learner's exact skill level
-        if (learner.skillLevel && coach.skillLevelTaught === learner.skillLevel) {
-          matchScore += 3;
-        }
-
-        return {
-          ...coach.toObject(),
-          avgRating: avgRating.toFixed(1),
-          endorsementCount,
-          matchScore,
-        };
-      })
-    );
-
-    // Highest match score first
-    scoredCoaches.sort((a, b) => b.matchScore - a.matchScore);
-
-    res.json(scoredCoaches);
+    // Same ranking as /api/match/coaches (DNA gaps, level, city, quality, availability).
+    // matchScore and avgRating are kept for older clients.
+    const { coaches } = await matchCoachesFor(req.user);
+    res.json(coaches.map((c) => ({ ...c, matchScore: c.match.score, avgRating: (c.rating ?? 0).toFixed(1) })));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

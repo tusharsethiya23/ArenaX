@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const Booking = require('../models/booking.model');
 const Tournament = require('../models/tournament.model');
-const Review = require('../models/review.model');
 const Assessment = require('../models/assessment.model');
 const ActivityLog = require('../models/activityLog.model');
 const {
@@ -16,6 +15,7 @@ const {
 } = require('../utils/dna.util');
 // A coach may assess / view an athlete they've had a confirmed or completed session with
 const { hasCoachingRelation } = require('../utils/coaching.util');
+const { matchCoachesFor } = require('../utils/match.util');
 
 const isId = (id) => mongoose.Types.ObjectId.isValid(id);
 const LOG_WINDOW_DAYS = 35; // enough for 4 full weeks of consistency + this week
@@ -65,24 +65,14 @@ const buildDashboard = async (athlete, { withOpportunities = false } = {}) => {
   return dashboard;
 };
 
-// Coaches in the athlete's sport who teach at their goal level, plus upcoming tournaments
+// Best-matching coaches for the athlete's gaps (utils/match.util.js), plus upcoming tournaments
 const opportunitiesFor = async (athlete) => {
-  const levels = GOALS[athlete.careerGoal]?.coachLevels || ['beginner', 'intermediate', 'advanced'];
   const sportMatch = athlete.sport ? { $regex: `^${athlete.sport.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } : undefined;
-
-  const coaches = await User.find({ role: 'coach', ...(sportMatch && { sport: sportMatch }), skillLevelTaught: { $in: levels } })
-    .select('name profilePhoto sport location skillLevelTaught pricePerSession').lean();
-  const ratings = await Review.aggregate([
-    { $match: { coach: { $in: coaches.map((c) => c._id) } } },
-    { $group: { _id: '$coach', avg: { $avg: '$rating' }, n: { $sum: 1 } } },
-  ]);
-  const ratingById = Object.fromEntries(ratings.map((r) => [String(r._id), r]));
-  const sameCity = (c) => athlete.location && c.location?.toLowerCase() === athlete.location.toLowerCase();
-
-  const rankedCoaches = coaches
-    .map((c) => ({ ...c, rating: ratingById[String(c._id)] ? Math.round(ratingById[String(c._id)].avg * 10) / 10 : null, nearby: sameCity(c) }))
-    .sort((a, b) => Number(b.nearby) - Number(a.nearby) || (b.rating ?? 0) - (a.rating ?? 0))
-    .slice(0, 3);
+  const { coaches } = await matchCoachesFor(athlete, { limit: 3 });
+  const rankedCoaches = coaches.map((c) => ({
+    _id: c._id, name: c.name, profilePhoto: c.profilePhoto, sport: c.sport, location: c.location,
+    skillLevelTaught: c.skillLevelTaught, pricePerSession: c.pricePerSession, rating: c.rating, match: c.match,
+  }));
 
   const tournaments = await Tournament.find({
     ...(sportMatch && { sport: sportMatch }),

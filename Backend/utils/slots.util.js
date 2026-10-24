@@ -189,10 +189,29 @@ const isSlotTaken = async (coachId, { date, day, timeSlot }, excludeId = null) =
   }));
 };
 
+// A coach's first bookable slot in the next `days` days: { date, timeSlot } or null.
+// `taken` is that coach's list from takenSlotsByCoach.
+const nextOpenSlot = (availability = [], taken = [], days = 14, now = new Date()) => {
+  const held = new Set(taken.map((s) => `${s.date || ''}|${slotKey(s.day, s.timeSlot)}`));
+  const today = dateInZone(now);
+  for (let i = 0; i < days; i++) {
+    const date = addDays(today, i);
+    const day = weekdayOf(date);
+    const open = availability
+      .filter((s) => normalizeDay(s.day) === day)
+      .map((s) => ({ timeSlot: s.timeSlot, ...sessionTimes(date, s.timeSlot) }))
+      .filter((s) => !held.has(`${date}|${slotKey(day, s.timeSlot)}`) && !held.has(`|${slotKey(day, s.timeSlot)}`))
+      .filter((s) => !s.startsAt || s.startsAt > now)
+      .sort((a, b) => (a.startsAt || 0) - (b.startsAt || 0));
+    if (open.length) return { date, timeSlot: open[0].timeSlot };
+  }
+  return null;
+};
+
 module.exports = {
   WEEKDAYS, APP_TIMEZONE, BOOKING_WINDOW_DAYS, HOLDING_STATUSES,
   normalizeDay, slotKey, cleanAvailability,
   isValidDate, dateInZone, addDays, weekdayOf, nextDateOnWeekday,
   slotMinutes, sessionTimes, resolveSlot,
-  takenSlotsByCoach, isSlotTaken,
+  takenSlotsByCoach, isSlotTaken, nextOpenSlot,
 };

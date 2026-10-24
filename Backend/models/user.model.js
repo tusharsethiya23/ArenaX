@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
   },
+  // The Athlete DNA skills a coach focuses on (up to 3; keys of DIMENSIONS in
+  // utils/dna.util.js). Used to match athletes with coaches for their gaps.
+  coachFocus: [{
+    type: String,
+    enum: ['technique', 'gameSense', 'fitness', 'speed', 'mental', 'discipline'],
+  }],
   // Athlete DNA: the level the athlete is aiming for (keys of GOALS in utils/dna.util.js)
   careerGoal: {
     type: String,

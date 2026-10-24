@@ -175,6 +175,7 @@ const REVIEWS = [
         _id: idAt(createdAt), name, email: emailFor(name), password, role: 'coach', sport, location, bio,
         skillLevelTaught, yearsExperience, pricePerSession, isPrivate: PRIVATE_NAMES.has(name),
         availability: days.flatMap((day) => times.map((timeSlot) => ({ day, timeSlot }))),
+        coachFocus: sample(DIMENSION_KEYS, int(2, 3)),
         createdAt, updatedAt: createdAt,
       };
     });
@@ -380,15 +381,27 @@ const REVIEWS = [
         { athlete: athlete._id, assessor: athlete._id, source: 'self', scores: second, note: '', createdAt: secondAt, updatedAt: secondAt },
       );
 
-      // Every coach they've had a confirmed/completed session with assesses them once
+      // Every coach they've had a confirmed/completed session with assesses them.
+      // Coaches they've finished sessions with also assessed them earlier, with
+      // lower scores in the coach's focus skills (that's the coach's track record).
       const theirCoaches = [...new Set(bookings
         .filter((b) => b.learner === athlete._id && ['confirmed', 'completed'].includes(b.status))
         .map((b) => String(b.coach)))];
       for (const coachId of theirCoaches) {
+        const coach = coaches.find((c) => String(c._id) === coachId);
         const at = daysAgo(9, 15);
+        const latest = Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(second[k] + int(-1, 1))]));
+        if (bookings.some((b) => b.learner === athlete._id && String(b.coach) === coachId && b.status === 'completed')) {
+          const before = daysAgo(20, 27);
+          assessments.push({
+            athlete: athlete._id, assessor: coach._id, source: 'coach',
+            scores: Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(latest[k] - (coach.coachFocus.includes(k) ? int(1, 2) : int(0, 1)))])),
+            note: 'First assessment', createdAt: before, updatedAt: before,
+          });
+        }
         assessments.push({
-          athlete: athlete._id, assessor: coaches.find((c) => String(c._id) === coachId)._id, source: 'coach',
-          scores: Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(second[k] + int(-1, 1))])),
+          athlete: athlete._id, assessor: coach._id, source: 'coach',
+          scores: latest,
           note: pick(['Great attitude, keep building fitness.', 'Technique is coming along nicely.', 'Needs more match practice.', 'Very coachable. Mental game improving.']),
           createdAt: at, updatedAt: at,
         });

@@ -2,13 +2,14 @@
 // Find a coach. Layout follows the design mockup:
 //   main column:  white search hero (sport / location / level) + lime promo card,
 //                 then "Top coaches" with sport chips, sort and filters
-//   right column: upcoming session, coaches in your city, athlete spotlight
+//   right column: upcoming session, best-matching coaches (athletes) or coaches
+//                 in your city, athlete spotlight
 // Search hits the backend (/users/coaches); chips, sort and filters then work
 // on the loaded results in the browser.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, MapPin, BarChart3, SlidersHorizontal, ArrowRight, Star } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search, MapPin, BarChart3, SlidersHorizontal, ArrowRight, Star, Check } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
@@ -19,10 +20,13 @@ import useFollowingIds from '../hooks/useFollowingIds';
 import CoachCard from '../components/CoachCard';
 import NextSessionCard from '../components/NextSessionCard';
 import Avatar from '../components/Avatar';
+import MatchBadge from '../components/MatchBadge';
 import { nextOpenSlot } from '../utils/slots';
 import { normalizeSport, sportEmoji } from '../utils/sports';
 
 const SORTS = {
+    // Athletes only: coaches outside their sport have no match (-1) and come last
+    match: { label: 'Best match', fn: (a, b) => b._match - a._match || (b.rating ?? 0) - (a.rating ?? 0) },
     top: { label: 'Top rated', fn: (a, b) => (b.rating ?? 0) - (a.rating ?? 0) || b.reviewCount - a.reviewCount },
     soonest: { label: 'Soonest slot', fn: (a, b) => a._soonest - b._soonest },
     priceLow: { label: 'Price: low to high', fn: (a, b) => (a.pricePerSession ?? Infinity) - (b.pricePerSession ?? Infinity) },
@@ -105,6 +109,54 @@ const FiltersButton = ({ filters, setFilters }) => {
     );
 };
 
+// "Based on your Fitness and Speed & agility gaps" / a nudge to set up DNA
+const matchBasis = ({ hasDna, goal, needs }) => {
+    if (!hasDna) return null;
+    const names = needs.map((n) => n.label);
+    const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0];
+    if (!list) return 'Based on your level, city and schedule';
+    return goal ? `Based on your ${list} ${names.length > 1 ? 'gaps' : 'gap'}` : `Based on your weaker skills: ${list}`;
+};
+
+// Top three coaches for the athlete, each with why they match
+const BestMatches = ({ matches }) => {
+    const basis = matchBasis(matches.basis);
+    return (
+        <section className="card">
+            <h2 className="text-lg font-bold tracking-tight">Best matches for you</h2>
+            {basis ? (
+                <p className="mb-4 text-sm text-muted">{basis}</p>
+            ) : (
+                <p className="mb-4 text-sm text-muted">
+                    <Link to="/dna" className="font-semibold text-ink underline">Set up your Athlete DNA</Link> to match coaches to your weak spots.
+                </p>
+            )}
+            <ul className="space-y-5">
+                {matches.coaches.slice(0, 3).map((c) => (
+                    <li key={c._id}>
+                        <Link to={`/profile-view/${c._id}`} className="group flex items-start gap-3">
+                            <Avatar name={c.name} photo={c.profilePhoto} pastel className="h-11 w-11 text-sm" />
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="truncate font-semibold group-hover:underline">{c.name}</p>
+                                    <MatchBadge score={c.match.score} />
+                                </div>
+                                <ul className="mt-1 space-y-0.5 text-sm text-muted">
+                                    {c.match.reasons.slice(0, 2).map((r) => (
+                                        <li key={r.text} className="flex gap-1.5">
+                                            <Check size={14} className="mt-0.5 shrink-0 text-ink" /> {r.text}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+};
+
 // ---------- Page ----------
 
 const Discover = () => {
@@ -117,11 +169,17 @@ const Discover = () => {
     const [allCoaches, setAllCoaches] = useState([]); // unfiltered, for the hero text and "near you"
     const [search, setSearch] = useState({ sport: '', location: '', level: '' });
     const [sportChip, setSportChip] = useState('All');
-    const [sortKey, setSortKey] = useState('top');
+    const isLearner = user.role === 'learner';
+    const [searchParams] = useSearchParams();
+    const [sortKey, setSortKey] = useState(() => {
+        const wanted = searchParams.get('sort');
+        if (SORTS[wanted] && (wanted !== 'match' || isLearner)) return wanted;
+        return isLearner ? 'match' : 'top';
+    });
     const [filters, setFilters] = useState({ maxPrice: '', openOnly: false });
     const [loading, setLoading] = useState(true);
     const [spotlight, setSpotlight] = useState(null);
-    const [recommended, setRecommended] = useState([]);
+    const [matches, setMatches] = useState(null); // { basis, coaches } for athletes
 
     const fetchCoaches = useCallback((params = {}) =>
         API.get('/users/coaches', { params }).then((res) => {
@@ -135,10 +193,11 @@ const Discover = () => {
     useEffect(() => {
         fetchCoaches().catch(console.error).finally(() => setLoading(false));
         API.get('/spotlight/current').then((res) => setSpotlight(res.data)).catch(() => {});
-        if (user.role === 'learner') {
-            API.get('/users/recommended').then((res) => setRecommended(res.data)).catch(() => {});
+        if (isLearner) {
+            API.get('/match/coaches').then((res) => setMatches(res.data)).catch(() => {});
         }
-    }, [fetchCoaches, user.role]);
+    }, [fetchCoaches, isLearner]);
+    const matchById = Object.fromEntries((matches?.coaches || []).map((c) => [c._id, c.match]));
 
     const currentParams = () => {
         const params = {};
@@ -180,7 +239,12 @@ const Discover = () => {
     const visible = coaches
         .map((c) => {
             const next = nextOpenSlot(c.availability, c.takenSlots);
-            return { ...c, _next: next, _soonest: next ? next.day.date.getTime() + (next.slot.start ?? 0) * 60000 : Infinity };
+            return {
+                ...c,
+                _next: next,
+                _soonest: next ? next.day.date.getTime() + (next.slot.start ?? 0) * 60000 : Infinity,
+                _match: matchById[c._id]?.score ?? -1,
+            };
         })
         .filter((c) => sportChip === 'All' || normalizeSport(c.sport) === sportChip)
         .filter((c) => !filters.maxPrice || (c.pricePerSession ?? Infinity) <= Number(filters.maxPrice))
@@ -275,7 +339,9 @@ const Discover = () => {
                             <label className="chip gap-1 pr-2">
                                 <span className="text-muted">Sort:</span>
                                 <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} className="cursor-pointer bg-transparent font-medium outline-none">
-                                    {Object.entries(SORTS).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
+                                    {Object.entries(SORTS)
+                                        .filter(([k]) => k !== 'match' || isLearner)
+                                        .map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
                                 </select>
                             </label>
                             <FiltersButton filters={filters} setFilters={setFilters} />
@@ -292,6 +358,7 @@ const Discover = () => {
                                 <CoachCard
                                     key={coach._id}
                                     coach={coach}
+                                    match={matchById[coach._id]}
                                     canFollow={coach._id !== user._id}
                                     followState={followState(coach._id)}
                                     onToggleFollow={toggleFollow}
@@ -308,15 +375,18 @@ const Discover = () => {
             <aside className="space-y-6">
                 <NextSessionCard user={user} bookings={bookings} />
 
-                {/* Coaches in my city; learners without a city (or matches) see recommendations */}
-                {(nearYou.length > 0 || recommended.length > 0) && (
+                {/* Athletes: best matches for their DNA gaps, with the reasons */}
+                {isLearner && matches?.coaches.length > 0 && <BestMatches matches={matches} />}
+
+                {/* Everyone else: coaches in my city */}
+                {!isLearner && nearYou.length > 0 && (
                     <section className="card">
                         <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-lg font-bold tracking-tight">{nearYou.length ? 'Coaches near you' : 'Recommended for you'}</h2>
-                            {nearYou.length > 0 && <span className="text-sm capitalize text-muted">{profile.location}</span>}
+                            <h2 className="text-lg font-bold tracking-tight">Coaches near you</h2>
+                            <span className="text-sm capitalize text-muted">{profile.location}</span>
                         </div>
                         <ul className="space-y-3">
-                            {(nearYou.length ? nearYou : recommended.slice(0, 3)).map((c) => (
+                            {nearYou.map((c) => (
                                 <li key={c._id}>
                                     <Link to={`/profile-view/${c._id}`} className="flex items-center gap-3 rounded-2xl transition-colors hover:bg-canvas">
                                         <Avatar name={c.name} photo={c.profilePhoto} pastel className="h-11 w-11 text-sm" />
@@ -324,7 +394,7 @@ const Discover = () => {
                                             <p className="truncate font-semibold">{c.name}</p>
                                             <p className="flex items-center gap-1 truncate text-sm text-muted">
                                                 {c.sport}
-                                                {(c.rating || Number(c.avgRating) > 0) && <> · <Star size={12} className="fill-muted" /> {c.rating || c.avgRating}</>}
+                                                {c.rating && <> · <Star size={12} className="fill-muted" /> {c.rating}</>}
                                             </p>
                                         </div>
                                         {c.pricePerSession && <span className="badge shrink-0 bg-canvas text-muted">₹{c.pricePerSession}</span>}

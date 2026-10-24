@@ -7,12 +7,13 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Check } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useMyProfile from '../hooks/useMyProfile';
 import PageHeader from '../components/PageHeader';
 import { WEEKDAYS, slotStartMinutes } from '../utils/slots';
+import { DNA_SKILLS, MAX_COACH_FOCUS } from '../utils/dna';
 
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
 
@@ -31,6 +32,7 @@ const initialForm = (profile) => ({
     skillLevelTaught: profile.skillLevelTaught || '',
     yearsExperience: profile.yearsExperience ?? '',
     availability: sortSlots((profile.availability || []).map(({ day, timeSlot }) => ({ day, timeSlot }))),
+    coachFocus: profile.coachFocus || [],
     goals: profile.goals || '',
     skillLevel: profile.skillLevel || '',
 });
@@ -116,6 +118,12 @@ const SettingsContent = ({ profile }) => {
         setNewSlot({ ...newSlot, timeSlot: '' });
     };
 
+    // Up to MAX_COACH_FOCUS skills; the others are disabled once that many are picked
+    const toggleFocus = (key) => {
+        const focus = formData.coachFocus;
+        setFormData({ ...formData, coachFocus: focus.includes(key) ? focus.filter((k) => k !== key) : [...focus, key] });
+    };
+
     const removeSlot = (index) => {
         setFormData({ ...formData, availability: formData.availability.filter((_, i) => i !== index) });
     };
@@ -131,6 +139,7 @@ const SettingsContent = ({ profile }) => {
                 skillLevelTaught: formData.skillLevelTaught,
                 yearsExperience: formData.yearsExperience,
                 availability: formData.availability,
+                coachFocus: formData.coachFocus,
             });
         } else if (user.role === 'learner') {
             Object.assign(payload, { goals: formData.goals, skillLevel: formData.skillLevel });
@@ -211,6 +220,31 @@ const SettingsContent = ({ profile }) => {
                                     <input type="number" min="0" max="60" name="yearsExperience" value={formData.yearsExperience} onChange={handleChange} className="input" />
                                 </div>
                             </div>
+                        )}
+
+                        {isCoach && (
+                            <fieldset>
+                                <legend className="label">Skills you focus on <span className="font-normal text-muted">(up to {MAX_COACH_FOCUS})</span></legend>
+                                <p className="mb-3 text-sm text-muted">Athletes whose DNA shows a gap in these skills will see you as a match.</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {DNA_SKILLS.map((s) => {
+                                        const on = formData.coachFocus.includes(s.key);
+                                        const full = !on && formData.coachFocus.length >= MAX_COACH_FOCUS;
+                                        return (
+                                            <button
+                                                key={s.key}
+                                                type="button"
+                                                aria-pressed={on}
+                                                disabled={full}
+                                                onClick={() => toggleFocus(s.key)}
+                                                className={`chip ${on ? 'chip-active' : ''} ${full ? 'cursor-not-allowed opacity-40' : ''}`}
+                                            >
+                                                {on && <Check size={14} />} {s.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </fieldset>
                         )}
 
                         {user.role === 'learner' && (

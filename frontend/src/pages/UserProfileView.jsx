@@ -16,6 +16,7 @@ import FollowButton from '../components/FollowButton';
 import FollowCounts from '../components/FollowCounts';
 import CoachProfileCard from '../components/CoachProfileCard';
 import Portfolio from '../components/portfolio/Portfolio';
+import MatchCard from '../components/MatchCard';
 import useFollow from '../hooks/useFollow';
 
 const UserProfileView = () => {
@@ -126,6 +127,7 @@ const UserProfileView = () => {
                 </div>
 
                 <div className="min-w-0 space-y-6">
+                    {currentUser.role === 'learner' && !isOwnProfile && <MatchCard key={profileUser._id} coachId={profileUser._id} />}
                     <section className="card">
                         <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">About {privateBadge}</h2>
                         <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
