@@ -7,6 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import { useBrandAuth } from '../context/BrandAuthContext';
 import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
 
 const BrandLogin = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -79,7 +80,7 @@ const BrandLogin = () => {
 
         <div>
           <label className="label">Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required className="input" />
+          <PasswordInput name="password" value={formData.password} onChange={handleChange} aria-label="Password" autoComplete="current-password" required />
         </div>
 
         {isRegistering && (

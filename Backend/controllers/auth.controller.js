@@ -1,90 +1,162 @@
-const User = require('../models/user.model');
+// auth.controller.js
+// Sign-up, login, email verification and "Continue with Google".
+//
+// Email/password accounts must use a Gmail address and prove it's real: we
+// email a 6-digit code, and the account only works once the code is entered
+// (emailVerified). Google sign-in counts as verified, since Google has already
+// checked the address.
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const User = require('../models/user.model');
+const { normalizeEmail, isGmail, GMAIL_ONLY_MESSAGE } = require('../utils/email.util');
+const { mailerReady } = require('../utils/mailer.util');
+const { issueCode, checkCode } = require('../utils/emailCode.util');
 
-// Signup
+const SIGNUP_ROLES = ['learner', 'coach']; // admin accounts are only made by hand in the database
+const MIN_PASSWORD = 8;
+
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Older accounts may have stored their email with capitals
+const findByEmail = (email) => User.findOne({ email: { $regex: `^${escapeRegex(email)}$`, $options: 'i' } });
+
+// What the app stores after logging in
+const session = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  profilePhoto: user.profilePhoto,
+  token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' }),
+});
+
+const notVerified = (res, email, extra = '') => res.status(403).json({
+  code: 'EMAIL_NOT_VERIFIED',
+  email,
+  message: `Enter the 6-digit code we sent to ${email}.${extra}`,
+});
+
+// POST /api/auth/register — { name, email, password, role, ...profile }
+// Creates an unverified account and emails a code. No login until verified.
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio } = req.body;
+    const { password, sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio } = req.body;
+    const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
+    const email = normalizeEmail(req.body.email);
+    const role = req.body.role ?? 'learner';
 
-    // Security: block anyone from registering themselves as admin directly.
-    // Admin accounts are only created manually in the database.
-    if (role === 'admin') {
-      return res.status(403).json({ message: 'Cannot register as admin' });
+    if (role === 'admin') return res.status(403).json({ message: 'Cannot register as admin' });
+    if (!SIGNUP_ROLES.includes(role)) return res.status(400).json({ message: 'Choose learner or coach' });
+    if (!name || name.length > 60) return res.status(400).json({ message: 'Enter your name (up to 60 characters)' });
+    if (!isGmail(email)) return res.status(400).json({ message: GMAIL_ONLY_MESSAGE });
+    if (typeof password !== 'string' || password.length < MIN_PASSWORD || password.length > 100) {
+      return res.status(400).json({ message: `Password must be at least ${MIN_PASSWORD} characters` });
+    }
+    if (!mailerReady()) {
+      return res.status(503).json({ message: 'Email sign-up is not available right now. Please use "Continue with Google".' });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    if (await findByEmail(email)) {
+      return res.status(400).json({ message: 'An account with this email already exists. Log in instead.' });
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
-      name, email, password: hashedPassword, role,
+      name, email, role,
+      password: await bcrypt.hash(password, await bcrypt.genSalt(10)),
+      emailVerified: false,
       sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-
+    const sent = await issueCode(email);
     res.status(201).json({
-      _id: user._id, name: user.name, email: user.email, role: user.role, token,
+      code: 'EMAIL_NOT_VERIFIED',
+      email: user.email,
+      codeSent: sent.ok,
+      message: sent.ok
+        ? `We sent a 6-digit code to ${user.email}. Enter it to finish signing up.`
+        : `Your account was created, but the email didn't send: ${sent.message}`,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Login
+// POST /api/auth/login — { email, password }
+// Accounts that haven't verified their Gmail get a fresh code instead of a login.
 const loginUser = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const email = normalizeEmail(req.body.email);
+    const user = email && await findByEmail(email);
+    if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
-        }
-
-        // Accounts created with Google have no password
-        if (!user.password) {
-            return res.status(400).json({ message: 'This account uses Google sign-in. Use "Continue with Google" instead.' });
-        }
-
-        // Password match karo
-        const isMatch = await bcrypt.compare(String(password || ''), user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid email or password' });
-        }
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '30d',
-        });
-
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    // Accounts created with Google have no password
+    if (!user.password) {
+      return res.status(400).json({ message: 'This account uses Google sign-in. Use "Continue with Google" instead.' });
     }
+    const isMatch = await bcrypt.compare(String(req.body.password || ''), user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
+
+    if (user.emailVerified !== true) {
+      if (!isGmail(user.email)) {
+        return res.status(403).json({
+          code: 'EMAIL_NOT_ALLOWED',
+          message: "This account's email can't be verified. Please sign up again with your Gmail address.",
+        });
+      }
+      const sent = await issueCode(user.email);
+      // A code sent less than a minute ago is still fine to use
+      return notVerified(res, user.email, sent.ok ? '' : ` (${sent.message})`);
+    }
+
+    res.json(session(user));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/auth/verify-email — { email, code } -> logged in
+const verifyEmail = async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const user = email && await findByEmail(email);
+    if (!user || user.emailVerified === true) {
+      return res.status(400).json({ message: user ? 'This email is already verified. Please log in.' : 'No account is waiting for this code' });
+    }
+    const result = await checkCode(user.email, req.body.code);
+    if (!result.ok) return res.status(400).json({ message: result.message });
+
+    user.emailVerified = true;
+    await user.save();
+    res.json(session(user));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/auth/resend-code — { email }
+const resendCode = async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const user = email && await findByEmail(email);
+    // Same answer whether or not the account exists, so emails can't be probed
+    if (!user || user.emailVerified === true || !isGmail(user.email)) {
+      return res.json({ message: 'If this email is waiting for verification, we sent a new code.' });
+    }
+    const sent = await issueCode(user.email);
+    if (!sent.ok) return res.status(sent.status).json({ message: sent.message });
+    res.json({ message: `We sent a new code to ${user.email}.` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // POST /api/auth/google — { credential, role? }
 // `credential` is the ID token from the "Continue with Google" button. We ask
 // Google to verify it (no client secret needed), then log in the account with
-// that email, or create one. Google has confirmed the person owns the email,
-// so an existing password account with the same email is logged in too.
-// New accounts need a role; without one we answer 400 with code ROLE_REQUIRED
-// and the page asks "learner or coach?" and sends the same credential again.
-const { OAuth2Client } = require('google-auth-library');
+// that email, or create one. New accounts need a role; without one we answer
+// 400 with code ROLE_REQUIRED and the page asks "learner or coach?".
 const googleClient = new OAuth2Client();
-const GOOGLE_ROLES = ['learner', 'coach'];
-
-const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const googleLogin = async (req, res) => {
   try {
@@ -110,11 +182,11 @@ const googleLogin = async (req, res) => {
     }
 
     let created = false;
-    let user = await User.findOne({ email: { $regex: `^${escapeRegex(payload.email)}$`, $options: 'i' } });
+    let user = await findByEmail(payload.email);
 
     if (!user) {
       // Security: only learner or coach — never admin
-      if (!GOOGLE_ROLES.includes(role)) {
+      if (!SIGNUP_ROLES.includes(role)) {
         return res.status(400).json({ code: 'ROLE_REQUIRED', message: 'Are you joining as a learner or a coach?' });
       }
       user = await User.create({
@@ -123,23 +195,21 @@ const googleLogin = async (req, res) => {
         role,
         profilePhoto: payload.picture || '',
         googleId: true, // no password; this account logs in with Google
+        emailVerified: true,
       });
       created = true;
+    } else if (user.emailVerified !== true) {
+      // Google just proved who owns this email. A password set before the email
+      // was verified may have been chosen by someone else, so it's removed:
+      // this account now logs in with Google.
+      Object.assign(user, { emailVerified: true, googleId: true, password: undefined });
+      await user.save();
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-
-    res.status(created ? 201 : 200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profilePhoto: user.profilePhoto,
-      token,
-    });
+    res.status(created ? 201 : 200).json(session(user));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { registerUser, loginUser, googleLogin };
+module.exports = { registerUser, loginUser, verifyEmail, resendCode, googleLogin };

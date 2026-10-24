@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Proven to be a real address: the emailed 6-digit code was entered, or the
+  // account came from Google. Unverified accounts can't use the app.
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
   role: {
     type: String,
     enum: ['learner', 'coach', 'admin'],

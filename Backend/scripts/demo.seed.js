@@ -172,7 +172,7 @@ const REVIEWS = [
       const times = sample(SLOT_TIMES, int(2, 3));
       const createdAt = joined();
       return {
-        _id: idAt(createdAt), name, email: emailFor(name), password, role: 'coach', sport, location, bio,
+        _id: idAt(createdAt), name, email: emailFor(name), password, emailVerified: true, role: 'coach', sport, location, bio,
         skillLevelTaught, yearsExperience, pricePerSession, isPrivate: PRIVATE_NAMES.has(name),
         availability: days.flatMap((day) => times.map((timeSlot) => ({ day, timeSlot }))),
         coachFocus: sample(DIMENSION_KEYS, int(2, 3)),
@@ -182,7 +182,7 @@ const REVIEWS = [
     const athleteDocs = ATHLETES.map(([name, sport, location, skillLevel, goals]) => {
       const createdAt = joined();
       return {
-        _id: idAt(createdAt), name, email: emailFor(name), password, role: 'learner', sport, location,
+        _id: idAt(createdAt), name, email: emailFor(name), password, emailVerified: true, role: 'learner', sport, location,
         skillLevel, goals, isPrivate: PRIVATE_NAMES.has(name),
         bio: `${sport} player from ${location}. Goal: ${goals.toLowerCase()}.`,
         createdAt, updatedAt: createdAt,

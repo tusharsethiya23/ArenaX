@@ -26,6 +26,11 @@ const protect = async (req, res, next) => {
     if (!req.user && !req.brand) {
         return res.status(401).json({ message: 'This account no longer exists. Please log in again.' });
     }
+    // Accounts that haven't proven their email (older logins included) must log
+    // in again, which asks for the emailed code
+    if (req.user && req.user.emailVerified !== true) {
+        return res.status(401).json({ code: 'EMAIL_NOT_VERIFIED', message: 'Please verify your email. Log in again to get a code.' });
+    }
     next();
 };
 
@@ -47,7 +52,8 @@ const optionalProtect = async (req, res, next) => {
     } catch {
         // Invalid/expired token: carry on as anonymous
     }
-    // Deleted account: also anonymous (findById gave null)
+    // Deleted or unverified account: also anonymous
+    if (req.user && req.user.emailVerified !== true) req.user = null;
     if (!req.user) delete req.user;
     if (!req.brand) delete req.brand;
     if (!req.user && !req.brand) delete req.userType;
