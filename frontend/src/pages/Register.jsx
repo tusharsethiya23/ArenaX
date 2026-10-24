@@ -109,7 +109,7 @@ const Register = () => {
 
                     {GOOGLE_ENABLED && (
                         <>
-                            <GoogleSignInButton text="signup_with" onCredential={(credential) => google.signIn(credential, formData.role)} />
+                            <GoogleSignInButton onCredential={(credential) => google.signIn(credential, formData.role)} />
                             <OrDivider />
                         </>
                     )}
