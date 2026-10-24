@@ -1,39 +1,46 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import MobileTabBar from './components/MobileTabBar';
 import AiAssistantButton from './components/AiAssistantButton';
-import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Discover from './pages/Discover';
-import Profile from './pages/Profile';
-import Calendar from './pages/Calendar';
-import Marketplace from './pages/MarketPlace';
-import UserProfileView from './pages/UserProfileView';
-import Subscription from './pages/Subscription';
+import PageErrorBoundary from './components/PageErrorBoundary';
 import { useAuth } from './context/AuthContext';
-import AdminDashboard from './pages/AdminDashboard';
-import Chat from './pages/Chat';
-import Tournaments from './pages/Tournament';
-import BrandLogin from './pages/BrandLogin';
-import BrandDashboard from './pages/BrandDashboard';
-import MyDeals from './pages/MyDeals';
-import AiAssistant from './pages/AiAssistant';
-import Feed from './pages/Feed';
-import NewPost from './pages/NewPost';
-import SavedPosts from './pages/SavedPosts';
-import PostPage from './pages/PostPage';
-import AthleteDna from './pages/AthleteDna';
-import MyAthletes from './pages/MyAthletes';
+
+// Pages load on demand, so the first visit only downloads the page being opened
+const Settings = lazy(() => import('./pages/Settings'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Discover = lazy(() => import('./pages/Discover'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Marketplace = lazy(() => import('./pages/MarketPlace'));
+const UserProfileView = lazy(() => import('./pages/UserProfileView'));
+const Subscription = lazy(() => import('./pages/Subscription'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Tournaments = lazy(() => import('./pages/Tournament'));
+const BrandLogin = lazy(() => import('./pages/BrandLogin'));
+const BrandDashboard = lazy(() => import('./pages/BrandDashboard'));
+const MyDeals = lazy(() => import('./pages/MyDeals'));
+const AiAssistant = lazy(() => import('./pages/AiAssistant'));
+const Feed = lazy(() => import('./pages/Feed'));
+const NewPost = lazy(() => import('./pages/NewPost'));
+const SavedPosts = lazy(() => import('./pages/SavedPosts'));
+const PostPage = lazy(() => import('./pages/PostPage'));
+const AthleteDna = lazy(() => import('./pages/AthleteDna'));
+const MyAthletes = lazy(() => import('./pages/MyAthletes'));
 
 function App() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   return (
     <>
       <Navbar />
       {/* On mobile, leave room at the bottom for the fixed tab bar */}
       <main className={user ? 'pb-16 md:pb-0' : ''}>
+      <PageErrorBoundary resetKey={pathname}>
+      <Suspense fallback={<p className="empty-state" role="status">Loading...</p>}>
       <Routes>
         <Route
           path="/"
@@ -195,6 +202,8 @@ function App() {
         />
 
       </Routes>
+      </Suspense>
+      </PageErrorBoundary>
       </main>
 
       {/* Logged-in extras: bottom tabs (mobile) and the floating AI coach (every page) */}
