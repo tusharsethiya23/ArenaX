@@ -46,8 +46,13 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
+        // Accounts created with Google have no password
+        if (!user.password) {
+            return res.status(400).json({ message: 'This account uses Google sign-in. Use "Continue with Google" instead.' });
+        }
+
         // Password match karo
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(String(password || ''), user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
@@ -68,46 +73,63 @@ const loginUser = async (req, res) => {
     }
 };
 
-// Verifies a Google ID token and either logs in an existing user
-// or creates a new one. Since Google itself verifies the email ownership,
-// we trust the email that comes back from Google without extra checks.
+// POST /api/auth/google — { credential, role? }
+// `credential` is the ID token from the "Continue with Google" button. We ask
+// Google to verify it (no client secret needed), then log in the account with
+// that email, or create one. Google has confirmed the person owns the email,
+// so an existing password account with the same email is logged in too.
+// New accounts need a role; without one we answer 400 with code ROLE_REQUIRED
+// and the page asks "learner or coach?" and sends the same credential again.
 const { OAuth2Client } = require('google-auth-library');
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client();
+const GOOGLE_ROLES = ['learner', 'coach'];
+
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const googleLogin = async (req, res) => {
   try {
-    const { credential, role } = req.body; // credential = the ID token from Google
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      return res.status(503).json({ message: 'Google sign-in is not set up on the server' });
+    }
+    const { credential, role } = req.body;
+    if (typeof credential !== 'string' || !credential) {
+      return res.status(400).json({ message: 'Missing Google credential' });
+    }
 
-    // Ask Google to verify this token is genuine and get the user's info from it
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload(); // { email, name, picture, ... }
+    // Ask Google to verify this token is genuine and meant for our app
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId });
+      payload = ticket.getPayload(); // { sub, email, email_verified, name, picture, ... }
+    } catch {
+      return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
+    }
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(401).json({ message: 'Your Google account email is not verified' });
+    }
 
-    let user = await User.findOne({ email: payload.email });
+    let created = false;
+    let user = await User.findOne({ email: { $regex: `^${escapeRegex(payload.email)}$`, $options: 'i' } });
 
     if (!user) {
-      // First time logging in with this Google account — create a new user.
-      // 'role' must be provided on first login since our platform needs to
-      // know if this person is a learner or a coach.
-      if (!role) {
-        return res.status(400).json({ message: 'Role is required for first-time Google sign-in' });
+      // Security: only learner or coach — never admin
+      if (!GOOGLE_ROLES.includes(role)) {
+        return res.status(400).json({ code: 'ROLE_REQUIRED', message: 'Are you joining as a learner or a coach?' });
       }
-
       user = await User.create({
-        name: payload.name,
-        email: payload.email,
-        password: '', // no password needed — this account only logs in via Google
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email.toLowerCase(),
         role,
         profilePhoto: payload.picture || '',
-        googleId: true
+        googleId: true, // no password; this account logs in with Google
       });
+      created = true;
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({
+    res.status(created ? 201 : 200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
