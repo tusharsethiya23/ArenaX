@@ -54,7 +54,7 @@ const decoratePosts = async (posts, viewer) => {
     viewer ? Post.find({ _id: { $in: ids }, likes: viewer._id }).distinct('_id') : [],
     viewer ? SavedPost.find({ user: viewer._id, post: { $in: ids } }).distinct('post') : [],
     Comment.aggregate([
-      { $match: { post: { $in: ids } } },
+      { $match: { post: { $in: ids }, parent: null } }, // preview shows top-level comments only
       { $sort: { _id: -1 } },
       { $group: { _id: '$post', comment: { $first: '$$ROOT' } } },
     ]),
@@ -306,12 +306,13 @@ const setSaved = (save) => async (req, res) => {
   }
 };
 
-// GET /api/posts/:id/comments?cursor= — newest first, 20 at a time
+// GET /api/posts/:id/comments?cursor= — top-level comments, newest first, 20 at a time
+// (each has replyCount; replies are loaded per comment with getReplies)
 const getComments = async (req, res) => {
   try {
     if (!(await findPostOr404(req, res))) return;
     const { cursor } = req.query;
-    const filter = { post: req.params.id };
+    const filter = { post: req.params.id, parent: null };
     if (cursor) {
       if (!isId(cursor)) return res.status(400).json({ message: 'Invalid cursor' });
       filter._id = { $lt: cursor };
@@ -326,7 +327,32 @@ const getComments = async (req, res) => {
   }
 };
 
-// POST /api/posts/:id/comments — { text }
+// GET /api/posts/:id/comments/:commentId/replies?cursor= — oldest first, 20 at a time
+const getReplies = async (req, res) => {
+  try {
+    if (!isId(req.params.commentId)) return res.status(400).json({ message: 'Invalid id' });
+    if (!(await findPostOr404(req, res))) return;
+    const filter = { post: req.params.id, parent: req.params.commentId };
+    const { cursor } = req.query;
+    if (cursor) {
+      if (!isId(cursor)) return res.status(400).json({ message: 'Invalid cursor' });
+      filter._id = { $gt: cursor };
+    }
+    const limit = 20;
+    const replies = await Comment.find(filter).sort({ _id: 1 }).limit(limit + 1)
+      .populate('author', COMMENT_AUTHOR_FIELDS)
+      .populate('replyTo', 'name');
+    const hasMore = replies.length > limit;
+    if (hasMore) replies.pop();
+    res.json({ replies, nextCursor: hasMore ? replies[replies.length - 1]._id : null });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/posts/:id/comments — { text, parentId? }
+// With parentId it's a reply. Replying to a reply joins that reply's thread
+// and mentions its author (replyTo).
 const addComment = async (req, res) => {
   try {
     const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
@@ -337,16 +363,30 @@ const addComment = async (req, res) => {
     const post = await findPostOr404(req, res);
     if (!post) return;
 
-    const comment = await Comment.create({ post: post._id, author: req.user._id, text });
+    let parent = null;
+    let replyTo = null;
+    if (req.body.parentId) {
+      if (!isId(req.body.parentId)) return res.status(400).json({ message: 'Invalid comment' });
+      const target = await Comment.findOne({ _id: req.body.parentId, post: post._id });
+      if (!target) return res.status(404).json({ message: 'That comment was deleted' });
+      parent = target.parent || target._id;
+      replyTo = target.author;
+    }
+
+    const comment = await Comment.create({ post: post._id, author: req.user._id, text, parent, replyTo });
     const { commentCount } = await Post.findByIdAndUpdate(post._id, { $inc: { commentCount: 1 } }, { new: true }).select('commentCount');
-    await comment.populate('author', COMMENT_AUTHOR_FIELDS);
-    res.status(201).json({ comment, commentCount });
+    const replyCount = parent
+      ? (await Comment.findByIdAndUpdate(parent, { $inc: { replyCount: 1 } }, { new: true }).select('replyCount'))?.replyCount
+      : undefined;
+    await comment.populate([{ path: 'author', select: COMMENT_AUTHOR_FIELDS }, { path: 'replyTo', select: 'name' }]);
+    res.status(201).json({ comment, commentCount, replyCount });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// DELETE /api/posts/:id/comments/:commentId — comment author, post author, or admin
+// DELETE /api/posts/:id/comments/:commentId — comment author, post author, or admin.
+// Deleting a top-level comment also deletes its replies.
 const deleteComment = async (req, res) => {
   try {
     if (!isId(req.params.id) || !isId(req.params.commentId)) {
@@ -361,13 +401,26 @@ const deleteComment = async (req, res) => {
       || req.user.role === 'admin';
     if (!allowed) return res.status(403).json({ message: 'You cannot delete this comment' });
 
-    await Comment.deleteOne({ _id: comment._id });
-    const updated = await Post.findOneAndUpdate(
-      { _id: req.params.id, commentCount: { $gt: 0 } },
-      { $inc: { commentCount: -1 } },
-      { new: true }
+    let removed = 1;
+    let replyCount;
+    if (comment.parent) {
+      await Comment.deleteOne({ _id: comment._id });
+      replyCount = (await Comment.findOneAndUpdate(
+        { _id: comment.parent, replyCount: { $gt: 0 } },
+        { $inc: { replyCount: -1 } },
+        { new: true },
+      ).select('replyCount'))?.replyCount ?? 0;
+    } else {
+      removed += (await Comment.deleteMany({ parent: comment._id })).deletedCount;
+      await Comment.deleteOne({ _id: comment._id });
+    }
+
+    const updated = await Post.findByIdAndUpdate(
+      req.params.id,
+      [{ $set: { commentCount: { $max: [0, { $subtract: ['$commentCount', removed] }] } } }],
+      { new: true, updatePipeline: true },
     ).select('commentCount');
-    res.json({ message: 'Comment deleted', commentCount: updated?.commentCount ?? 0 });
+    res.json({ message: 'Comment deleted', commentCount: updated?.commentCount ?? 0, replyCount });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -377,6 +430,6 @@ module.exports = {
   createPost, getFeed, getFollowingFeed, getCoachesFeed, getSavedPosts, getPost, deletePost,
   likePost: setLike(true), unlikePost: setLike(false),
   savePost: setSaved(true), unsavePost: setSaved(false),
-  getComments, addComment, deleteComment,
+  getComments, getReplies, addComment, deleteComment,
   MAX_IMAGES,
 };

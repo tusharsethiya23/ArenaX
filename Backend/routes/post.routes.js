@@ -3,7 +3,7 @@ const multer = require('multer');
 const router = express.Router();
 const {
   createPost, getFeed, getFollowingFeed, getCoachesFeed, getSavedPosts, getPost, deletePost,
-  likePost, unlikePost, savePost, unsavePost, getComments, addComment, deleteComment,
+  likePost, unlikePost, savePost, unsavePost, getComments, getReplies, addComment, deleteComment,
   MAX_IMAGES,
 } = require('../controllers/post.controller');
 const { protect, optionalProtect } = require('../middlewares/auth.middleware');
@@ -46,6 +46,7 @@ router.delete('/:id/like', ...user, unlikePost);
 router.post('/:id/save', ...user, savePost);
 router.delete('/:id/save', ...user, unsavePost);
 router.get('/:id/comments', optionalProtect, getComments);
+router.get('/:id/comments/:commentId/replies', optionalProtect, getReplies);
 router.post('/:id/comments', ...user, addComment);
 router.delete('/:id/comments/:commentId', ...user, deleteComment);
 

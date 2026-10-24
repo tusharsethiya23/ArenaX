@@ -107,6 +107,9 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
         }
     };
 
+    // The latest comment is by the post's author (styled like in the comments panel)
+    const latestByAuthor = Boolean(post.latestComment?.author?._id) && post.latestComment.author._id === post.author?._id;
+
     const handleCommentCount = (commentCount, latestComment) =>
         setPost((p) => ({ ...p, commentCount, latestComment }));
 
@@ -211,8 +214,11 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
             ) : post.latestComment && (
                 <button onClick={() => setCommentsOpen(true)} className="mt-4 flex w-full gap-3 border-t border-line pt-4 text-left">
                     <Avatar name={post.latestComment.author?.name} photo={post.latestComment.author?.profilePhoto} pastel className="h-9 w-9 text-xs" />
-                    <span className="min-w-0 flex-1 rounded-2xl bg-canvas px-4 py-2.5">
-                        <span className="block text-sm font-semibold">{post.latestComment.author?.name || 'Deleted user'}</span>
+                    <span className={`min-w-0 flex-1 rounded-2xl px-4 py-2.5 ${latestByAuthor ? 'bg-lime/30 ring-1 ring-lime' : 'bg-canvas'}`}>
+                        <span className="flex items-center gap-2 text-sm font-semibold">
+                            {post.latestComment.author?.name || 'Deleted user'}
+                            {latestByAuthor && <span className="rounded-full bg-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-lime">Author</span>}
+                        </span>
                         <span className="block truncate text-sm">{post.latestComment.text}</span>
                     </span>
                 </button>

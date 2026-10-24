@@ -19,10 +19,29 @@ const commentSchema = new mongoose.Schema({
     required: true,
     maxlength: MAX_COMMENT_LENGTH,
   },
+  // Replies: one level deep. A reply's `parent` is always a top-level comment
+  // (replying to a reply joins the same thread); `replyTo` is the person being
+  // answered, shown as "@Name".
+  parent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
+    default: null,
+  },
+  replyTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+  },
+  replyCount: {
+    type: Number,
+    default: 0,
+  },
 }, { timestamps: true });
 
-// A post's comments, newest first
-commentSchema.index({ post: 1, _id: -1 });
+// A post's top-level comments, newest first
+commentSchema.index({ post: 1, parent: 1, _id: -1 });
+// A comment's replies, oldest first
+commentSchema.index({ parent: 1, _id: 1 });
 
 module.exports = mongoose.model('Comment', commentSchema);
 module.exports.MAX_COMMENT_LENGTH = MAX_COMMENT_LENGTH;

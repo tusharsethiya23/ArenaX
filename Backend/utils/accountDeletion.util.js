@@ -2,7 +2,8 @@
 // Deletes user accounts and everything linked to them. Used by "Delete my
 // account", admin deletion, and the demo-data cleaner.
 //
-// Removed: the user; their posts (with comments and saves on them), comments,
+// Removed: the user; their posts (with comments and saves on them), comments
+// (and replies under them),
 // likes and saves; follows both ways; bookings they were in, with those
 // bookings' chat messages and reviews; reviews they wrote or received;
 // achievements; Athlete DNA (assessments of them or by them, activity logs);
@@ -51,12 +52,15 @@ const deleteUsersAndData = async (userIds) => {
   const tournamentIds = await Tournament.find({ createdBy: inIds }).distinct('_id');
   // Posts by other people that lose comments need their counts fixed afterwards
   const otherCommented = await Comment.find({ author: inIds, post: { $nin: postIds } }).distinct('post');
+  // Their comments (replies under them go too) and threads losing their replies
+  const theirCommentIds = await Comment.find({ author: inIds }).distinct('_id');
+  const threadsLosingReplies = await Comment.find({ author: inIds, parent: { $ne: null } }).distinct('parent');
 
   const counts = {};
   const run = async (label, promise) => { counts[label] = (await promise).deletedCount ?? 0; };
 
   await run('posts', Post.deleteMany({ _id: { $in: postIds } }));
-  await run('comments', Comment.deleteMany({ $or: [{ post: { $in: postIds } }, { author: inIds }] }));
+  await run('comments', Comment.deleteMany({ $or: [{ post: { $in: postIds } }, { author: inIds }, { parent: { $in: theirCommentIds } }] }));
   await run('savedPosts', SavedPost.deleteMany({ $or: [{ post: { $in: postIds } }, { user: inIds }] }));
   await run('follows', Follow.deleteMany({ $or: [{ follower: inIds }, { following: inIds }] }));
   await run('messages', Message.deleteMany({ $or: [{ booking: { $in: bookingIds } }, { sender: inIds }, { receiver: inIds }] }));
@@ -93,6 +97,9 @@ const deleteUsersAndData = async (userIds) => {
   ], { updatePipeline: true });
   for (const postId of otherCommented) {
     await Post.updateOne({ _id: postId }, { commentCount: await Comment.countDocuments({ post: postId }) });
+  }
+  for (const parentId of threadsLosingReplies) {
+    await Comment.updateOne({ _id: parentId }, { replyCount: await Comment.countDocuments({ parent: parentId }) });
   }
 
   await run('users', User.deleteMany({ _id: inIds }));
