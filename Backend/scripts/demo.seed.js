@@ -3,7 +3,8 @@
 // of the app has something to show: ~30 users, ~100 posts with photos, likes,
 // comments, follows (incl. private accounts with pending requests), bookings
 // in every status, reviews, verified achievements, endorsements, tournaments
-// with teams, and marketplace content.
+// with teams, marketplace content, and Athlete DNA (goals, self + coach
+// assessments, 4 weeks of logged activities).
 //
 // All demo accounts use an @demo.arenax email and the password "demo1234".
 // Nothing is linked to real users. Remove everything with: npm run clear:demo
@@ -17,8 +18,9 @@ const { connect, clearDemoData, demoUserIds, mongoose, DEMO_DOMAIN, models } = r
 
 const {
   User, Post, Comment, SavedPost, Follow, Booking, Message, Review, Achievement,
-  Endorsement, ProfileView, Content, Tournament, Team,
+  Endorsement, ProfileView, Content, Tournament, Team, Assessment, ActivityLog,
 } = models;
+const { DIMENSION_KEYS, combineScores, gapsFor, buildPlan } = require('../utils/dna.util');
 
 const PASSWORD = 'demo1234';
 const DAY = 24 * 60 * 60 * 1000;
@@ -307,6 +309,59 @@ const REVIEWS = [
     ]);
     await Message.insertMany(messages);
     console.log(`Bookings: ${bookings.length} (${statuses.length} planned), ${reviews.length} reviews, ${messages.length} chat messages`);
+
+    // ---------- Athlete DNA: goals, self + coach assessments, 4 weeks of activity ----------
+    const GOAL_FOR_LEVEL = { beginner: ['recreational', 'club'], intermediate: ['district', 'state'], advanced: ['state', 'national'] };
+    const BASE_FOR_LEVEL = { beginner: 3, intermediate: 5, advanced: 7 };
+    const clampScore = (n) => Math.max(1, Math.min(10, Math.round(n)));
+    const assessments = [];
+    const activityLogs = [];
+    for (const athlete of athletes) {
+      const goal = pick(GOAL_FOR_LEVEL[athlete.skillLevel] || ['club']);
+      await User.updateOne({ _id: athlete._id }, { careerGoal: goal });
+
+      // Two self-ratings ~2.5 weeks apart; the newer one is a little better
+      const base = BASE_FOR_LEVEL[athlete.skillLevel] || 4;
+      const first = Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(base + int(-2, 2))]));
+      const second = Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(first[k] + (chance(0.6) ? 1 : 0))]));
+      const firstAt = daysAgo(24, 27);
+      const secondAt = daysAgo(5, 8);
+      assessments.push(
+        { athlete: athlete._id, assessor: athlete._id, source: 'self', scores: first, note: 'Starting point', createdAt: firstAt, updatedAt: firstAt },
+        { athlete: athlete._id, assessor: athlete._id, source: 'self', scores: second, note: '', createdAt: secondAt, updatedAt: secondAt },
+      );
+
+      // Every coach they've had a confirmed/completed session with assesses them once
+      const theirCoaches = [...new Set(bookings
+        .filter((b) => b.learner === athlete._id && ['confirmed', 'completed'].includes(b.status))
+        .map((b) => String(b.coach)))];
+      for (const coachId of theirCoaches) {
+        const at = daysAgo(9, 15);
+        assessments.push({
+          athlete: athlete._id, assessor: coaches.find((c) => String(c._id) === coachId)._id, source: 'coach',
+          scores: Object.fromEntries(DIMENSION_KEYS.map((k) => [k, clampScore(second[k] + int(-1, 1))])),
+          note: pick(['Great attitude, keep building fitness.', 'Technique is coming along nicely.', 'Needs more match practice.', 'Very coachable. Mental game improving.']),
+          createdAt: at, updatedAt: at,
+        });
+      }
+
+      // Plan from the current DNA, then ~4 weeks of logs at 40-90% of the weekly targets
+      const mine = assessments.filter((a) => a.athlete === athlete._id);
+      const plan = buildPlan(gapsFor(combineScores(mine).scores, goal), athlete.sport);
+      const effort = 0.4 + rand() * 0.5;
+      for (let week = 0; week < 4; week++) {
+        for (const item of plan) {
+          const times = Math.round(item.perWeek * effort * (0.7 + rand() * 0.6));
+          for (let t = 0; t < times; t++) {
+            const doneAt = new Date(NOW - (week * 7 + rand() * 7) * DAY);
+            activityLogs.push({ athlete: athlete._id, activityKey: item.key, dimension: item.dimension, minutes: pick([undefined, 20, 30, 45, 60]), doneAt, createdAt: doneAt, updatedAt: doneAt });
+          }
+        }
+      }
+    }
+    await Assessment.insertMany(assessments, { timestamps: false });
+    await ActivityLog.insertMany(activityLogs, { timestamps: false });
+    console.log(`Athlete DNA: ${assessments.filter((a) => a.source === 'self').length} self + ${assessments.filter((a) => a.source === 'coach').length} coach assessments, ${activityLogs.length} logged activities`);
 
     // ---------- Achievements, endorsements, profile views ----------
     const verifiedCoaches = coaches.filter((c) => ['Vikram Singh', 'Priya Nair', 'Meera Iyer', 'Farhan Ali', 'Rahul Sharma'].includes(c.name));

@@ -54,6 +54,7 @@ app.use('/api/analytics', require('./routes/analytics.routes.js'));
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/posts', require('./routes/post.routes.js'));
 app.use('/api/follows', require('./routes/follow.routes.js'));
+app.use('/api/dna', require('./routes/dna.routes.js'));
 
 app.get('/', (req, res) => {
   res.send('Sports Mentor Platform API is running 🎉');

@@ -7,7 +7,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     ChevronDown, CalendarDays, BarChart3, CreditCard, Settings,
-    Handshake, ShieldCheck, LogOut, Bookmark,
+    Handshake, ShieldCheck, LogOut, Bookmark, Dna, Users,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
@@ -39,6 +39,8 @@ const UserMenu = () => {
     // Role-specific pages (stats, deals, admin) only show for that role,
     // matching which routes exist for them in App.jsx.
     const items = [
+        user.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
+        user.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
         { to: '/bookings', label: 'My bookings', icon: CalendarDays },
         user.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },

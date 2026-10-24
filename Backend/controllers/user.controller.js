@@ -4,6 +4,8 @@ const Review = require('../models/review.model.js');
 const Endorsement = require('../models/endorsement.model.js');
 const { removeUserFeedContent } = require('./post.controller.js');
 const Follow = require('../models/follow.model.js');
+const Assessment = require('../models/assessment.model.js');
+const ActivityLog = require('../models/activityLog.model.js');
 const Achievement = require('../models/achievement.model.js');
 const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
 
@@ -205,6 +207,8 @@ const deleteAccount = async (req, res) => {
 
     await User.findByIdAndDelete(req.user._id);
     await removeUserFeedContent(req.user._id); // posts, comments, likes, saves
+    await Assessment.deleteMany({ $or: [{ athlete: req.user._id }, { assessor: req.user._id }] });
+    await ActivityLog.deleteMany({ athlete: req.user._id });
     await Follow.deleteMany({ $or: [{ follower: req.user._id }, { following: req.user._id }] });
 
     res.json({ message: 'Account deleted successfully' });
@@ -233,6 +237,8 @@ const adminDeleteUser = async (req, res) => {
     }
     await User.findByIdAndDelete(req.params.id);
     await removeUserFeedContent(req.params.id); // posts, comments, likes, saves
+    await Assessment.deleteMany({ $or: [{ athlete: req.params.id }, { assessor: req.params.id }] });
+    await ActivityLog.deleteMany({ athlete: req.params.id });
     await Follow.deleteMany({ $or: [{ follower: req.params.id }, { following: req.params.id }] });
     res.json({ message: 'User deleted by admin' });
   } catch (error) {

@@ -2,6 +2,10 @@ const Brand = require('../models/brand.model');
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { readinessForAthletes } = require('./dna.controller');
+
+// Athlete DNA readiness % at which athletes show up in brand talent search
+const BRAND_READY = 70;
 
 const registerBrand = async (req, res) => {
   try {
@@ -59,8 +63,18 @@ const searchTalent = async (req, res) => {
     if (sport) filter.sport = sport;
     if (location) filter.location = location;
 
-    const talent = await User.find(filter).select('-password');
-    res.json(talent);
+    const coaches = await User.find(filter).select('-password').lean();
+
+    // Athletes become discoverable to brands once their Athlete DNA readiness
+    // reaches BRAND_READY (public accounts only)
+    const athletes = await User.find({ ...filter, role: 'learner', isPrivate: { $ne: true } }).select('-password').lean();
+    const readiness = await readinessForAthletes(athletes);
+    const brandReady = athletes
+      .filter((a) => readiness[String(a._id)] >= BRAND_READY)
+      .map((a) => ({ ...a, readiness: readiness[String(a._id)] }))
+      .sort((a, b) => b.readiness - a.readiness);
+
+    res.json([...coaches, ...brandReady]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

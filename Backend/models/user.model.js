@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
   },
+  // Athlete DNA: the level the athlete is aiming for (keys of GOALS in utils/dna.util.js)
+  careerGoal: {
+    type: String,
+    enum: ['recreational', 'club', 'district', 'state', 'national', 'professional'],
+  },
   // Private accounts approve followers, and only approved followers see their posts
   isPrivate: {
     type: Boolean,

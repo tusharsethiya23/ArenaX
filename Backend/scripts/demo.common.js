@@ -26,6 +26,8 @@ const Deal = require('../models/deal.model');
 const Spotlight = require('../models/spotlight.model');
 const Tournament = require('../models/tournament.model');
 const Team = require('../models/team.model');
+const Assessment = require('../models/assessment.model');
+const ActivityLog = require('../models/activityLog.model');
 
 const DEMO_DOMAIN = 'demo.arenax';
 const DEMO_EMAIL = /@demo\.arenax$/i;
@@ -63,6 +65,8 @@ const clearDemoData = async () => {
   await run('reviews', Review.deleteMany({ $or: [{ booking: { $in: bookingIds } }, { coach: inIds }, { learner: inIds }] }));
   await run('bookings', Booking.deleteMany({ _id: { $in: bookingIds } }));
   await run('achievements', Achievement.deleteMany({ user: inIds }));
+  await run('assessments', Assessment.deleteMany({ $or: [{ athlete: inIds }, { assessor: inIds }] }));
+  await run('activityLogs', ActivityLog.deleteMany({ athlete: inIds }));
   await run('endorsements', Endorsement.deleteMany({ $or: [{ endorser: inIds }, { endorsedUser: inIds }] }));
   await run('profileViews', ProfileView.deleteMany({ profileOwner: inIds }));
   await run('subscriptions', Subscription.deleteMany({ user: inIds }));
@@ -91,6 +95,6 @@ module.exports = {
   mongoose, connect, clearDemoData, demoUserIds, DEMO_DOMAIN, DEMO_EMAIL,
   models: {
     User, Post, Comment, SavedPost, Follow, Booking, Message, Review, Achievement,
-    Endorsement, ProfileView, Subscription, Content, Purchase, Tournament, Team,
+    Endorsement, ProfileView, Subscription, Content, Purchase, Tournament, Team, Assessment, ActivityLog,
   },
 };

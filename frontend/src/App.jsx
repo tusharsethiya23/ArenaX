@@ -24,6 +24,8 @@ import Feed from './pages/Feed';
 import NewPost from './pages/NewPost';
 import SavedPosts from './pages/SavedPosts';
 import PostPage from './pages/PostPage';
+import AthleteDna from './pages/AthleteDna';
+import MyAthletes from './pages/MyAthletes';
 
 function App() {
   const { user } = useAuth();
@@ -65,6 +67,10 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Athlete DNA: own dashboard, a coach's view of an athlete, and a coach's athlete list */}
+        <Route path="/dna" element={<ProtectedRoute><AthleteDna /></ProtectedRoute>} />
+        <Route path="/dna/:athleteId" element={<ProtectedRoute><AthleteDna /></ProtectedRoute>} />
+        <Route path="/my-athletes" element={<ProtectedRoute><MyAthletes /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route

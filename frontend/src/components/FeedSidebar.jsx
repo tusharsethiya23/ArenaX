@@ -2,11 +2,12 @@
 // Left column of the Feed (large screens):
 //   1. Profile summary: avatar, name, "<sport> coach · <city>", and
 //      followers / following / sessions counts
-//   2. Menu: Home feed, My bookings (with a badge for bookings waiting on a
-//      reply), My stats (coaches), Saved posts, Settings
+//   2. Menu: Home feed, My DNA (athletes) / My athletes (coaches), My bookings
+//      (with a badge for bookings waiting on a reply), My stats (coaches),
+//      Saved posts, Settings
 
 import { Link, NavLink } from 'react-router-dom';
-import { Home, CalendarDays, BarChart3, Bookmark, Settings } from 'lucide-react';
+import { Home, CalendarDays, BarChart3, Bookmark, Settings, Dna, Users } from 'lucide-react';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import useFollow from '../hooks/useFollow';
@@ -32,6 +33,8 @@ const FeedSidebar = ({ profile, bookings }) => {
 
     const items = [
         { to: '/', label: 'Home feed', icon: Home, end: true },
+        profile.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
+        profile.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
         { to: '/bookings', label: 'My bookings', icon: CalendarDays, badge: pending },
         profile.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },

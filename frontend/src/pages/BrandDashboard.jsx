@@ -109,6 +109,10 @@ const BrandDashboard = () => {
                 </div>
                 {t.sport && <span className="badge shrink-0 bg-lime text-ink">{t.sport}</span>}
               </div>
+              {/* Athletes appear here once their Athlete DNA readiness reaches 70% */}
+              {t.role === 'learner' && t.readiness != null && (
+                <p className="mt-3"><span className="badge bg-ink text-lime">Athlete · {t.readiness}% ready</span></p>
+              )}
               {t.bio && <p className="mt-4 text-sm text-ink/80">{t.bio}</p>}
               <div className="mt-auto pt-5">
                 <button onClick={() => setDealTarget(t._id)} className="btn btn-dark">
