@@ -45,6 +45,8 @@ const EMPTY = {
 // never taller than the screen (24px gap at the bottom), and scroll inside
 // themselves when their content is taller.
 const SIDE_COLUMN = 'sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain rounded-[28px] [scrollbar-width:thin]';
+// The left column fits on screen, so it never shows a scrollbar (the wheel still works on very short screens)
+const LEFT_COLUMN = SIDE_COLUMN.replace('[scrollbar-width:thin]', '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden');
 
 const Feed = () => {
     const { user } = useAuth();
@@ -60,7 +62,7 @@ const Feed = () => {
 
             {/* ===================== LEFT ===================== */}
             <div className="hidden xl:block">
-                <div className={SIDE_COLUMN}><FeedSidebar profile={profile} bookings={bookings} /></div>
+                <div className={LEFT_COLUMN}><FeedSidebar profile={profile} bookings={bookings} /></div>
             </div>
 
             {/* ===================== FEED ===================== */}
