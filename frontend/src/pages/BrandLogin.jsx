@@ -87,7 +87,7 @@ const BrandLogin = () => {
         </div>
 
         {isRegistering && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="brand-industry">Industry</label>
               <input id="brand-industry" type="text" name="industry" value={formData.industry} onChange={handleChange} className="input" />

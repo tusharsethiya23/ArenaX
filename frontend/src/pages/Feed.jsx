@@ -51,7 +51,7 @@ const Feed = () => {
     const endpoint = TABS.find((t) => t.id === tab).endpoint;
 
     return (
-        <div className="page grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+        <div className="page grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[280px_minmax(0,1fr)_340px]">
 
             {/* ===================== LEFT ===================== */}
             <div className="hidden xl:block">

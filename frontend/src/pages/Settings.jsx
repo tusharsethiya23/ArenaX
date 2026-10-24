@@ -191,7 +191,7 @@ const SettingsContent = ({ profile }) => {
                             <textarea name="bio" value={formData.bio} onChange={handleChange} rows={3} className="input resize-none" />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="label">Location</label>
                                 <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="e.g. Indore" className="input" />
@@ -205,7 +205,7 @@ const SettingsContent = ({ profile }) => {
                         </div>
 
                         {isCoach && (
-                            <div className="grid gap-4 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div>
                                     <label className="label">Price per session (₹)</label>
                                     <input type="number" min="0" name="pricePerSession" value={formData.pricePerSession} onChange={handleChange} className="input" />
@@ -247,7 +247,7 @@ const SettingsContent = ({ profile }) => {
                         )}
 
                         {user.role === 'learner' && (
-                            <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="label" htmlFor="set-level">Your level</label>
                                     <Select id="set-level" value={formData.skillLevel} onChange={(v) => setFormData({ ...formData, skillLevel: v })} options={LEVEL_OPTIONS} />

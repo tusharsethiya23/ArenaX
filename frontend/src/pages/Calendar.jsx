@@ -65,7 +65,7 @@ const Calendar = () => {
                 subtitle={isCoach ? 'Your sessions with athletes' : 'Your sessions with coaches'}
             />
 
-            <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
                 <div className="lg:sticky lg:top-24">
                     <MonthCalendar bookings={bookings} selected={day} onSelect={(d) => { setDay(d); setPastShown(PAST_PAGE); }} />
                 </div>

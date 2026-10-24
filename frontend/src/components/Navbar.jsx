@@ -19,7 +19,7 @@ const Navbar = () => {
     return (
         <nav className="sticky top-0 z-40 h-20 bg-canvas/85 backdrop-blur-md">
             {/* 2 columns on mobile (logo | right), 3 on desktop so the links sit truly centered */}
-            <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
+            <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
                 {/* ---------- LEFT: logo ---------- */}
                 <div className="justify-self-start">
@@ -74,10 +74,10 @@ const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className="btn text-muted hover:text-ink">
+                            <Link to="/login" className="btn px-3 text-muted hover:text-ink sm:px-5">
                                 Log in
                             </Link>
-                            <Link to="/register" className="btn btn-dark">
+                            <Link to="/register" className="btn btn-dark px-4 sm:px-5">
                                 Join
                             </Link>
                         </>

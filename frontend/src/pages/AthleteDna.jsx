@@ -52,7 +52,7 @@ const Pips = ({ done, total }) => (
 const Onboarding = ({ dna, onDone }) => {
     const [goal, setGoal] = useState(dna.goal?.key || null);
     return (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <section className="rounded-[32px] bg-ink p-6 text-white sm:p-8">
                 <p className="text-xs font-bold uppercase tracking-wider text-lime">Athlete DNA</p>
                 <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter sm:text-4xl">Where am I? Where do I want to go? What should I do next?</h2>
@@ -162,12 +162,12 @@ const AthleteDna = () => {
                 action={flash && <span role="status" className="badge bg-lime px-4 py-2 text-sm text-ink">{flash}</span>}
             />
 
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
                 {/* ===================== MAIN ===================== */}
                 <div className="min-w-0 space-y-6">
 
                     {/* ---------- Headline numbers ---------- */}
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <section className="rounded-[28px] bg-ink p-5 text-white">
                             <p className="text-sm text-white/60">Career readiness</p>
                             <p className="mt-1 text-5xl font-black tracking-tighter text-lime">{dna.readiness ?? '—'}{dna.readiness !== null && <span className="text-2xl">%</span>}</p>

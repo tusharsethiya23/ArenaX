@@ -79,7 +79,7 @@ const Tournaments = () => {
       {showCreateForm && (
         <form onSubmit={handleCreate} className="card mb-6 space-y-4">
           <h2 className="text-lg font-bold">New tournament</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label">Tournament name</label>
               <input value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} required className="input" />
@@ -97,7 +97,7 @@ const Tournaments = () => {
             <label className="label">Description</label>
             <textarea value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} rows={3} className="input resize-none" />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label">Start date</label>
               <input type="date" value={createForm.startDate} onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })} required className="input" />
@@ -115,7 +115,7 @@ const Tournaments = () => {
       {tournaments.length === 0 ? (
         <p className="empty-state">No tournaments yet.</p>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {tournaments.map((t, i) => (
             <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
               <div className="flex items-start justify-between gap-3">

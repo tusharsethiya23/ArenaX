@@ -114,7 +114,7 @@ const UserProfileView = () => {
     // ===================== COACH PROFILE =====================
     if (profileUser.role === 'coach') {
         return (
-            <div className="page grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:items-start">
+            <div className="page grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:items-start">
                 <div className="lg:sticky lg:top-24">
                     <CoachProfileCard
                         key={profileUser._id}
@@ -169,7 +169,7 @@ const UserProfileView = () => {
 
             {profileUser.role !== 'admin' && <Portfolio key={userId} userId={userId} isOwn={isOwnProfile} role={profileUser.role} />}
 
-            <div className={`grid gap-6 ${!isOwnProfile ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
+            <div className={`grid grid-cols-1 gap-6 ${!isOwnProfile ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
                 {endorsementsSection}
                 {endorseForm}
             </div>

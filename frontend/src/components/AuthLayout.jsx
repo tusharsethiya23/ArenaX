@@ -15,7 +15,7 @@ const Tagline = () => (
 );
 
 const AuthLayout = ({ title, subtitle, children, footer }) => (
-    <div className="mx-auto grid w-full max-w-[1440px] gap-4 px-4 pb-8 pt-2 sm:gap-6 sm:px-6 sm:pt-4 lg:min-h-[calc(100dvh-80px)] lg:grid-cols-[1.1fr_1fr] lg:px-10 lg:py-6">
+    <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-4 px-4 pb-8 pt-2 sm:gap-6 sm:px-6 sm:pt-4 lg:min-h-[calc(100dvh-80px)] lg:grid-cols-[1.1fr_1fr] lg:px-10 lg:py-6">
 
         {/* ---------- Hero panel (large screens) ---------- */}
         <div className="relative hidden overflow-hidden rounded-[32px] bg-ink p-10 lg:flex lg:flex-col lg:justify-end">

@@ -42,7 +42,7 @@ const AchievementForm = ({ initial, onSubmit, onCancel }) => {
                 <label className="label" htmlFor="ach-title">Title</label>
                 <input id="ach-title" value={form.title} onChange={set('title')} maxLength={100} required placeholder="e.g. District championship: gold" className="input" />
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                     <label className="label" htmlFor="ach-category">Type</label>
                     <Select id="ach-category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} options={CATEGORIES.map((c) => ({ value: c.key, label: c.label }))} />

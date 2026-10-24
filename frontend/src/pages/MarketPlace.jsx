@@ -51,7 +51,7 @@ const Marketplace = () => {
         <div className="page">
             <PageHeader title="Marketplace" subtitle="Drills, plans and video courses from coaches" />
 
-            <div className={user.role === 'coach' ? 'grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]' : ''}>
+            <div className={user.role === 'coach' ? 'grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px]' : ''}>
 
                 {/* ================= AVAILABLE CONTENT ================= */}
                 <div className="min-w-0">
@@ -67,7 +67,7 @@ const Marketplace = () => {
                     {visible.length === 0 ? (
                         <p className="empty-state">No content here yet.</p>
                     ) : (
-                        <div className={`grid gap-5 sm:grid-cols-2 ${user.role === 'coach' ? '' : 'lg:grid-cols-3'}`}>
+                        <div className={`grid grid-cols-1 gap-5 sm:grid-cols-2 ${user.role === 'coach' ? '' : 'lg:grid-cols-3'}`}>
                             {visible.map((c) => (
                                 <div key={c._id} className="flex flex-col rounded-[28px] bg-surface p-5">
                                     <div className="flex items-center justify-between gap-3">
@@ -115,7 +115,7 @@ const Marketplace = () => {
                             <input value={form.fileLink} onChange={(e) => setForm({ ...form, fileLink: e.target.value })} required className="input" />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="min-w-0">
                                 <label className="label">Price (₹)</label>
                                 <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="input" />

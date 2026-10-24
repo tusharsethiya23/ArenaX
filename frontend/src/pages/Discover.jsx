@@ -271,11 +271,11 @@ const Discover = () => {
         : [];
 
     return (
-        <div className="page grid max-w-[1680px] gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="page grid max-w-[1680px] grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
 
             {/* ===================== MAIN COLUMN ===================== */}
             <div className="min-w-0 space-y-6">
-                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
 
                     {/* ---------- Search hero ---------- */}
                     <section className="card sm:p-8">

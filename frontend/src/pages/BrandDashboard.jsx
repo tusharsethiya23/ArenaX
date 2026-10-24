@@ -98,7 +98,7 @@ const BrandDashboard = () => {
       {talent.length === 0 ? (
         <p className="empty-state">No talent found. Try a different search.</p>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {talent.map((t) => (
             <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
               <div className="flex items-center gap-3">

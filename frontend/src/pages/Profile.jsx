@@ -114,7 +114,7 @@ const Profile = () => {
             ) : activeTab === 'portfolio' ? (
                 <Portfolio userId={user._id} isOwn role={user.role} />
             ) : (
-                <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
 
                     {/* ================= DETAILS ================= */}
                     <section className="card">
