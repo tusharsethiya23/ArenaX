@@ -46,22 +46,26 @@ const FeedSidebar = ({ profile, bookings }) => {
     ].filter(Boolean);
 
     return (
-        <aside className="space-y-5">
-            {/* ---------- Profile summary ---------- */}
-            <section className="card text-center">
-                <Link to="/profile" className="mx-auto block w-fit rounded-full ring-2 ring-ink ring-offset-4 ring-offset-surface">
-                    <Avatar name={profile.name} photo={profile.profilePhoto} className="h-20 w-20 text-2xl" />
-                </Link>
-                <div className="mt-4 flex items-center justify-center gap-1.5">
-                    <Link to="/profile" className="truncate text-lg font-bold hover:underline">{profile.name}</Link>
-                    {profile.verified && <VerifiedBadge size={17} />}
+        <aside className="space-y-4">
+            {/* ---------- Profile summary (compact so the whole column fits on short screens) ---------- */}
+            <section className="card p-4 sm:p-4">
+                <div className="flex items-center gap-3">
+                    <Link to="/profile" className="shrink-0 rounded-full ring-2 ring-ink ring-offset-2 ring-offset-surface">
+                        <Avatar name={profile.name} photo={profile.profilePhoto} className="h-12 w-12 text-base" />
+                    </Link>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                            <Link to="/profile" className="truncate font-bold hover:underline">{profile.name}</Link>
+                            {profile.verified && <VerifiedBadge size={15} />}
+                        </div>
+                        <p className="truncate text-sm text-muted">{roleTitle(profile)}</p>
+                    </div>
                 </div>
-                <p className="truncate text-sm text-muted">{roleTitle(profile)}</p>
 
-                <div className="mt-5 grid grid-cols-3 border-t border-line pt-4">
+                <div className="mt-3 grid grid-cols-3 border-t border-line pt-3 text-center">
                     {stats.map((s) => (
                         <div key={s.label}>
-                            <p className="text-lg font-extrabold">{compact(s.value)}</p>
+                            <p className="font-extrabold">{compact(s.value)}</p>
                             <p className="text-xs text-muted">{s.label}</p>
                         </div>
                     ))}
@@ -69,14 +73,14 @@ const FeedSidebar = ({ profile, bookings }) => {
             </section>
 
             {/* ---------- Menu ---------- */}
-            <nav className="card p-2.5">
+            <nav className="card p-2 sm:p-2">
                 {items.map(({ to, label, icon: Icon, badge, end }) => (
                     <NavLink
                         key={to}
                         to={to}
                         end={end}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-medium transition-colors ${isActive ? 'bg-canvas' : 'hover:bg-canvas'}`
+                            `flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-canvas' : 'hover:bg-canvas'}`
                         }
                     >
                         <Icon size={18} strokeWidth={1.8} />
