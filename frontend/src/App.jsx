@@ -182,6 +182,7 @@ function App() {
             <BrandLogin />
           }
         />
+        <Route path="/brand/register" element={<BrandLogin />} />
         <Route
           path="/brand/dashboard"
           element={

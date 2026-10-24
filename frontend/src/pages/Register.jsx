@@ -4,7 +4,7 @@
 // then enter the 6-digit code we email, proving the Gmail is real.
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import AuthLayout from '../components/AuthLayout';
@@ -13,6 +13,7 @@ import GoogleRolePicker from '../components/GoogleRolePicker';
 import OrDivider from '../components/OrDivider';
 import PasswordInput from '../components/PasswordInput';
 import VerifyEmailStep from '../components/VerifyEmailStep';
+import JoinAsPicker from '../components/JoinAsPicker';
 import useGoogleAuth from '../hooks/useGoogleAuth';
 
 const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
@@ -21,11 +22,12 @@ const MIN_PASSWORD = 8;
 const GMAIL_RE = /^[a-z0-9](?:[a-z0-9.]{4,28})[a-z0-9](?:\+[a-z0-9._-]{1,30})?@(?:gmail|googlemail)\.com$/;
 
 const Register = () => {
+    const [searchParams] = useSearchParams();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
-        role: 'learner',
+        role: searchParams.get('role') === 'coach' ? 'coach' : 'learner',
     });
     const [error, setError] = useState('');
     const { login } = useAuth();
@@ -82,29 +84,9 @@ const Register = () => {
                 <GoogleRolePicker onChoose={google.chooseRole} onCancel={google.cancelRole} busy={google.busy} />
             ) : (
                 <>
+                    {/* Learner / coach sign up here (used by Google and the form); Brand switches to the brand sign-up */}
                     <div className="mb-5">
-                        <p className="label">Joining as</p>
-                        {/* Role picker styled as two chips; used by both Google and the form */}
-                        <div className="grid grid-cols-2 gap-2 rounded-full bg-canvas p-1.5" role="radiogroup" aria-label="Joining as">
-                            {['learner', 'coach'].map((r) => (
-                                <label
-                                    key={r}
-                                    className={`cursor-pointer rounded-full py-2.5 text-center text-sm font-semibold transition-colors ${
-                                        formData.role === r ? 'bg-ink text-white' : 'text-muted hover:text-ink'
-                                    }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="role"
-                                        value={r}
-                                        checked={formData.role === r}
-                                        onChange={handleChange}
-                                        className="sr-only"
-                                    />
-                                    {r === 'learner' ? 'Learner' : 'Coach'}
-                                </label>
-                            ))}
-                        </div>
+                        <JoinAsPicker value={formData.role} onChange={(role) => setFormData({ ...formData, role })} />
                     </div>
 
                     {GOOGLE_ENABLED && (
