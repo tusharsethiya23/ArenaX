@@ -373,34 +373,10 @@ const deleteComment = async (req, res) => {
   }
 };
 
-// Removes everything a deleted account left in the feed: their posts (with those
-// posts' comments and saves), their comments elsewhere, their likes and saves.
-const removeUserFeedContent = async (userId) => {
-  const ownPosts = await Post.find({ author: userId }).distinct('_id');
-  // Posts that lose comments from this user need their counts fixed afterwards
-  const commentedPosts = await Comment.find({ author: userId, post: { $nin: ownPosts } }).distinct('post');
-
-  await Promise.all([
-    Post.deleteMany({ _id: { $in: ownPosts } }),
-    Comment.deleteMany({ $or: [{ post: { $in: ownPosts } }, { author: userId }] }),
-    SavedPost.deleteMany({ $or: [{ post: { $in: ownPosts } }, { user: userId }] }),
-    Post.updateMany({ likes: userId }, { $pull: { likes: userId }, $inc: { likeCount: -1 } }),
-  ]);
-
-  const counts = await Comment.aggregate([
-    { $match: { post: { $in: commentedPosts } } },
-    { $group: { _id: '$post', n: { $sum: 1 } } },
-  ]);
-  const byPost = Object.fromEntries(counts.map((c) => [String(c._id), c.n]));
-  await Promise.all(commentedPosts.map((id) =>
-    Post.updateOne({ _id: id }, { commentCount: byPost[String(id)] || 0 })));
-};
-
 module.exports = {
   createPost, getFeed, getFollowingFeed, getCoachesFeed, getSavedPosts, getPost, deletePost,
   likePost: setLike(true), unlikePost: setLike(false),
   savePost: setSaved(true), unsavePost: setSaved(false),
   getComments, addComment, deleteComment,
-  removeUserFeedContent,
   MAX_IMAGES,
 };

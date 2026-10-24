@@ -65,6 +65,12 @@ const achievementSchema = new mongoose.Schema({
     ref: 'User',
     default: null,
   },
+  // The coach who verified it has since deleted their account (verifiedBy is
+  // then null, which on its own would read as "verified by the ArenaX team")
+  verifierRemoved: {
+    type: Boolean,
+    default: false,
+  },
   reviewedAt: Date,
   reviewNote: {
     type: String,

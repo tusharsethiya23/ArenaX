@@ -59,11 +59,14 @@ const Privacy = () => (
         <Section title="How long we keep it">
             <p>
                 We keep your information while your account exists. When you delete your account in Settings, we delete
-                your profile, posts, comments, likes, saved posts, follows and Athlete DNA.
+                your account and everything linked to it: your profile, posts, comments, likes, saved posts, follows,
+                bookings and their chat messages, reviews, endorsements, portfolio achievements, Athlete DNA and logged
+                activities.
             </p>
             <p>
-                Some records are not yet removed automatically: past bookings, chat messages, reviews, endorsements and
-                portfolio achievements. To have these removed too, <Contact />.
+                If you were a coach who verified someone's achievement, it stays verified but is shown as verified by
+                "a former coach". Photo files you uploaded may remain with our image storage provider; to have those
+                removed too, <Contact />.
             </p>
         </Section>
 

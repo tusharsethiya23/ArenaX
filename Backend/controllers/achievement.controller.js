@@ -40,9 +40,10 @@ const shape = (a, extra = {}) => ({
   status: statusOf(a),
   verified: statusOf(a) === 'verified',
   // Admin reviews are shown as the ArenaX team, not the admin's own name
+  // A verifier who deleted their account shows as "a former coach"
   verifiedBy: a.verifiedBy && a.verifiedBy.name
     ? { _id: a.verifiedBy._id, name: a.verifiedBy.role === 'admin' ? 'ArenaX team' : a.verifiedBy.name }
-    : null,
+    : a.verifierRemoved ? { _id: null, name: 'a former coach' } : null,
   requestedFrom: a.requestedFrom && a.requestedFrom.name ? { _id: a.requestedFrom._id, name: a.requestedFrom.name } : null,
   reviewedAt: a.reviewedAt || null,
   reviewNote: a.reviewNote || '',
@@ -145,7 +146,7 @@ const updateAchievement = async (req, res) => {
 
     Object.assign(a, value);
     // Verification was for the old details: start over
-    Object.assign(a, { status: 'unverified', verified: false, verifiedBy: null, requestedFrom: null, reviewedAt: undefined, reviewNote: '' });
+    Object.assign(a, { status: 'unverified', verified: false, verifiedBy: null, verifierRemoved: false, requestedFrom: null, reviewedAt: undefined, reviewNote: '' });
     await a.save();
     res.json(shape(a.toObject()));
   } catch (error) {
@@ -229,6 +230,7 @@ const review = (approve) => async (req, res) => {
       status: approve ? 'verified' : 'rejected',
       verified: approve,
       verifiedBy: approve ? req.user._id : null,
+      verifierRemoved: false,
       requestedFrom: null,
       reviewedAt: new Date(),
       reviewNote: note,

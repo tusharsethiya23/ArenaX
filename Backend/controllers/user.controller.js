@@ -1,10 +1,8 @@
 const User = require('../models/user.model');
 const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
-const { removeUserFeedContent } = require('./post.controller.js');
+const { deleteUsersAndData } = require('../utils/accountDeletion.util.js');
 const Follow = require('../models/follow.model.js');
-const Assessment = require('../models/assessment.model.js');
-const ActivityLog = require('../models/activityLog.model.js');
 const Achievement = require('../models/achievement.model.js');
 const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
 const { DIMENSION_KEYS } = require('../utils/dna.util.js');
@@ -218,11 +216,8 @@ const deleteAccount = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await User.findByIdAndDelete(req.user._id);
-    await removeUserFeedContent(req.user._id); // posts, comments, likes, saves
-    await Assessment.deleteMany({ $or: [{ athlete: req.user._id }, { assessor: req.user._id }] });
-    await ActivityLog.deleteMany({ athlete: req.user._id });
-    await Follow.deleteMany({ $or: [{ follower: req.user._id }, { following: req.user._id }] });
+    // The account and everything linked to it (see utils/accountDeletion.util.js)
+    await deleteUsersAndData([user._id]);
 
     res.json({ message: 'Account deleted successfully' });
   } catch (error) {
@@ -248,11 +243,7 @@ const adminDeleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    await User.findByIdAndDelete(req.params.id);
-    await removeUserFeedContent(req.params.id); // posts, comments, likes, saves
-    await Assessment.deleteMany({ $or: [{ athlete: req.params.id }, { assessor: req.params.id }] });
-    await ActivityLog.deleteMany({ athlete: req.params.id });
-    await Follow.deleteMany({ $or: [{ follower: req.params.id }, { following: req.params.id }] });
+    await deleteUsersAndData([user._id]);
     res.json({ message: 'User deleted by admin' });
   } catch (error) {
     res.status(500).json({ message: error.message });
