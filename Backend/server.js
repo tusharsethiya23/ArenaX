@@ -13,22 +13,19 @@ const app = express();
 const server = http.createServer(app);
 const tournamentRoutes = require('./routes/tournament.routes.js');
 
-// Origins allowed to call this API (used for both Express and Socket.io).
-// Add your deployed Vercel URL here once the frontend is live.
+// Websites allowed to call this API from a browser (used for both Express and
+// Socket.io): local dev, the live Render frontend, and any extra addresses in
+// CLIENT_URLS (comma-separated, e.g. a custom domain) without a code change.
 const allowedOrigins = [
   'http://localhost:5173',
-  // 'https://your-frontend.vercel.app',
+  'https://arenax-4yzn.onrender.com',
+  ...(process.env.CLIENT_URLS || '').split(',').map((url) => url.trim().replace(/\/$/, '')).filter(Boolean),
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow tools like Postman (no origin) and anything in the allowed list
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  // Tools like Postman send no origin and are allowed. Other websites get no
+  // CORS headers, so their browser blocks the response (instead of a 500).
+  origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
 }));
 app.use(express.json());
 
