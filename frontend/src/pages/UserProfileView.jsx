@@ -2,16 +2,15 @@
 // Someone's public profile (route: /profile-view/:userId).
 //   Coaches: the CoachProfileCard (follow, slots and booking) on the left,
 //            about + endorsements on the right
-//   Others:  a header with follower counts, Follow button and plan shortcut,
+//   Others:  a header with follower counts and a Follow button,
 //            then endorsements
 // Follow, booking and endorsing are hidden on your own profile.
 
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import useSubscription from '../hooks/useSubscription';
 import Avatar from '../components/Avatar';
 import FollowButton from '../components/FollowButton';
 import FollowCounts from '../components/FollowCounts';
@@ -21,7 +20,6 @@ import useFollow from '../hooks/useFollow';
 const UserProfileView = () => {
     const { userId } = useParams();
     const { user: currentUser } = useAuth();
-    const isPro = useSubscription();
     const follow = useFollow(userId);
     const isOwnProfile = currentUser._id === userId;
 
@@ -63,12 +61,6 @@ const UserProfileView = () => {
         <span className="badge gap-1 bg-canvas text-muted" title="Only approved followers see their posts">
             <Lock size={12} /> Private
         </span>
-    );
-
-    const planLink = (
-        <Link to="/subscription" className={`btn ${isPro ? 'btn-soft' : 'btn-lime'}`}>
-            {isPro ? 'Manage plan' : 'Subscribe'}
-        </Link>
     );
 
     const endorsementsSection = (
@@ -134,10 +126,7 @@ const UserProfileView = () => {
 
                 <div className="min-w-0 space-y-6">
                     <section className="card">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">About {privateBadge}</h2>
-                            {planLink}
-                        </div>
+                        <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">About {privateBadge}</h2>
                         <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
                         <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-4" />
                     </section>
@@ -167,12 +156,11 @@ const UserProfileView = () => {
                     <FollowCounts userId={userId} followers={follow.followers} following={follow.following} className="mt-3" />
                 </div>
 
-                <div className="flex shrink-0 flex-wrap gap-2">
-                    {!isOwnProfile && follow.loaded && (
+                {!isOwnProfile && follow.loaded && (
+                    <div className="shrink-0">
                         <FollowButton isFollowing={follow.isFollowing} requested={follow.requested} onClick={follow.toggle} disabled={follow.busy} />
-                    )}
-                    {planLink}
-                </div>
+                    </div>
+                )}
             </section>
 
             <div className={`grid gap-6 ${!isOwnProfile ? 'md:grid-cols-[minmax(0,1fr)_320px]' : ''}`}>
