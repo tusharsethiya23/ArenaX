@@ -29,10 +29,16 @@ const ImageCarousel = ({ images, location }) => {
                 onScroll={handleScroll}
                 className="flex aspect-[16/9] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
+                {/* Plain images: clicking a photo does nothing */}
                 {images.map((src, i) => (
-                    <a key={src} href={src} target="_blank" rel="noopener noreferrer" className="h-full w-full shrink-0 snap-center">
-                        <img src={src} alt={`Photo ${i + 1} of ${images.length}`} loading="lazy" className="h-full w-full object-cover" />
-                    </a>
+                    <img
+                        key={src}
+                        src={src}
+                        alt={`Photo ${i + 1} of ${images.length}`}
+                        loading="lazy"
+                        draggable={false}
+                        className="h-full w-full shrink-0 snap-center object-cover"
+                    />
                 ))}
             </div>
 
