@@ -30,6 +30,8 @@ const SavedPosts = lazy(() => import('./pages/SavedPosts'));
 const PostPage = lazy(() => import('./pages/PostPage'));
 const AthleteDna = lazy(() => import('./pages/AthleteDna'));
 const MyAthletes = lazy(() => import('./pages/MyAthletes'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
 
 function App() {
   const { user } = useAuth();
@@ -79,6 +81,9 @@ function App() {
         <Route path="/dna/:athleteId" element={<ProtectedRoute><AthleteDna /></ProtectedRoute>} />
         <Route path="/my-athletes" element={<ProtectedRoute><MyAthletes /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
+        {/* Public, readable logged out (Google sign-in setup links to these) */}
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/discover"

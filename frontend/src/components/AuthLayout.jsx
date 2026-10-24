@@ -3,6 +3,7 @@
 // form card sits next to a black hero panel (same style as the Discover
 // hero); on small screens it's just the logo and the card.
 
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
 import StadiumArt from './StadiumArt';
 
@@ -35,6 +36,11 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
                     <div className="mt-6">{children}</div>
                 </div>
                 {footer && <div className="mt-5 space-y-2 px-2 text-sm text-muted">{footer}</div>}
+                <p className="mt-4 px-2 text-xs text-muted">
+                    By continuing you agree to our{' '}
+                    <Link to="/terms" className="underline hover:text-ink">Terms</Link> and{' '}
+                    <Link to="/privacy" className="underline hover:text-ink">Privacy Policy</Link>.
+                </p>
             </div>
         </div>
     </div>
