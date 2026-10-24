@@ -10,7 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Check, UserPlus, ArrowRight } from 'lucide-react';
+import { Star, Check, UserPlus, ArrowRight, Clock } from 'lucide-react';
 import API from '../api/axios';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
@@ -100,10 +100,12 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                     <button
                         onClick={follow.toggle}
                         disabled={follow.busy}
-                        aria-label={follow.isFollowing ? 'Unfollow' : 'Follow'}
+                        aria-label={follow.isFollowing ? 'Unfollow' : follow.requested ? 'Cancel follow request' : 'Follow'}
                         className="btn absolute right-4 top-4 bg-ink px-5 text-white hover:bg-black/80"
                     >
-                        {follow.isFollowing ? <><Check size={16} /> Following</> : <><UserPlus size={16} /> Follow</>}
+                        {follow.isFollowing
+                            ? <><Check size={16} /> Following</>
+                            : follow.requested ? <><Clock size={16} /> Requested</> : <><UserPlus size={16} /> Follow</>}
                     </button>
                 )}
 

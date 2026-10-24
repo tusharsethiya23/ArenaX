@@ -4,17 +4,21 @@
 // from data the app already has:
 //   - coaches: pending booking requests they still need to answer
 //   - learners: bookings a coach has confirmed or declined
-//   - everyone: new followers
+//   - everyone: new followers, and (private accounts) follow requests to
+//     accept or decline right in the dropdown
 // "Unread" = newer than the last time this user opened the bell. That time is
 // remembered per user in localStorage, so opening the bell clears the dot.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
 import useDismiss from '../hooks/useDismiss';
+import useFollowRequests from '../hooks/useFollowRequests';
+import Avatar from './Avatar';
+import { timeAgo } from '../utils/format';
 
 const readSeenAt = (key) => {
     try {
@@ -80,14 +84,19 @@ const NotificationBell = () => {
         return () => { cancelled = true; };
     }, [user._id]);
 
+    // Follow requests waiting for me (private accounts), shown first with Accept / Decline
+    const { requests, busyId, accept, decline, reload: reloadRequests } = useFollowRequests();
+
     const notifications = buildNotifications(bookings, followers, user.role);
-    const hasUnread = notifications.some((n) => n.time > seenAt);
+    const hasUnread = notifications.some((n) => n.time > seenAt)
+        || requests.some((r) => new Date(r.requestedAt).getTime() > seenAt);
 
     const toggle = () => {
         if (!open) {
             const now = Date.now();
             setHighlightBefore(seenAt);
             setSeenAt(now);
+            reloadRequests(); // pick up requests that arrived since the page loaded
             try { localStorage.setItem(storageKey, String(now)); } catch { /* storage unavailable: dot just won't persist */ }
         }
         setOpen(!open);
@@ -113,9 +122,47 @@ const NotificationBell = () => {
                         Notifications
                     </p>
 
-                    {notifications.length === 0 ? (
+                    {/* ---------- Follow requests ---------- */}
+                    {requests.length > 0 && (
+                        <div className="border-b border-line p-2">
+                            <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted">
+                                Follow requests · {requests.length}
+                            </p>
+                            <ul className="max-h-56 overflow-y-auto">
+                                {requests.map(({ user: requester, requestedAt }) => (
+                                    <li key={requester._id} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 hover:bg-canvas">
+                                        <Link to={`/profile-view/${requester._id}`} onClick={close} className="flex min-w-0 flex-1 items-center gap-3">
+                                            <Avatar name={requester.name} photo={requester.profilePhoto} pastel className="h-9 w-9 text-xs" />
+                                            <span className="min-w-0">
+                                                <span className="block truncate text-sm font-medium">{requester.name}</span>
+                                                <span className="block truncate text-xs text-muted">wants to follow you · {timeAgo(requestedAt)}</span>
+                                            </span>
+                                        </Link>
+                                        <button
+                                            onClick={() => decline(requester._id)}
+                                            disabled={busyId === requester._id}
+                                            aria-label={`Decline ${requester.name}`}
+                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white hover:text-ink"
+                                        >
+                                            <X size={15} />
+                                        </button>
+                                        <button
+                                            onClick={() => accept(requester._id)}
+                                            disabled={busyId === requester._id}
+                                            aria-label={`Accept ${requester.name}`}
+                                            className="btn btn-dark shrink-0 px-3 py-1.5 text-xs"
+                                        >
+                                            Accept
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {notifications.length === 0 && requests.length === 0 ? (
                         <p className="px-5 py-8 text-center text-sm text-muted">You're all caught up.</p>
-                    ) : (
+                    ) : notifications.length === 0 ? null : (
                         <ul className="max-h-80 overflow-y-auto p-2">
                             {notifications.map((n) => (
                                 <li key={n.id}>

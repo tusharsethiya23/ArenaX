@@ -1,5 +1,6 @@
 // FeedRail.jsx
 // Right column of the Feed:
+//   0. Follow requests (private accounts): accept / decline
 //   1. Session requests (coaches): pending bookings with Accept / Decline
 //   2. Upcoming: confirmed and pending sessions with date tiles
 //   3. Coaches to follow: most-followed coaches you don't follow yet
@@ -8,7 +9,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api/axios';
+import { X } from 'lucide-react';
 import Avatar from './Avatar';
+import useFollowRequests from '../hooks/useFollowRequests';
 import { nextDateFor } from '../utils/slots';
 import { compact } from '../utils/format';
 
@@ -108,10 +111,60 @@ const Upcoming = ({ bookings, role }) => {
     );
 };
 
-const CoachesToFollow = ({ followingIds, onToggleFollow }) => {
+// Follow requests (private accounts): accept or decline right here
+const FollowRequests = () => {
+    const { requests, busyId, accept, decline } = useFollowRequests();
+    if (requests.length === 0) return null;
+
+    return (
+        <section className="card">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight">
+                Follow requests <span className="badge bg-lime px-2 py-0.5 text-ink">{requests.length}</span>
+            </h2>
+            <ul className="space-y-4">
+                {requests.slice(0, 3).map(({ user }) => (
+                    <li key={user._id} className="flex items-center gap-3">
+                        <Link to={`/profile-view/${user._id}`} className="flex min-w-0 flex-1 items-center gap-3">
+                            <Avatar name={user.name} photo={user.profilePhoto} pastel className="h-11 w-11 text-sm" />
+                            <div className="min-w-0">
+                                <p className="truncate font-semibold">{user.name}</p>
+                                <p className="truncate text-sm capitalize text-muted">
+                                    {[user.role === 'learner' ? 'athlete' : user.role, user.sport].filter(Boolean).join(' · ')}
+                                </p>
+                            </div>
+                        </Link>
+                        <div className="flex shrink-0 gap-1.5">
+                            <button
+                                onClick={() => decline(user._id)}
+                                disabled={busyId === user._id}
+                                aria-label={`Decline ${user.name}`}
+                                className="flex h-9 w-9 items-center justify-center rounded-full bg-canvas text-muted hover:text-ink"
+                            >
+                                <X size={16} />
+                            </button>
+                            <button
+                                onClick={() => accept(user._id)}
+                                disabled={busyId === user._id}
+                                aria-label={`Accept ${user.name}`}
+                                className="btn btn-dark px-4 py-2"
+                            >
+                                Accept
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+            {requests.length > 3 && <p className="mt-3 text-sm text-muted">+{requests.length - 3} more in your notifications</p>}
+        </section>
+    );
+};
+
+const FOLLOW_LABEL = { following: 'Following', requested: 'Requested', none: 'Follow' };
+
+const CoachesToFollow = ({ followState, onToggleFollow }) => {
     const [coaches, setCoaches] = useState(null);
 
-    // Fetched once; followed coaches stay in the list showing "Following"
+    // Fetched once; followed coaches stay in the list showing "Following"/"Requested"
     useEffect(() => {
         API.get('/follows/suggestions', { params: { limit: 3 } })
             .then((res) => setCoaches(res.data))
@@ -128,9 +181,9 @@ const CoachesToFollow = ({ followingIds, onToggleFollow }) => {
             </div>
             <ul className="space-y-4">
                 {coaches.map((c) => {
-                    const following = followingIds.has(c._id);
-                    // Count includes me once I've followed from here
-                    const count = c.followerCount + (following ? 1 : 0);
+                    const state = followState(c._id);
+                    // Count includes me once I've followed from here (a request doesn't count)
+                    const count = c.followerCount + (state === 'following' ? 1 : 0);
                     return (
                         <li key={c._id} className="flex items-center gap-3">
                             <Link to={`/profile-view/${c._id}`} className="flex min-w-0 flex-1 items-center gap-3">
@@ -144,10 +197,10 @@ const CoachesToFollow = ({ followingIds, onToggleFollow }) => {
                             </Link>
                             <button
                                 onClick={() => onToggleFollow(c._id)}
-                                aria-label={following ? `Unfollow ${c.name}` : `Follow ${c.name}`}
-                                className={`btn shrink-0 border px-4 py-2 ${following ? 'border-transparent bg-canvas' : 'border-line hover:border-ink'}`}
+                                aria-label={{ following: `Unfollow ${c.name}`, requested: `Cancel follow request to ${c.name}` }[state] || `Follow ${c.name}`}
+                                className={`btn shrink-0 border px-4 py-2 ${state === 'none' ? 'border-line hover:border-ink' : 'border-transparent bg-canvas'}`}
                             >
-                                {following ? 'Following' : 'Follow'}
+                                {FOLLOW_LABEL[state]}
                             </button>
                         </li>
                     );
@@ -157,11 +210,12 @@ const CoachesToFollow = ({ followingIds, onToggleFollow }) => {
     );
 };
 
-const FeedRail = ({ profile, bookings, reloadBookings, followingIds, onToggleFollow }) => (
+const FeedRail = ({ profile, bookings, reloadBookings, followState, onToggleFollow }) => (
     <aside className="space-y-5">
+        <FollowRequests />
         {profile.role === 'coach' && <SessionRequests bookings={bookings} onChanged={reloadBookings} />}
         <Upcoming bookings={bookings} role={profile.role} />
-        <CoachesToFollow followingIds={followingIds} onToggleFollow={onToggleFollow} />
+        <CoachesToFollow followState={followState} onToggleFollow={onToggleFollow} />
     </aside>
 );
 

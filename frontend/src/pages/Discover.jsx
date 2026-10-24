@@ -15,6 +15,7 @@ import useMyBookings from '../hooks/useMyBookings';
 import useMyProfile from '../hooks/useMyProfile';
 import useSubscription from '../hooks/useSubscription';
 import useDismiss from '../hooks/useDismiss';
+import useFollowingIds from '../hooks/useFollowingIds';
 import CoachCard from '../components/CoachCard';
 import NextSessionCard from '../components/NextSessionCard';
 import Avatar from '../components/Avatar';
@@ -119,7 +120,6 @@ const Discover = () => {
     const [sortKey, setSortKey] = useState('top');
     const [filters, setFilters] = useState({ maxPrice: '', openOnly: false });
     const [loading, setLoading] = useState(true);
-    const [followingIds, setFollowingIds] = useState(new Set());
     const [spotlight, setSpotlight] = useState(null);
     const [recommended, setRecommended] = useState([]);
 
@@ -129,17 +129,16 @@ const Discover = () => {
             if (!Object.keys(params).length) setAllCoaches(res.data);
         }), []);
 
-    // Initial load: coaches, people I follow, spotlight, recommendations
+    const { followState, toggleFollow } = useFollowingIds();
+
+    // Initial load: coaches, spotlight, recommendations
     useEffect(() => {
         fetchCoaches().catch(console.error).finally(() => setLoading(false));
-        API.get(`/follows/${user._id}/following`)
-            .then((res) => setFollowingIds(new Set(res.data.map((f) => f.user._id))))
-            .catch(() => {});
         API.get('/spotlight/current').then((res) => setSpotlight(res.data)).catch(() => {});
         if (user.role === 'learner') {
             API.get('/users/recommended').then((res) => setRecommended(res.data)).catch(() => {});
         }
-    }, [fetchCoaches, user._id, user.role]);
+    }, [fetchCoaches, user.role]);
 
     const currentParams = () => {
         const params = {};
@@ -154,23 +153,6 @@ const Discover = () => {
         setSportChip('All');
         setLoading(true);
         fetchCoaches(currentParams()).catch(console.error).finally(() => setLoading(false));
-    };
-
-    // Heart = follow / unfollow (optimistic, rolled back on error)
-    const toggleFollow = async (coachId) => {
-        const wasFollowing = followingIds.has(coachId);
-        const update = (follow) => setFollowingIds((prev) => {
-            const next = new Set(prev);
-            follow ? next.add(coachId) : next.delete(coachId);
-            return next;
-        });
-        update(!wasFollowing);
-        try {
-            await (wasFollowing ? API.delete(`/follows/${coachId}`) : API.post(`/follows/${coachId}`));
-        } catch (err) {
-            update(wasFollowing);
-            alert(err.response?.data?.message || 'Something went wrong');
-        }
     };
 
     // Book the slot shown on the card
@@ -311,7 +293,7 @@ const Discover = () => {
                                     key={coach._id}
                                     coach={coach}
                                     canFollow={coach._id !== user._id}
-                                    isFollowing={followingIds.has(coach._id)}
+                                    followState={followState(coach._id)}
                                     onToggleFollow={toggleFollow}
                                     canBook={user.role === 'learner'}
                                     onBook={handleBook}

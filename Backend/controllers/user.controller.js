@@ -81,7 +81,7 @@ const updateProfile = async (req, res) => {
     // Jo bhi field bheji hai, wahi update karo — baaki purani value rakho
     const fieldsToUpdate = [
       'name', 'bio', 'location', 'profilePhoto',
-      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability',
+      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability', 'isPrivate',
       'goals', 'skillLevel',
     ];
 
@@ -99,6 +99,9 @@ const updateProfile = async (req, res) => {
       }
     }
 
+    if (req.body.isPrivate !== undefined) req.body.isPrivate = req.body.isPrivate === true || req.body.isPrivate === 'true';
+    const wasPrivate = Boolean(user.isPrivate);
+
     fieldsToUpdate.forEach((field) => {
       if (req.body[field] !== undefined) {
         user[field] = req.body[field];
@@ -106,6 +109,11 @@ const updateProfile = async (req, res) => {
     });
 
     const updatedUser = await user.save();
+
+    // Going public: everyone waiting for approval becomes a follower
+    if (wasPrivate && !updatedUser.isPrivate) {
+      await Follow.updateMany({ following: user._id, status: 'pending' }, { status: 'accepted' });
+    }
 
     res.json({
       _id: updatedUser._id,
@@ -119,6 +127,7 @@ const updateProfile = async (req, res) => {
       skillLevelTaught: updatedUser.skillLevelTaught,
       yearsExperience: updatedUser.yearsExperience,
       availability: updatedUser.availability,
+      isPrivate: updatedUser.isPrivate,
       goals: updatedUser.goals,
       skillLevel: updatedUser.skillLevel,
     });

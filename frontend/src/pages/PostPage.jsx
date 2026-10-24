@@ -14,7 +14,7 @@ const PostPage = () => {
     const { postId } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { followingIds, toggleFollow } = useFollowingIds();
+    const { followState, toggleFollow } = useFollowingIds();
     const [post, setPost] = useState(null);
     const [error, setError] = useState('');
 
@@ -37,7 +37,7 @@ const PostPage = () => {
                     key={post._id}
                     post={post}
                     viewer={user}
-                    isFollowing={followingIds.has(post.author?._id)}
+                    followState={followState(post.author?._id)}
                     onToggleFollow={toggleFollow}
                     onDeleted={() => navigate('/')}
                     showComments

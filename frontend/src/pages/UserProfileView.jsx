@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useSubscription from '../hooks/useSubscription';
@@ -57,6 +58,13 @@ const UserProfileView = () => {
     };
 
     // Shortcut to the user's own plan page (subscriptions are per-user plans)
+    // Private accounts: a lock badge, explaining why their posts may be hidden
+    const privateBadge = profileUser?.isPrivate && (
+        <span className="badge gap-1 bg-canvas text-muted" title="Only approved followers see their posts">
+            <Lock size={12} /> Private
+        </span>
+    );
+
     const planLink = (
         <Link to="/subscription" className={`btn ${isPro ? 'btn-soft' : 'btn-lime'}`}>
             {isPro ? 'Manage plan' : 'Subscribe'}
@@ -127,7 +135,7 @@ const UserProfileView = () => {
                 <div className="min-w-0 space-y-6">
                     <section className="card">
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <h2 className="text-lg font-bold tracking-tight">About</h2>
+                            <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">About {privateBadge}</h2>
                             {planLink}
                         </div>
                         <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
@@ -150,6 +158,7 @@ const UserProfileView = () => {
                     <div className="flex flex-wrap items-center gap-2">
                         <h1 className="break-words text-3xl font-extrabold tracking-tight">{profileUser.name}</h1>
                         {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role}</span>}
+                        {privateBadge}
                     </div>
                     <p className="mt-1 text-sm text-muted">
                         {[profileUser.sport, profileUser.location].filter(Boolean).join(' · ')}
@@ -160,7 +169,7 @@ const UserProfileView = () => {
 
                 <div className="flex shrink-0 flex-wrap gap-2">
                     {!isOwnProfile && follow.loaded && (
-                        <FollowButton isFollowing={follow.isFollowing} onClick={follow.toggle} disabled={follow.busy} />
+                        <FollowButton isFollowing={follow.isFollowing} requested={follow.requested} onClick={follow.toggle} disabled={follow.busy} />
                     )}
                     {planLink}
                 </div>

@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
   },
+  // Private accounts approve followers, and only approved followers see their posts
+  isPrivate: {
+    type: Boolean,
+    default: false,
+  },
   yearsExperience: {
     type: Number,
     min: 0,

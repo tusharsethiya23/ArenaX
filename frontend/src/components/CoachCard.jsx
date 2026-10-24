@@ -4,7 +4,7 @@
 // open the coach's profile; the Follow button follows/unfollows them.
 
 import { Link } from 'react-router-dom';
-import { Clock, Star, Check } from 'lucide-react';
+import { Clock, Star, Check, Hourglass } from 'lucide-react';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import { nextOpenSlot } from '../utils/slots';
@@ -16,7 +16,7 @@ const Chip = ({ children }) => (
 // "advanced" -> "Advanced"
 const capitalize = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
 
-const CoachCard = ({ coach, isFollowing, canFollow, onToggleFollow, canBook, onBook }) => {
+const CoachCard = ({ coach, followState = 'none', canFollow, onToggleFollow, canBook, onBook }) => {
     const next = nextOpenSlot(coach.availability, coach.takenSlots);
     const hasSlots = coach.availability?.length > 0;
     const profileUrl = `/profile-view/${coach._id}`;
@@ -50,10 +50,12 @@ const CoachCard = ({ coach, isFollowing, canFollow, onToggleFollow, canBook, onB
                 {canFollow && (
                     <button
                         onClick={() => onToggleFollow(coach._id)}
-                        aria-label={isFollowing ? `Unfollow ${coach.name}` : `Follow ${coach.name}`}
-                        className={`btn shrink-0 px-4 py-2 ${isFollowing ? 'btn-soft' : 'btn-dark'}`}
+                        aria-label={{ following: `Unfollow ${coach.name}`, requested: `Cancel follow request to ${coach.name}` }[followState] || `Follow ${coach.name}`}
+                        className={`btn shrink-0 px-4 py-2 ${followState === 'none' ? 'btn-dark' : 'btn-soft'}`}
                     >
-                        {isFollowing ? <><Check size={15} /> Following</> : 'Follow'}
+                        {followState === 'following' && <><Check size={15} /> Following</>}
+                        {followState === 'requested' && <><Hourglass size={15} /> Requested</>}
+                        {followState === 'none' && 'Follow'}
                     </button>
                 )}
             </div>

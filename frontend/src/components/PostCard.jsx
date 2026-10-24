@@ -8,7 +8,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Plus, Check, Link2, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Plus, Check, Clock, Link2, Trash2 } from 'lucide-react';
 import API from '../api/axios';
 import useDismiss from '../hooks/useDismiss';
 import Avatar from './Avatar';
@@ -24,7 +24,7 @@ const ROLE_BADGE = {
     admin: { label: 'Admin', className: 'bg-ink text-white' },
 };
 
-const PostCard = ({ post: initialPost, viewer, isFollowing, onToggleFollow, onDeleted, showComments = false }) => {
+const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFollow, onDeleted, showComments = false }) => {
     const [post, setPost] = useState(initialPost);
     const [commentsOpen, setCommentsOpen] = useState(showComments);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -136,13 +136,13 @@ const PostCard = ({ post: initialPost, viewer, isFollowing, onToggleFollow, onDe
                 {post.author && !isMine && onToggleFollow && (
                     <button
                         onClick={() => onToggleFollow(author._id)}
-                        aria-label={isFollowing ? `Unfollow ${author.name}` : `Follow ${author.name}`}
-                        className={`btn shrink-0 px-3 py-1.5 text-[13px] sm:px-4 sm:py-2 sm:text-sm ${isFollowing ? 'btn-soft' : 'btn-dark'}`}
+                        aria-label={{ following: `Unfollow ${author.name}`, requested: `Cancel follow request to ${author.name}` }[followState] || `Follow ${author.name}`}
+                        className={`btn shrink-0 px-3 py-1.5 text-[13px] sm:px-4 sm:py-2 sm:text-sm ${followState === 'none' ? 'btn-dark' : 'btn-soft'}`}
                     >
                         {/* Icons only from sm up, so phones keep room for the author's name */}
-                        {isFollowing
-                            ? <><Check size={15} className="hidden sm:block" /> Following</>
-                            : <><Plus size={15} className="hidden sm:block" /> Follow</>}
+                        {followState === 'following' && <><Check size={15} className="hidden sm:block" /> Following</>}
+                        {followState === 'requested' && <><Clock size={15} className="hidden sm:block" /> Requested</>}
+                        {followState === 'none' && <><Plus size={15} className="hidden sm:block" /> Follow</>}
                     </button>
                 )}
 

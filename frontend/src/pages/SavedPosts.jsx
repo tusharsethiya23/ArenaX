@@ -10,7 +10,7 @@ import PostList from '../components/PostList';
 
 const SavedPosts = () => {
     const { user } = useAuth();
-    const { followingIds, toggleFollow } = useFollowingIds();
+    const { followState, toggleFollow } = useFollowingIds();
 
     return (
         <div className="page max-w-3xl">
@@ -18,7 +18,7 @@ const SavedPosts = () => {
             <PostList
                 endpoint="/posts/saved"
                 viewer={user}
-                followingIds={followingIds}
+                followState={followState}
                 onToggleFollow={toggleFollow}
                 empty={
                     <div className="empty-state">

@@ -44,7 +44,7 @@ const Feed = () => {
     const { user } = useAuth();
     const { profile } = useMyProfile();
     const { bookings, reload: reloadBookings } = useMyBookings();
-    const { followingIds, toggleFollow } = useFollowingIds();
+    const { followState, toggleFollow } = useFollowingIds();
     const [tab, setTab] = useState('all');
     const [sort, setSort] = useState('latest');
     const endpoint = TABS.find((t) => t.id === tab).endpoint;
@@ -93,7 +93,7 @@ const Feed = () => {
                     endpoint={endpoint}
                     sort={sort}
                     viewer={user}
-                    followingIds={followingIds}
+                    followState={followState}
                     onToggleFollow={toggleFollow}
                     empty={EMPTY[tab]}
                 />
@@ -106,7 +106,7 @@ const Feed = () => {
                         profile={profile}
                         bookings={bookings}
                         reloadBookings={reloadBookings}
-                        followingIds={followingIds}
+                        followState={followState}
                         onToggleFollow={toggleFollow}
                     />
                 </div>

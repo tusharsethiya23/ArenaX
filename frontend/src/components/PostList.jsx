@@ -9,7 +9,7 @@ import PostCard from './PostCard';
 
 const PAGE_SIZE = 10;
 
-const PostList = ({ endpoint, sort, viewer, followingIds, onToggleFollow, empty }) => {
+const PostList = ({ endpoint, sort, viewer, followState, onToggleFollow, empty }) => {
     const [posts, setPosts] = useState([]);
     const [cursor, setCursor] = useState(null);
     const [hasMore, setHasMore] = useState(true);
@@ -60,7 +60,7 @@ const PostList = ({ endpoint, sort, viewer, followingIds, onToggleFollow, empty 
                         key={post._id}
                         post={post}
                         viewer={viewer}
-                        isFollowing={followingIds?.has(post.author?._id)}
+                        followState={followState?.(post.author?._id)}
                         onToggleFollow={onToggleFollow}
                         onDeleted={removePost}
                     />

@@ -16,6 +16,28 @@ const COMMENT_AUTHOR_FIELDS = 'name profilePhoto role';
 
 const isId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+// ---------- Private accounts ----------
+// A private account's posts are only visible to the author, their accepted
+// followers, and admins.
+
+// Authors whose posts the viewer may NOT see
+const hiddenAuthors = async (viewer) => {
+  const privateIds = await User.find({ isPrivate: true }).distinct('_id');
+  if (!privateIds.length || viewer?.role === 'admin') return [];
+  const allowed = new Set(viewer
+    ? (await Follow.find({ follower: viewer._id, following: { $in: privateIds }, ...Follow.ACCEPTED }).distinct('following')).map(String)
+    : []);
+  if (viewer) allowed.add(String(viewer._id));
+  return privateIds.filter((id) => !allowed.has(String(id)));
+};
+
+const canSeeAuthor = async (authorId, viewer) => {
+  if (viewer && (viewer._id.equals(authorId) || viewer.role === 'admin')) return true;
+  const author = await User.findById(authorId).select('isPrivate');
+  if (!author?.isPrivate) return true;
+  return Boolean(viewer) && Boolean(await Follow.exists({ follower: viewer._id, following: authorId, ...Follow.ACCEPTED }));
+};
+
 const pageLimit = (raw) => {
   const limit = parseInt(raw, 10);
   return Math.min(Number.isInteger(limit) && limit > 0 ? limit : DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
@@ -115,7 +137,8 @@ const feedHandler = (getBaseFilter) => async (req, res) => {
     const popular = req.query.sort === 'popular';
     const limit = pageLimit(req.query.limit);
 
-    const filter = await getBaseFilter(req);
+    // Base filter (which feed) AND not by a private account the viewer can't see
+    const filter = { $and: [await getBaseFilter(req), { author: { $nin: await hiddenAuthors(req.user) } }] };
     if (cursor) {
       if (popular) {
         const [count, id] = String(cursor).split('_');
@@ -155,7 +178,7 @@ const getFeed = feedHandler(async () => ({}));
 
 // GET /api/posts/following — only posts by people the logged-in user follows
 const getFollowingFeed = feedHandler(async (req) => {
-  const follows = await Follow.find({ follower: req.user._id }).select('following');
+  const follows = await Follow.find({ follower: req.user._id, ...Follow.ACCEPTED }).select('following');
   return { author: { $in: follows.map((f) => f.following) } };
 });
 
@@ -180,7 +203,8 @@ const getSavedPosts = async (req, res) => {
     const hasMore = saves.length > limit;
     if (hasMore) saves.pop();
 
-    const posts = await Post.find({ _id: { $in: saves.map((s) => s.post) } }).populate('author', AUTHOR_FIELDS).lean();
+    const posts = await Post.find({ _id: { $in: saves.map((s) => s.post) }, author: { $nin: await hiddenAuthors(req.user) } })
+      .populate('author', AUTHOR_FIELDS).lean();
     const byId = Object.fromEntries(posts.map((p) => [String(p._id), p]));
     // Keep saved order; skip saves whose post was deleted
     const ordered = saves.filter((s) => byId[String(s.post)]).map((s) => ({ ...byId[String(s.post)], savedId: s._id }));
@@ -201,7 +225,8 @@ const findPostOr404 = async (req, res) => {
     return null;
   }
   const post = await Post.findById(req.params.id);
-  if (!post) {
+  // Posts from private accounts look "not found" to people who can't see them
+  if (!post || !(await canSeeAuthor(post.author, req.user))) {
     res.status(404).json({ message: 'Post not found' });
     return null;
   }
@@ -213,7 +238,9 @@ const getPost = async (req, res) => {
   try {
     if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
     const post = await Post.findById(req.params.id).populate('author', AUTHOR_FIELDS).lean();
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+    if (!post || !(await canSeeAuthor(post.author?._id || post.author, req.user))) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
     const [decorated] = await decoratePosts([post], req.user);
     res.json(decorated);
   } catch (error) {
@@ -244,7 +271,7 @@ const deletePost = async (req, res) => {
 // double-clicks or two tabs can't count a like twice or go below zero
 const setLike = (like) => async (req, res) => {
   try {
-    if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
+    if (!(await findPostOr404(req, res))) return;
     const me = req.user._id;
     if (like) {
       await Post.updateOne({ _id: req.params.id, likes: { $ne: me } }, { $push: { likes: me }, $inc: { likeCount: 1 } });
@@ -282,7 +309,7 @@ const setSaved = (save) => async (req, res) => {
 // GET /api/posts/:id/comments?cursor= — newest first, 20 at a time
 const getComments = async (req, res) => {
   try {
-    if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid post id' });
+    if (!(await findPostOr404(req, res))) return;
     const { cursor } = req.query;
     const filter = { post: req.params.id };
     if (cursor) {

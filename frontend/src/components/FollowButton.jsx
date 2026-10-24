@@ -1,14 +1,24 @@
 // FollowButton.jsx
 // Black "Follow" button; once following it becomes a grey "Following" pill
 // that turns into a red "Unfollow" on hover, so unfollowing is never a surprise.
+// For private accounts it shows "Requested" until they accept; tapping it
+// cancels the request.
 // Right after clicking Follow the mouse is still on the button, so the
 // hover-to-Unfollow look only switches on once the mouse has left it.
 
 import { useState } from 'react';
-import { UserPlus, UserCheck, UserMinus } from 'lucide-react';
+import { UserPlus, UserCheck, UserMinus, Clock } from 'lucide-react';
 
-const FollowButton = ({ isFollowing, onClick, disabled, className = '' }) => {
+const FollowButton = ({ isFollowing, requested, onClick, disabled, className = '' }) => {
     const [justFollowed, setJustFollowed] = useState(false);
+
+    if (requested) {
+        return (
+            <button onClick={onClick} disabled={disabled} aria-label="Cancel follow request" title="Waiting for them to accept. Tap to cancel." className={`btn btn-soft min-w-[132px] ${className}`}>
+                <Clock size={16} /> Requested
+            </button>
+        );
+    }
 
     if (!isFollowing) {
         return (

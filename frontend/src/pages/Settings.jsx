@@ -1,6 +1,7 @@
 // Settings.jsx
 // Account settings (route: /settings, from the avatar menu): editing profile
-// details, a coach's weekly time slots, and permanently deleting the account.
+// details, a coach's weekly time slots, the Private account switch, and
+// permanently deleting the account.
 // The form waits for the full profile to load, so saving never blanks out
 // fields that the login data doesn't include.
 
@@ -33,6 +34,60 @@ const initialForm = (profile) => ({
     goals: profile.goals || '',
     skillLevel: profile.skillLevel || '',
 });
+
+// "Private account" switch. Saves as soon as it's flipped. Private accounts
+// approve new followers and only show their posts to approved followers;
+// going public accepts everyone still waiting.
+const PrivacyCard = ({ initialPrivate }) => {
+    const { user, login } = useAuth();
+    const [isPrivate, setIsPrivate] = useState(initialPrivate);
+    const [saving, setSaving] = useState(false);
+    const [note, setNote] = useState('');
+
+    const toggle = async () => {
+        const next = !isPrivate;
+        if (!next && !window.confirm('Make your account public? Anyone with a pending follow request will become a follower.')) return;
+        setSaving(true);
+        setIsPrivate(next);
+        try {
+            const res = await API.put('/users/profile', { isPrivate: next });
+            login({ ...user, isPrivate: res.data.isPrivate, token: localStorage.getItem('token') });
+            setNote(next ? 'Your account is now private.' : 'Your account is now public.');
+        } catch (err) {
+            setIsPrivate(!next);
+            setNote(err.response?.data?.message || 'Could not change your privacy setting');
+        }
+        setSaving(false);
+    };
+
+    return (
+        <section className="card">
+            <h2 className="text-lg font-bold tracking-tight">Privacy</h2>
+            <div className="mt-4 flex items-start justify-between gap-4">
+                <div>
+                    <p className="font-semibold">Private account</p>
+                    <p className="mt-1 text-sm text-muted">
+                        New followers need your approval, and only approved followers see your posts.
+                        People who already follow you stay.
+                    </p>
+                </div>
+                {/* Switch: lime when on */}
+                <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isPrivate}
+                    aria-label="Private account"
+                    onClick={toggle}
+                    disabled={saving}
+                    className={`relative h-8 w-14 shrink-0 rounded-full transition-colors ${isPrivate ? 'bg-lime' : 'bg-canvas'}`}
+                >
+                    <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${isPrivate ? 'left-7' : 'left-1'}`} />
+                </button>
+            </div>
+            {note && <p className="mt-3 text-sm text-muted" role="status">{note}</p>}
+        </section>
+    );
+};
 
 const SettingsContent = ({ profile }) => {
     const { user, login, logout } = useAuth();
@@ -233,6 +288,11 @@ const SettingsContent = ({ profile }) => {
                         {saving ? 'Saving...' : 'Save changes'}
                     </button>
             </form>
+
+            {/* ================= PRIVACY ================= */}
+            <div className="mt-6">
+                <PrivacyCard initialPrivate={Boolean(profile.isPrivate)} />
+            </div>
 
             {/* ================= DANGER ZONE ================= */}
             <section className="card mt-6">
