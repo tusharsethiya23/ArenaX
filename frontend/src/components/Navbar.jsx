@@ -1,6 +1,7 @@
 // Navbar.jsx
 // Sticky top bar, 80px tall, with no background of its own: only the logo,
 // the links pill and the right-hand buttons are drawn (each is its own glass piece).
+// It hides while scrolling down and reappears on any scroll up (useHideOnScroll).
 //   LEFT:   logo (black square with lime X + "ARENA X")
 //   CENTER: the 4 primary links inside a glass pill; the active one is
 //           tinted in its own colour (desktop only; mobile uses MobileTabBar)
@@ -14,12 +15,15 @@ import Logo from './Logo';
 import NotificationBell from './NotificationBell';
 import UserMenu from './UserMenu';
 import { toneFor } from '../utils/tones';
+import useHideOnScroll from '../hooks/useHideOnScroll';
 
 const Navbar = () => {
     const { user } = useAuth();
+    // Slides up out of view while scrolling down, back in on any scroll up
+    const hidden = useHideOnScroll();
 
     return (
-        <nav className="sticky top-0 z-40 h-20">
+        <nav className={`sticky top-0 z-40 h-20 transition-transform duration-300 motion-reduce:transition-none ${hidden ? '-translate-y-full' : ''}`}>
             {/* 2 columns on mobile (logo | right), 3 on desktop so the links sit truly centered */}
             <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
