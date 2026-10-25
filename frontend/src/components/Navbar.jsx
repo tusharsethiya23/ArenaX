@@ -40,8 +40,8 @@ const Navbar = () => {
                                     className={({ isActive }) =>
                                         `mx-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
                                             isActive
-                                                ? 'bg-ink text-lime'
-                                                : 'bg-lime text-ink shadow-[0_4px_14px_rgba(212,242,59,0.55)] hover:shadow-[0_6px_22px_rgba(212,242,59,0.9)]'
+                                                ? 'bg-ink text-on-ink'
+                                                : 'bg-lime text-on-ink shadow-[0_4px_14px_rgba(212,242,59,0.55)] hover:shadow-[0_6px_22px_rgba(212,242,59,0.9)]'
                                         }`
                                     }
                                 >
@@ -54,7 +54,7 @@ const Navbar = () => {
                                     end={end}
                                     className={({ isActive }) =>
                                         `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
-                                            isActive ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+                                            isActive ? 'bg-ink text-on-ink' : 'text-muted hover:text-ink'
                                         }`
                                     }
                                 >

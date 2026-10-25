@@ -24,7 +24,7 @@ const FollowListModal = ({ userId, type, onClose }) => {
     }, [userId, type]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
             <div ref={cardRef} role="dialog" aria-label={type === 'followers' ? 'Followers' : 'Following'} className="flex max-h-[70vh] w-full max-w-sm flex-col overflow-hidden rounded-[28px] bg-surface">
                 <div className="flex items-center justify-between border-b border-line px-5 py-4">
                     <h2 className="text-lg font-bold capitalize">{type}</h2>

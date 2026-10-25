@@ -44,14 +44,14 @@ const ImageCarousel = ({ images, location }) => {
 
             {many && (
                 <>
-                    <span className="badge absolute right-3 top-3 bg-ink/80 text-white">{index + 1} / {images.length}</span>
+                    <span className="badge absolute right-3 top-3 bg-panel/80 text-white">{index + 1} / {images.length}</span>
                     {index > 0 && (
-                        <button onClick={() => goTo(index - 1)} aria-label="Previous photo" className="absolute left-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 shadow group-hover:flex">
+                        <button onClick={() => goTo(index - 1)} aria-label="Previous photo" className="absolute left-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-popover shadow group-hover:flex">
                             <ChevronLeft size={18} />
                         </button>
                     )}
                     {index < images.length - 1 && (
-                        <button onClick={() => goTo(index + 1)} aria-label="Next photo" className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface/90 shadow group-hover:flex">
+                        <button onClick={() => goTo(index + 1)} aria-label="Next photo" className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-popover shadow group-hover:flex">
                             <ChevronRight size={18} />
                         </button>
                     )}
@@ -59,7 +59,7 @@ const ImageCarousel = ({ images, location }) => {
             )}
 
             {location && (
-                <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-surface px-3 py-1.5 text-sm font-semibold">
+                <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-popover px-3 py-1.5 backdrop-blur-md text-sm font-semibold">
                     <MapPin size={14} className="shrink-0 text-danger" /> {location}
                 </span>
             )}

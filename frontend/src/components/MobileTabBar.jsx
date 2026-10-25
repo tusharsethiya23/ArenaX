@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import NAV_LINKS from './navLinks';
 
 const MobileTabBar = () => (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-popover pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
         <div className="grid h-16 grid-cols-5">
             {NAV_LINKS.map(({ to, label, icon: Icon, end, accent }) =>
                 accent ? (
@@ -16,7 +16,7 @@ const MobileTabBar = () => (
                         {({ isActive }) => (
                             <span
                                 className={`-mt-5 flex h-14 w-14 items-center justify-center rounded-full ring-4 ring-surface transition-all duration-200 group-active:scale-90 ${
-                                    isActive ? 'bg-ink text-lime' : 'bg-lime text-ink shadow-[0_6px_18px_rgba(212,242,59,0.6)]'
+                                    isActive ? 'bg-ink text-on-ink' : 'bg-lime text-on-ink shadow-[0_6px_18px_rgba(212,242,59,0.6)]'
                                 }`}
                             >
                                 <Icon size={26} strokeWidth={2.75} />
@@ -36,7 +36,7 @@ const MobileTabBar = () => (
                     >
                         {({ isActive }) => (
                             <>
-                                <span className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-ink text-lime' : ''}`}>
+                                <span className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-ink text-on-ink' : ''}`}>
                                     <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                                 </span>
                                 <span className="max-w-full truncate">{label}</span>

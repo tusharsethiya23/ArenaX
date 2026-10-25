@@ -57,19 +57,19 @@ const Subscription = () => {
                 <p className="empty-state">Loading...</p>
             ) : (
                 // Black plan card, echoing the Discover hero
-                <div className="overflow-hidden rounded-[32px] bg-ink p-6 text-white sm:p-8">
+                <div className="overflow-hidden rounded-[32px] bg-panel p-6 text-white sm:p-8">
                     <div className="flex items-start justify-between gap-3">
                         <div>
                             <p className="text-sm text-white/60">Your plan</p>
                             <h2 className="mt-1 text-4xl font-black tracking-tighter">{planLabel}</h2>
                         </div>
-                        {subscription?.active && <span className="badge bg-lime text-ink">Active</span>}
+                        {subscription?.active && <span className="badge bg-lime text-on-ink">Active</span>}
                     </div>
 
                     <ul className="mt-8 space-y-3">
                         {planPerks.map((perk) => (
                             <li key={perk} className="flex items-center gap-3 text-sm sm:text-base">
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-lime text-ink">
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-lime text-on-ink">
                                     <Check size={14} strokeWidth={3} />
                                 </span>
                                 {perk}

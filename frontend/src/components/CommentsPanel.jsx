@@ -22,11 +22,11 @@ const CommentBubble = ({ c, isAuthor, small, canDelete, onDelete, onReply }) => 
             <Avatar name={c.author?.name} photo={c.author?.profilePhoto} pastel className={small ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-xs'} />
         </Link>
         <div className="min-w-0 flex-1">
-            <div className={`rounded-2xl px-4 py-2.5 ${isAuthor ? 'bg-lime/30 ring-1 ring-lime' : 'bg-canvas'}`}>
+            <div className={`rounded-2xl px-4 py-2.5 ${isAuthor ? 'bg-lime/10 ring-1 ring-lime/60' : 'bg-canvas'}`}>
                 <div className="flex items-start justify-between gap-2">
                     <p className="flex flex-wrap items-center gap-x-2 text-sm">
                         <Link to={`/profile-view/${c.author?._id}`} className="font-semibold hover:underline">{c.author?.name || 'Deleted user'}</Link>
-                        {isAuthor && <span className="rounded-full bg-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-lime">Author</span>}
+                        {isAuthor && <span className="rounded-full bg-lime px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-ink">Author</span>}
                         <span className="text-xs text-muted">{timeAgo(c.createdAt)}</span>
                     </p>
                     {canDelete && (

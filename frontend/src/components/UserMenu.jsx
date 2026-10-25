@@ -71,7 +71,7 @@ const UserMenu = () => {
             {open && (
                 <div
                     role="menu"
-                    className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+                    className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-3xl border border-line bg-popover shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
                 >
                     {/* Header: avatar, name, profile link, PRO badge */}
                     <div className="flex items-center gap-3 border-b border-line p-4">
@@ -82,7 +82,7 @@ const UserMenu = () => {
                                 View profile
                             </Link>
                         </div>
-                        {isPro && <span className="badge bg-lime text-ink">PRO</span>}
+                        {isPro && <span className="badge bg-lime text-on-ink">PRO</span>}
                     </div>
 
                     {/* Links */}

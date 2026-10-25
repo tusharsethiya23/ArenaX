@@ -53,7 +53,7 @@ const Onboarding = ({ dna, onDone }) => {
     const [goal, setGoal] = useState(dna.goal?.key || null);
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <section className="rounded-[32px] bg-ink p-6 text-white sm:p-8">
+            <section className="rounded-[32px] bg-panel p-6 text-white sm:p-8">
                 <p className="text-xs font-bold uppercase tracking-wider text-lime">Athlete DNA</p>
                 <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter sm:text-4xl">Where am I? Where do I want to go? What should I do next?</h2>
                 <ol className="mt-6 space-y-3 text-sm text-white/80">
@@ -159,7 +159,7 @@ const AthleteDna = () => {
             <PageHeader
                 title={title}
                 subtitle={subtitle}
-                action={flash && <span role="status" className="badge bg-lime px-4 py-2 text-sm text-ink">{flash}</span>}
+                action={flash && <span role="status" className="badge bg-lime px-4 py-2 text-sm text-on-ink">{flash}</span>}
             />
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -168,7 +168,7 @@ const AthleteDna = () => {
 
                     {/* ---------- Headline numbers ---------- */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <section className="rounded-[28px] bg-ink p-5 text-white">
+                        <section className="rounded-[28px] bg-panel p-5 text-white">
                             <p className="text-sm text-white/60">Career readiness</p>
                             <p className="mt-1 text-5xl font-black tracking-tighter text-lime">{dna.readiness ?? '—'}{dna.readiness !== null && <span className="text-2xl">%</span>}</p>
                             <p className="mt-1 text-sm text-white/70">{dna.goal ? `for ${dna.goal.label}` : 'Pick a goal to see this'}</p>
@@ -283,7 +283,7 @@ const AthleteDna = () => {
                             <h2 className="mb-4 text-lg font-bold tracking-tight">Opportunities</h2>
 
                             {/* Brands */}
-                            <div className={`mb-5 flex gap-3 rounded-2xl p-4 ${dna.readiness >= BRAND_READY ? 'bg-lime' : 'bg-canvas'}`}>
+                            <div className={`mb-5 flex gap-3 rounded-2xl p-4 ${dna.readiness >= BRAND_READY ? 'bg-lime text-on-ink' : 'bg-canvas'}`}>
                                 <Megaphone size={18} className="mt-0.5 shrink-0" />
                                 <p className="text-sm">
                                     {dna.readiness >= BRAND_READY
@@ -367,7 +367,7 @@ const AthleteDna = () => {
                                 <li key={a._id} className="rounded-2xl bg-canvas p-3 text-sm">
                                     <div className="flex items-center justify-between gap-2">
                                         <span className="font-semibold">{a.source === 'self' ? 'Self-rating' : a.assessor?.name || 'Coach'}</span>
-                                        <span className={`badge ${a.source === 'coach' ? 'bg-lime text-ink' : 'bg-white text-muted'}`}>{a.source === 'coach' ? 'Coach' : 'Self'}</span>
+                                        <span className={`badge ${a.source === 'coach' ? 'bg-lime text-on-ink' : 'bg-white/10 text-muted'}`}>{a.source === 'coach' ? 'Coach' : 'Self'}</span>
                                     </div>
                                     <p className="mt-0.5 text-xs text-muted">{fmtDate(a.createdAt)} · overall {(Object.values(a.scores).reduce((n, v) => n + v, 0) / 6).toFixed(1)}</p>
                                     {a.note && <p className="mt-1.5 text-ink/80">"{a.note}"</p>}

@@ -24,11 +24,11 @@ const UpcomingSession = ({ className = '' }) => {
 
     return (
         <Link to="/calendar" className={`group flex items-center gap-4 rounded-[28px] bg-surface p-4 ${className}`}>
-            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-white">
+            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-on-ink">
                 <span className="text-base font-extrabold leading-none">
                     {date ? date.getDate() : booking.day?.slice(0, 3).toUpperCase()}
                 </span>
-                <span className="mt-1 text-[10px] font-semibold uppercase text-lime">{booking.day?.slice(0, 3)}</span>
+                <span className="mt-1 text-[10px] font-semibold uppercase text-on-ink/60">{booking.day?.slice(0, 3)}</span>
             </div>
 
             <div className="min-w-0 flex-1">
@@ -39,7 +39,7 @@ const UpcomingSession = ({ className = '' }) => {
                 </p>
             </div>
 
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas transition-colors group-hover:bg-lime">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas transition-colors group-hover:bg-lime group-hover:text-on-ink">
                 <ArrowUpRight size={16} />
             </span>
         </Link>

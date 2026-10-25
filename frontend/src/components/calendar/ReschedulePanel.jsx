@@ -50,7 +50,7 @@ const ReschedulePanel = ({ booking, otherName, onDone, onCancel }) => {
             {error && <p className="mt-3 text-sm text-danger">{error}</p>}
             <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={onCancel} className="btn btn-soft px-4 py-2">Back</button>
-                <button onClick={send} disabled={busy || !pick?.slot} className="btn btn-dark px-4 py-2">
+                <button onClick={send} disabled={busy || !pick?.slot} className="btn btn-dark min-w-0 whitespace-normal px-4 py-2 text-center">
                     {pick?.slot ? `Suggest ${pick.day.label}, ${pick.slot.label}` : 'Pick a time'}
                 </button>
             </div>

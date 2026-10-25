@@ -10,7 +10,7 @@ import AiChat from '../components/AiChat';
 const AiAssistant = () => (
     <div className="mx-auto flex h-[calc(100dvh-80px-4rem)] max-w-3xl flex-col px-4 py-4 sm:px-6 md:h-[calc(100dvh-80px)] md:pb-8">
         <div className="mb-4 flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lime">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lime text-on-ink">
                 <Sparkles size={22} />
             </span>
             <div>

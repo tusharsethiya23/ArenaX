@@ -7,14 +7,14 @@ import { BadgeCheck, Hourglass, XCircle, Circle } from 'lucide-react';
 const VerificationStatus = ({ achievement: a }) => {
     if (a.status === 'verified') {
         return (
-            <span className="badge gap-1 bg-lime text-ink">
+            <span className="badge gap-1 bg-lime text-on-ink">
                 <BadgeCheck size={13} /> Verified by {a.verifiedBy?.name || 'ArenaX team'}
             </span>
         );
     }
     if (a.status === 'pending') {
         return (
-            <span className="badge gap-1 bg-[#FBF0D2] text-[#8A5B00]">
+            <span className="badge gap-1 bg-amber-400/15 text-amber-300">
                 <Hourglass size={13} /> Waiting for {a.requestedFrom?.name || 'ArenaX team'}
             </span>
         );

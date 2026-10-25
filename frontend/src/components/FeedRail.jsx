@@ -16,8 +16,8 @@ import { fmtSession, upcomingSessions, hasStarted } from '../utils/sessions';
 import { compact } from '../utils/format';
 
 const STATUS_BADGE = {
-    pending: 'bg-[#FBF0D2] text-[#8A5B00]',
-    confirmed: 'bg-lime text-ink',
+    pending: 'bg-amber-400/15 text-amber-300',
+    confirmed: 'bg-lime text-on-ink',
 };
 
 const SessionRequests = ({ bookings, onChanged }) => {
@@ -40,7 +40,7 @@ const SessionRequests = ({ bookings, onChanged }) => {
         <section className="card">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
-                    Session requests <span className="badge bg-lime px-2 py-0.5 text-ink">{pending.length}</span>
+                    Session requests <span className="badge bg-lime px-2 py-0.5 text-on-ink">{pending.length}</span>
                 </h2>
                 <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>
             </div>
@@ -84,9 +84,9 @@ const Upcoming = ({ bookings, role }) => {
                         return (
                             <li key={b._id}>
                                 <Link to="/calendar" className="flex items-center gap-3">
-                                    <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-white' : 'bg-canvas'}`}>
+                                    <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-on-ink' : 'bg-canvas'}`}>
                                         <span className="text-xl font-extrabold leading-none">{date ? date.getDate() : '—'}</span>
-                                        <span className={`mt-0.5 text-[10px] font-bold uppercase ${i === 0 ? 'text-lime' : 'text-muted'}`}>{b.day?.slice(0, 3)}</span>
+                                        <span className={`mt-0.5 text-[10px] font-bold uppercase ${i === 0 ? 'text-on-ink/60' : 'text-muted'}`}>{b.day?.slice(0, 3)}</span>
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate font-semibold">{other?.name || 'Session'}</p>
@@ -111,7 +111,7 @@ const FollowRequests = () => {
     return (
         <section className="card">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight">
-                Follow requests <span className="badge bg-lime px-2 py-0.5 text-ink">{requests.length}</span>
+                Follow requests <span className="badge bg-lime px-2 py-0.5 text-on-ink">{requests.length}</span>
             </h2>
             <ul className="space-y-4">
                 {requests.slice(0, 3).map(({ user }) => (

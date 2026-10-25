@@ -1,25 +1,44 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ArenaX design tokens
-   Light grey canvas, white rounded cards, near-black ink and a
-   lime accent. Use these names (bg-canvas, text-ink, bg-lime...)
-   instead of raw hex values so the theme stays consistent.
+   ArenaX design tokens: dark glass theme
+   Charcoal page with a warm orange glow, frosted translucent cards,
+   off-white text and a lime accent. Use these names (bg-canvas,
+   bg-surface, text-ink, bg-lime...) instead of raw colours so the theme
+   stays consistent.
    ============================================================ */
 @theme {
-  --color-canvas: #ECECEC;   /* page background, inputs and tiles inside cards */
-  --color-surface: #FFFFFF;  /* cards */
-  --color-ink: #111111;      /* text, dark buttons, active states */
-  --color-muted: #8A8A8A;    /* secondary text */
-  --color-line: #E4E4E4;     /* dividers and hairline borders */
-  --color-lime: #D4F23B;     /* accent: primary actions, highlights */
-  --color-danger: #E5484D;   /* destructive actions and errors */
+  --color-canvas: rgb(255 255 255 / 0.06);  /* inputs and tiles inside cards */
+  --color-surface: rgb(40 35 33 / 0.62);    /* cards (frosted glass over the page glow) */
+  --color-popover: rgb(30 26 24);           /* menus, dropdowns, dialogs: solid, so nothing shows through */
+  --color-panel: #0f0c0b;                   /* deep feature panels (heroes, readiness) */
+  --color-ink: #f4f1ec;                     /* text; light pills and primary buttons */
+  --color-on-ink: #17120f;                  /* text on light pills (bg-ink) and on lime */
+  --color-muted: #a39c95;                   /* secondary text */
+  --color-line: rgb(255 255 255 / 0.1);     /* dividers and hairline borders */
+  --color-lime: #d4f23b;                    /* accent: primary actions, highlights */
+  --color-danger: #ff6b6b;                  /* destructive actions and errors */
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif; /* headings */
+}
+
+:root {
+  color-scheme: dark; /* dark native controls: date pickers, scrollbars */
 }
 
 body {
-  @apply bg-canvas font-sans text-ink antialiased;
+  @apply font-sans text-ink antialiased;
+  background:
+    radial-gradient(900px 520px at 28% -6%, rgb(255 120 40 / 0.2), transparent 62%),
+    radial-gradient(700px 500px at 92% 10%, rgb(255 170 90 / 0.08), transparent 60%),
+    radial-gradient(900px 700px at 50% 110%, rgb(130 75 40 / 0.18), transparent 60%),
+    #151211;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgb(212 242 59 / 0.35);
 }
 
 /* Hand cursor on everything clickable (Tailwind v4 gives buttons the plain
@@ -49,6 +68,17 @@ body {
   [aria-disabled="true"] {
     cursor: not-allowed;
   }
+
+  /* Headings in the wide display font */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+  }
+
+  /* Glass edge on cards and other surfaces (a shadow-* class still wins) */
+  .bg-surface {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
 }
 
 /* ============================================================
@@ -64,6 +94,7 @@ body {
 
   .card {
     @apply rounded-[28px] bg-surface p-5 sm:p-6;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.06);
   }
 
   /* Headings */
@@ -82,13 +113,13 @@ body {
     @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
   }
   .btn-dark {
-    @apply bg-ink text-white hover:bg-black/80;
+    @apply bg-ink text-on-ink hover:bg-ink/85;
   }
   .btn-lime {
-    @apply bg-lime text-ink hover:brightness-95;
+    @apply bg-lime text-on-ink hover:brightness-95;
   }
   .btn-soft {
-    @apply bg-canvas text-ink hover:bg-[#E2E2E2];
+    @apply bg-canvas text-ink hover:bg-white/10;
   }
   .btn-danger {
     @apply bg-danger/10 text-danger hover:bg-danger/15;
@@ -96,18 +127,18 @@ body {
 
   /* Filter chips (e.g. sport filters) */
   .chip {
-    @apply inline-flex items-center whitespace-nowrap rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/70;
+    @apply inline-flex items-center whitespace-nowrap rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/10;
   }
   .chip-active {
-    @apply bg-ink text-white hover:bg-ink;
+    @apply bg-ink text-on-ink hover:bg-ink;
   }
 
-  /* Form fields. They sit on white cards, so they use the canvas grey. */
+  /* Form fields: a soft translucent fill on the glass cards */
   .label {
     @apply mb-1.5 block text-xs font-semibold text-muted;
   }
   .input {
-    @apply w-full min-w-0 rounded-2xl border border-transparent bg-canvas px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-ink/20 focus:bg-white;
+    @apply w-full min-w-0 rounded-2xl border border-transparent bg-canvas px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-ink/20 focus:bg-white/10;
   }
 
   /* Small status pill */
@@ -120,7 +151,7 @@ body {
     @apply rounded-2xl bg-danger/10 px-4 py-3 text-sm text-danger;
   }
   .alert-success {
-    @apply rounded-2xl bg-lime/40 px-4 py-3 text-sm text-ink;
+    @apply rounded-2xl bg-lime/15 px-4 py-3 text-sm text-lime;
   }
 
   /* Empty / loading placeholder inside the page */

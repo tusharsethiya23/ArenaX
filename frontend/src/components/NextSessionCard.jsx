@@ -24,16 +24,16 @@ const NextSessionCard = ({ user, bookings }) => {
             ) : (
                 <>
                     <div className="flex items-start gap-4">
-                        <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-white">
+                        <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-on-ink">
                             <span className="text-2xl font-extrabold leading-none">{date ? date.getDate() : '—'}</span>
-                            <span className="mt-1 text-[11px] font-bold uppercase text-lime">{booking.day?.slice(0, 3)}</span>
+                            <span className="mt-1 text-[11px] font-bold uppercase text-on-ink/60">{booking.day?.slice(0, 3)}</span>
                         </div>
                         <div className="min-w-0">
                             <p className="truncate font-semibold">Session with {other?.name || 'your coach'}</p>
                             <p className="truncate text-sm text-muted">
                                 {[booking.timeSlot, other?.location].filter(Boolean).join(' · ')}
                             </p>
-                            <span className={`badge mt-2 ${booking.status === 'confirmed' ? 'bg-lime text-ink' : 'bg-[#FBF0D2] text-[#8A5B00]'}`}>
+                            <span className={`badge mt-2 ${booking.status === 'confirmed' ? 'bg-lime text-on-ink' : 'bg-amber-400/15 text-amber-300'}`}>
                                 {booking.status === 'confirmed'
                                     ? 'Confirmed'
                                     : user.role === 'coach' ? 'Waiting for your reply' : 'Waiting for coach'}

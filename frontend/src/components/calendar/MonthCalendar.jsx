@@ -46,16 +46,16 @@ const MonthCalendar = ({ bookings, selected, onSelect }) => {
                     <p className="text-sm text-muted">{monthTotal} {monthTotal === 1 ? 'session' : 'sessions'}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                    <button onClick={() => shift(-1)} aria-label="Previous month" className="flex h-9 w-9 items-center justify-center rounded-full bg-canvas hover:bg-[#E2E2E2]">
+                    <button onClick={() => shift(-1)} aria-label="Previous month" className="flex h-9 w-9 items-center justify-center rounded-full bg-canvas hover:bg-white/10">
                         <ChevronLeft size={16} />
                     </button>
                     <button
                         onClick={() => { const d = new Date(); setMonth(new Date(d.getFullYear(), d.getMonth(), 1)); }}
-                        className="rounded-full bg-canvas px-3 py-2 text-xs font-semibold hover:bg-[#E2E2E2]"
+                        className="rounded-full bg-canvas px-3 py-2 text-xs font-semibold hover:bg-white/10"
                     >
                         Today
                     </button>
-                    <button onClick={() => shift(1)} aria-label="Next month" className="flex h-9 w-9 items-center justify-center rounded-full bg-canvas hover:bg-[#E2E2E2]">
+                    <button onClick={() => shift(1)} aria-label="Next month" className="flex h-9 w-9 items-center justify-center rounded-full bg-canvas hover:bg-white/10">
                         <ChevronRight size={16} />
                     </button>
                 </div>
@@ -77,8 +77,8 @@ const MonthCalendar = ({ bookings, selected, onSelect }) => {
                             aria-label={`${date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}: ${list.length || 'no'} ${list.length === 1 ? 'session' : 'sessions'}`}
                             className={`flex aspect-square flex-col items-center justify-center rounded-2xl text-sm font-semibold transition-colors ${
                                 isSelected
-                                    ? 'bg-ink text-white'
-                                    : isToday ? 'bg-lime text-ink' : list.length ? 'bg-canvas hover:bg-[#E2E2E2]' : 'text-ink/70 hover:bg-canvas'
+                                    ? 'bg-ink text-on-ink'
+                                    : isToday ? 'bg-lime text-on-ink' : list.length ? 'bg-canvas hover:bg-white/10' : 'text-ink/70 hover:bg-canvas'
                             }`}
                         >
                             {date.getDate()}

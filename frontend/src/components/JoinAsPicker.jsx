@@ -34,7 +34,7 @@ const JoinAsPicker = ({ value, onChange }) => {
                         aria-checked={value === o.value}
                         onClick={() => pick(o.value)}
                         className={`rounded-full py-2.5 text-center text-sm font-semibold transition-colors ${
-                            value === o.value ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+                            value === o.value ? 'bg-ink text-on-ink' : 'text-muted hover:text-ink'
                         }`}
                     >
                         {o.label}

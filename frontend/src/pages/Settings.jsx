@@ -280,7 +280,7 @@ const SettingsContent = ({ profile }) => {
                                                 type="button"
                                                 onClick={() => removeSlot(i)}
                                                 aria-label={`Remove ${s.day} ${s.timeSlot}`}
-                                                className="flex h-6 w-6 items-center justify-center rounded-full text-muted hover:bg-white hover:text-danger"
+                                                className="flex h-6 w-6 items-center justify-center rounded-full text-muted hover:bg-white/10 hover:text-danger"
                                             >
                                                 <X size={14} />
                                             </button>

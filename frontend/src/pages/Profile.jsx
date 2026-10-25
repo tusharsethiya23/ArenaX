@@ -80,7 +80,7 @@ const Profile = () => {
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <h1 className="text-3xl font-extrabold tracking-tight">{user.name}</h1>
-                        <span className="badge bg-lime capitalize text-ink">{user.role}</span>
+                        <span className="badge bg-lime capitalize text-on-ink">{user.role}</span>
                     </div>
                     {user.bio && <p className="mt-2 text-sm text-ink/80">{user.bio}</p>}
                     <FollowCounts userId={user._id} followers={follow.followers} following={follow.following} className="mt-3" />

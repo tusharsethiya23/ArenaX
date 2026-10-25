@@ -120,13 +120,13 @@ const Tournaments = () => {
             <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
               <div className="flex items-start justify-between gap-3">
                 {/* Start date tile, like the Upcoming sessions list */}
-                <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-white' : 'bg-canvas'}`}>
+                <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-on-ink' : 'bg-canvas'}`}>
                   <span className="text-xl font-extrabold leading-none">{new Date(t.startDate).getDate()}</span>
-                  <span className={`mt-0.5 text-[10px] font-bold uppercase ${i === 0 ? 'text-lime' : 'text-muted'}`}>
+                  <span className={`mt-0.5 text-[10px] font-bold uppercase ${i === 0 ? 'text-on-ink/60' : 'text-muted'}`}>
                     {new Date(t.startDate).toLocaleDateString(undefined, { month: 'short' })}
                   </span>
                 </div>
-                <span className="badge bg-lime text-ink">{t.sport}</span>
+                <span className="badge bg-lime text-on-ink">{t.sport}</span>
               </div>
 
               <h3 className="mt-4 text-lg font-bold tracking-tight">{t.name}</h3>
@@ -146,7 +146,7 @@ const Tournaments = () => {
 
       {/* Team registration modal */}
       {registeringFor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
           <div className="card w-full max-w-sm">
             <h2 className="mb-4 text-xl font-extrabold tracking-tight">Register team</h2>
             <form onSubmit={handleRegisterTeam} className="space-y-3">

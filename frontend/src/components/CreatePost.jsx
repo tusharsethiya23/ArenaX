@@ -108,7 +108,7 @@ const CreatePost = ({ onPostCreated }) => {
                                 type="button"
                                 onClick={() => removeImage(i)}
                                 aria-label="Remove image"
-                                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/80 text-white transition-colors hover:bg-ink"
+                                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-panel/80 text-white transition-colors hover:bg-panel"
                             >
                                 <X size={14} />
                             </button>

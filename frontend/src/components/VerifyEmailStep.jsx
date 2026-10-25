@@ -48,7 +48,7 @@ const VerifyEmailStep = ({ email, note, onVerified, onBack }) => {
 
     return (
         <form onSubmit={submit}>
-            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-lime"><MailCheck size={22} /></span>
+            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-lime text-on-ink"><MailCheck size={22} /></span>
             <p className="text-lg font-bold">Check your Gmail</p>
             <p className="mb-4 text-sm text-muted">
                 We sent a 6-digit code to <b className="break-all text-ink">{email}</b>. It expires in 10 minutes.

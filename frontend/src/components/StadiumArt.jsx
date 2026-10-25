@@ -32,7 +32,7 @@ const StadiumArt = ({ className = '', silhouette = true, fade = true }) => (
         )}
 
         {/* Fade to black on the left, where a headline sits */}
-        {fade && <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/40 to-transparent" />}
+        {fade && <div className="absolute inset-0 bg-gradient-to-r from-panel via-panel/40 to-transparent" />}
     </div>
 );
 

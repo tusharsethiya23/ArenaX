@@ -107,11 +107,11 @@ const BrandDashboard = () => {
                   <h3 className="truncate text-lg font-bold tracking-tight">{t.name}</h3>
                   <p className="truncate text-sm text-muted">{t.location}</p>
                 </div>
-                {t.sport && <span className="badge shrink-0 bg-lime text-ink">{t.sport}</span>}
+                {t.sport && <span className="badge shrink-0 bg-lime text-on-ink">{t.sport}</span>}
               </div>
               {/* Athletes appear here once their Athlete DNA readiness reaches 70% */}
               {t.role === 'learner' && t.readiness != null && (
-                <p className="mt-3"><span className="badge bg-ink text-lime">Athlete · {t.readiness}% ready</span></p>
+                <p className="mt-3"><span className="badge bg-lime text-on-ink">Athlete · {t.readiness}% ready</span></p>
               )}
               {t.bio && <p className="mt-4 text-sm text-ink/80">{t.bio}</p>}
               <div className="mt-auto pt-5">
@@ -126,7 +126,7 @@ const BrandDashboard = () => {
 
       {/* Deal offer modal */}
       {dealTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
           <div className="card w-full max-w-sm">
             <h2 className="mb-4 text-xl font-extrabold tracking-tight">Send deal offer</h2>
             <form onSubmit={handleSendDeal} className="space-y-3">

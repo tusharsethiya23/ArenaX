@@ -18,7 +18,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
     <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-4 px-4 pb-8 pt-2 sm:gap-6 sm:px-6 sm:pt-4 lg:min-h-[calc(100dvh-80px)] lg:grid-cols-[1.1fr_1fr] lg:px-10 lg:py-6">
 
         {/* ---------- Hero panel (large screens) ---------- */}
-        <div className="relative hidden overflow-hidden rounded-[32px] bg-ink p-10 lg:flex lg:flex-col lg:justify-end">
+        <div className="relative hidden overflow-hidden rounded-[32px] bg-panel p-10 lg:flex lg:flex-col lg:justify-end">
             <StadiumArt className="left-[35%]" />
             <div className="relative">
                 <div className="mb-5"><Tagline /></div>
@@ -32,7 +32,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
         <div className="flex flex-col items-center lg:justify-center">
             <div className="w-full max-w-md">
                 {/* Short hero for phones and tablets */}
-                <div className="relative mb-4 flex h-40 flex-col justify-end overflow-hidden rounded-[28px] bg-ink p-5 sm:h-44 sm:p-6 lg:hidden">
+                <div className="relative mb-4 flex h-40 flex-col justify-end overflow-hidden rounded-[28px] bg-panel p-5 sm:h-44 sm:p-6 lg:hidden">
                     <StadiumArt className="left-[45%]" silhouette={false} />
                     <div className="relative">
                         <div className="mb-3"><Tagline /></div>

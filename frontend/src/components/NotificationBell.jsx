@@ -161,7 +161,7 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full z-50 mt-3 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                <div className="absolute right-0 top-full z-50 mt-3 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-line bg-popover shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
                     <p className="border-b border-line px-5 py-3.5 text-sm font-bold">
                         Notifications
                     </p>
@@ -186,7 +186,7 @@ const NotificationBell = () => {
                                             onClick={() => decline(requester._id)}
                                             disabled={busyId === requester._id}
                                             aria-label={`Decline ${requester.name}`}
-                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white hover:text-ink"
+                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white/10 hover:text-ink"
                                         >
                                             <X size={15} />
                                         </button>

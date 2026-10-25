@@ -93,7 +93,7 @@ const ProgressChart = ({ history, target }) => {
                 {/* Tooltip: one line, above the point; anchored left/right near the edges so it stays inside */}
                 {hover !== null && (
                     <div
-                        className={`pointer-events-none absolute -translate-y-full whitespace-nowrap rounded-xl bg-ink px-3 py-1.5 text-xs text-white shadow ${
+                        className={`pointer-events-none absolute -translate-y-full whitespace-nowrap rounded-xl bg-ink px-3 py-1.5 text-xs text-on-ink shadow ${
                             points[hover][0] > W * 0.75 ? '-translate-x-full' : points[hover][0] < W * 0.25 ? '' : '-translate-x-1/2'
                         }`}
                         style={{ left: `${(points[hover][0] / W) * 100}%`, top: `${(points[hover][1] / H) * 100}%`, marginTop: -10 }}

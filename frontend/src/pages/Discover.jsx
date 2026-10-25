@@ -57,11 +57,11 @@ const LEVEL_OPTIONS = [
 ];
 
 const PromoCard = ({ showPremium }) => (
-    <section className="flex flex-col justify-between rounded-[32px] bg-lime p-6 sm:p-8">
+    <section className="flex flex-col justify-between rounded-[32px] bg-lime p-6 text-on-ink sm:p-8">
         {showPremium ? (
             <>
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-ink/70">Learner Premium</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-on-ink/70">Learner Premium</p>
                     <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">Priority booking with top coaches</h2>
                 </div>
                 <Link to="/subscription" className="btn btn-dark mt-6 self-start">See plans <ArrowRight size={16} /></Link>
@@ -69,7 +69,7 @@ const PromoCard = ({ showPremium }) => (
         ) : (
             <>
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-ink/70">AI coach</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-on-ink/70">AI coach</p>
                     <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">Not sure who to pick? Ask the AI coach</h2>
                 </div>
                 <Link to="/ai-assistant" className="btn btn-dark mt-6 self-start">Ask now <ArrowRight size={16} /></Link>
@@ -88,10 +88,10 @@ const FiltersButton = ({ filters, setFilters }) => {
     return (
         <div ref={ref} className="relative">
             <button onClick={() => setOpen(!open)} className="chip gap-2" aria-expanded={open}>
-                <SlidersHorizontal size={15} /> Filters{active > 0 && <span className="badge bg-lime px-2 py-0 text-ink">{active}</span>}
+                <SlidersHorizontal size={15} /> Filters{active > 0 && <span className="badge bg-lime px-2 py-0 text-on-ink">{active}</span>}
             </button>
             {open && (
-                <div className="absolute right-0 top-full z-30 mt-2 w-64 space-y-4 rounded-3xl border border-line bg-surface p-5 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                <div className="absolute right-0 top-full z-30 mt-2 w-64 space-y-4 rounded-3xl border border-line bg-popover p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
                     <div>
                         <label className="label">Max price per session (₹)</label>
                         <input
@@ -280,7 +280,7 @@ const Discover = () => {
                     {/* ---------- Search hero ---------- */}
                     <section className="card sm:p-8">
                         <h1 className="text-4xl font-black tracking-tighter sm:text-5xl">
-                            Find your <span className="rounded-2xl bg-lime px-3">coach</span>
+                            Find your <span className="rounded-2xl bg-lime px-3 text-on-ink">coach</span>
                         </h1>
                         <p className="mt-3 text-muted">
                             {allCoaches.length
@@ -338,7 +338,7 @@ const Discover = () => {
                                 <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
                                     {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
                                     {s}
-                                    <span className={sportChip === s ? 'text-white/60' : 'text-muted'}>
+                                    <span className={sportChip === s ? 'text-on-ink/50' : 'text-muted'}>
                                         {s === 'All' ? coaches.length : sportCounts[s]}
                                     </span>
                                 </button>
@@ -420,7 +420,7 @@ const Discover = () => {
 
                 {spotlight && (
                     <section className="card">
-                        <span className="badge bg-lime text-ink">Athlete of the month</span>
+                        <span className="badge bg-lime text-on-ink">Athlete of the month</span>
                         <p className="mt-3 text-lg font-bold">{spotlight.athlete.name}</p>
                         <p className="text-sm text-muted">{spotlight.athlete.sport} · Sponsored by {spotlight.sponsorBrand.companyName}</p>
                     </section>

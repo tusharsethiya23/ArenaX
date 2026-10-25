@@ -118,7 +118,7 @@ const Select = ({
                 aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
                 aria-label={ariaLabel}
                 className={isField
-                    ? `input flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 ${open ? 'border-ink/20 bg-white' : ''} ${buttonClassName}`
+                    ? `input flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 ${open ? 'border-ink/20 bg-white/10' : ''} ${buttonClassName}`
                     : `inline-flex max-w-full items-center gap-1 font-medium outline-none focus-visible:underline disabled:opacity-60 ${buttonClassName}`}
             >
                 <span className={`truncate ${selected ? '' : 'text-muted'}`}>{selected ? selected.label : placeholder}</span>
@@ -132,7 +132,7 @@ const Select = ({
                     role="listbox"
                     aria-labelledby={ariaLabel ? undefined : buttonId}
                     aria-label={ariaLabel}
-                    className={`dropdown-panel absolute z-50 max-h-72 min-w-full overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.12)] ${upward ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${isField ? 'left-0 right-0' : 'right-0 w-max max-w-[min(18rem,calc(100vw-2rem))]'}`}
+                    className={`dropdown-panel absolute z-50 max-h-72 min-w-full overflow-auto rounded-2xl border border-line bg-popover p-1.5 backdrop-blur-xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] ${upward ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} ${isField ? 'left-0 right-0' : 'right-0 w-max max-w-[min(18rem,calc(100vw-2rem))]'}`}
                 >
                     {options.map((o, i) => {
                         const isSelected = i === selectedIndex;
@@ -152,7 +152,7 @@ const Select = ({
                             >
                                 <span className="truncate">{o.label}</span>
                                 {isSelected && (
-                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime">
+                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime text-on-ink">
                                         <Check size={12} strokeWidth={3} />
                                     </span>
                                 )}

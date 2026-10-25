@@ -57,8 +57,8 @@ const SessionCard = ({ booking: b, me, isCoach, onChanged }) => {
         <article className="rounded-[28px] bg-surface p-4 sm:p-5">
             <div className="flex gap-4">
                 {/* Date tile */}
-                <div className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${active && !started ? 'bg-ink text-white' : 'bg-canvas'}`}>
-                    <span className={`text-[10px] font-bold uppercase ${active && !started ? 'text-lime' : 'text-muted'}`}>{b.day?.slice(0, 3)}</span>
+                <div className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${active && !started ? 'bg-ink text-on-ink' : 'bg-canvas'}`}>
+                    <span className={`text-[10px] font-bold uppercase ${active && !started ? 'text-on-ink/60' : 'text-muted'}`}>{b.day?.slice(0, 3)}</span>
                     <span className="text-xl font-extrabold leading-tight">{date ? date.getDate() : '—'}</span>
                     <span className="text-[10px] font-semibold uppercase opacity-70">{date ? date.toLocaleDateString(undefined, { month: 'short' }) : ''}</span>
                 </div>
@@ -77,7 +77,7 @@ const SessionCard = ({ booking: b, me, isCoach, onChanged }) => {
 
                     {/* ---------- Status notes ---------- */}
                     {suggestion && (
-                        <div className="mt-3 rounded-2xl bg-[#FBF0D2] px-4 py-3 text-sm text-[#5C3D00]">
+                        <div className="mt-3 rounded-2xl bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
                             {suggestedByMe
                                 ? <>You suggested <b>{fmtSession(suggestion)}</b>. Waiting for {firstName} to accept.</>
                                 : <><b>{firstName}</b> suggested moving to <b>{fmtSession(suggestion)}</b>.</>}

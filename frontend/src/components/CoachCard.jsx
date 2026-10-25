@@ -78,7 +78,7 @@ const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFoll
             )}
 
             {/* ---------- Next slot ---------- */}
-            <div className={`mt-4 flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm ${next ? 'bg-lime/25' : 'bg-canvas text-muted'}`}>
+            <div className={`mt-4 flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm ${next ? 'bg-lime/10 text-lime' : 'bg-canvas text-muted'}`}>
                 <Clock size={15} className="shrink-0" />
                 {next ? (
                     <span className="truncate">

@@ -74,7 +74,7 @@ const UserProfileView = () => {
                 <div className="space-y-3">
                     {endorsements.map((e) => (
                         <div key={e._id} className="rounded-[28px] bg-surface p-5">
-                            <span className="badge bg-lime text-ink">{e.skill}</span>
+                            <span className="badge bg-lime text-on-ink">{e.skill}</span>
                             {e.note && <p className="mt-3 break-words text-sm leading-6">{e.note}</p>}
                             <p className="mt-3 text-sm text-muted">
                                 {e.endorser?.name}{e.endorser?.sport ? ` · ${e.endorser.sport}` : ''}

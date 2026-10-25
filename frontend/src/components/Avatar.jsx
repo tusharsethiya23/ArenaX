@@ -9,11 +9,11 @@ const getInitials = (name = '') =>
 
 // [background, text] pairs for pastel avatars
 const PASTELS = [
-    ['bg-[#DCE7F7]', 'text-[#2B4C8C]'], // blue
-    ['bg-[#FBE3D6]', 'text-[#A3431F]'], // peach
-    ['bg-[#DCEFE6]', 'text-[#22684A]'], // mint
-    ['bg-[#E7E1F7]', 'text-[#5B3FA0]'], // lavender
-    ['bg-[#FBF0D2]', 'text-[#8A5B00]'], // butter
+    ['bg-sky-400/20', 'text-sky-200'], // blue
+    ['bg-orange-400/20', 'text-orange-200'], // peach
+    ['bg-emerald-400/20', 'text-emerald-200'], // mint
+    ['bg-violet-400/20', 'text-violet-200'], // lavender
+    ['bg-amber-400/20', 'text-amber-200'], // butter
 ];
 
 const pastelFor = (name = '') => {
@@ -26,7 +26,7 @@ const Avatar = ({ name, photo, pastel = false, className = 'h-10 w-10 text-sm' }
     if (photo) {
         return <img src={photo} alt={name} className={`${className} shrink-0 rounded-full object-cover`} />;
     }
-    const [bg, text] = pastel ? pastelFor(name) : ['bg-lime', 'text-ink'];
+    const [bg, text] = pastel ? pastelFor(name) : ['bg-lime', 'text-on-ink'];
     return (
         <span className={`${className} flex shrink-0 items-center justify-center rounded-full font-bold ${bg} ${text}`}>
             {getInitials(name)}

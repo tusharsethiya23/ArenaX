@@ -79,7 +79,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                 )}
 
                 {coach.sport && (
-                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-surface px-4 py-2 text-sm font-semibold">
+                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-popover px-4 py-2 text-sm font-semibold backdrop-blur-md">
                         <span aria-hidden="true">{sportEmoji(coach.sport)}</span> {coach.sport}
                     </span>
                 )}
@@ -89,7 +89,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                         onClick={follow.toggle}
                         disabled={follow.busy}
                         aria-label={follow.isFollowing ? 'Unfollow' : follow.requested ? 'Cancel follow request' : 'Follow'}
-                        className="btn absolute right-4 top-4 bg-ink px-5 text-white hover:bg-black/80"
+                        className="btn absolute right-4 top-4 bg-panel/90 px-5 text-white hover:bg-panel"
                     >
                         {follow.isFollowing
                             ? <><Check size={16} /> Following</>
@@ -97,7 +97,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                     </button>
                 )}
 
-                <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white">
+                <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-panel/90 px-4 py-2 text-sm font-semibold text-white">
                     {coach.rating ? (
                         <>
                             <Star size={15} className="fill-lime text-lime" />
@@ -110,7 +110,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                 </span>
 
                 {freeToday && (
-                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold">
+                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-on-ink">
                         <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B3A]" /> Free today
                     </span>
                 )}

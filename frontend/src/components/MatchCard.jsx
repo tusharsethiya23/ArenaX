@@ -48,7 +48,7 @@ const MatchCard = ({ coachId }) => {
                     <p className="label">Focus skills</p>
                     <div className="flex flex-wrap gap-2">
                         {coach.coachFocus.map((k) => (
-                            <span key={k} className={`badge ${needs.includes(k) ? 'bg-lime text-ink' : 'bg-canvas text-ink'}`}>
+                            <span key={k} className={`badge ${needs.includes(k) ? 'bg-lime text-on-ink' : 'bg-canvas text-ink'}`}>
                                 {DNA_SKILL_LABEL[k]}{needs.includes(k) && ' · your gap'}
                             </span>
                         ))}

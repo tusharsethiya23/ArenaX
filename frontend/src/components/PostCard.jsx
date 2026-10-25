@@ -19,9 +19,9 @@ import CommentsPanel from './CommentsPanel';
 import { compact, timeAgo, firstName } from '../utils/format';
 
 const ROLE_BADGE = {
-    coach: { label: 'Coach', className: 'bg-lime text-ink' },
+    coach: { label: 'Coach', className: 'bg-lime text-on-ink' },
     learner: { label: 'Athlete', className: 'bg-canvas text-muted' },
-    admin: { label: 'Admin', className: 'bg-ink text-white' },
+    admin: { label: 'Admin', className: 'bg-ink text-on-ink' },
 };
 
 const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFollow, onDeleted, showComments = false }) => {
@@ -154,7 +154,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                         <MoreHorizontal size={18} />
                     </button>
                     {menuOpen && (
-                        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
+                        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-2xl border border-line bg-popover p-1.5 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
                             <button role="menuitem" onClick={copyLink} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-canvas">
                                 <Link2 size={15} /> Copy link
                             </button>
@@ -183,9 +183,9 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                     onClick={toggleLike}
                     aria-pressed={post.isLiked}
                     aria-label={post.isLiked ? 'Unlike' : 'Like'}
-                    className={`btn px-4 py-2 ${post.isLiked ? 'bg-lime/40 text-ink' : 'hover:bg-canvas'}`}
+                    className={`btn px-4 py-2 ${post.isLiked ? 'bg-lime/15 text-lime' : 'hover:bg-canvas'}`}
                 >
-                    <Heart size={17} className={post.isLiked ? 'fill-ink' : ''} /> {compact(post.likeCount)}
+                    <Heart size={17} className={post.isLiked ? 'fill-lime' : ''} /> {compact(post.likeCount)}
                 </button>
                 <button onClick={() => setCommentsOpen(!commentsOpen)} aria-expanded={commentsOpen} aria-label="Comments" className="btn px-4 py-2 hover:bg-canvas">
                     <MessageCircle size={17} /> {compact(post.commentCount)}
@@ -214,10 +214,10 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
             ) : post.latestComment && (
                 <button onClick={() => setCommentsOpen(true)} className="mt-4 flex w-full gap-3 border-t border-line pt-4 text-left">
                     <Avatar name={post.latestComment.author?.name} photo={post.latestComment.author?.profilePhoto} pastel className="h-9 w-9 text-xs" />
-                    <span className={`min-w-0 flex-1 rounded-2xl px-4 py-2.5 ${latestByAuthor ? 'bg-lime/30 ring-1 ring-lime' : 'bg-canvas'}`}>
+                    <span className={`min-w-0 flex-1 rounded-2xl px-4 py-2.5 ${latestByAuthor ? 'bg-lime/10 ring-1 ring-lime/60' : 'bg-canvas'}`}>
                         <span className="flex items-center gap-2 text-sm font-semibold">
                             {post.latestComment.author?.name || 'Deleted user'}
-                            {latestByAuthor && <span className="rounded-full bg-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-lime">Author</span>}
+                            {latestByAuthor && <span className="rounded-full bg-lime px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-ink">Author</span>}
                         </span>
                         <span className="block truncate text-sm">{post.latestComment.text}</span>
                     </span>

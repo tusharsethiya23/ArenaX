@@ -6,7 +6,7 @@ import { BadgeCheck } from 'lucide-react';
 
 const VerifiedBadge = ({ size = 18 }) => (
     <span title="Verified coach: has a verified achievement" className="inline-flex shrink-0">
-        <BadgeCheck size={size} className="fill-ink text-lime" aria-label="Verified" />
+        <BadgeCheck size={size} className="fill-lime text-on-ink" aria-label="Verified" />
     </span>
 );
 
