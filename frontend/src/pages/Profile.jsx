@@ -15,6 +15,7 @@ import StatsPanel from '../components/StatsPanel';
 import Portfolio from '../components/portfolio/Portfolio';
 import FollowCounts from '../components/FollowCounts';
 import useFollow from '../hooks/useFollow';
+import { toastError } from '../utils/dialogs';
 
 const Profile = () => {
     const { user, login } = useAuth();
@@ -46,7 +47,7 @@ const Profile = () => {
             login({ ...user, profilePhoto: res.data.profilePhoto, token: localStorage.getItem('token') });
             setPhotoFile(null);
         } catch (err) {
-            alert(err.response?.data?.message || 'Upload failed');
+            toastError(err, 'Upload failed');
         }
         setUploading(false);
     };

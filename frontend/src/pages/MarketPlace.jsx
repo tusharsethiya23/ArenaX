@@ -7,6 +7,7 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
 import Select from '../components/Select';
+import { toastError, toast } from '../utils/dialogs';
 
 const TYPE_LABELS = { drill: 'Drill', training_plan: 'Training plan', video_course: 'Video course' };
 
@@ -32,16 +33,16 @@ const Marketplace = () => {
             setForm({ title: '', description: '', price: '', fileLink: '', type: 'drill' });
             fetchContent();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 
     const handleBuy = async (id) => {
         try {
             await API.post(`/content/${id}/purchase`);
-            alert('Purchased!');
+            toast('Purchased!', 'success');
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 

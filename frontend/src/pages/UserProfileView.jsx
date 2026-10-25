@@ -18,6 +18,7 @@ import CoachProfileCard from '../components/CoachProfileCard';
 import Portfolio from '../components/portfolio/Portfolio';
 import MatchCard from '../components/MatchCard';
 import useFollow from '../hooks/useFollow';
+import { toastError } from '../utils/dialogs';
 
 const UserProfileView = () => {
     const { userId } = useParams();
@@ -53,7 +54,7 @@ const UserProfileView = () => {
             setNote('');
             fetchEndorsements();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 

@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
+import { toastError } from '../utils/dialogs';
 
 const useFollow = (userId) => {
     const [stats, setStats] = useState({ followers: 0, following: 0, isFollowing: false, requested: false, isPrivate: false });
@@ -47,7 +48,7 @@ const useFollow = (userId) => {
             setStats((s) => ({ ...s, isFollowing: res.data.isFollowing, requested: res.data.requested, followers: res.data.followers }));
         } catch (err) {
             setStats(previous);
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
         setBusy(false);
     }, [busy, stats, userId]);

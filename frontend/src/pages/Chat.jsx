@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import socket from '../socket';
+import { toastError } from '../utils/dialogs';
 
 const Chat = () => {
   const { bookingId } = useParams();
@@ -55,7 +56,7 @@ const Chat = () => {
       setMessages((prev) => [...prev, res.data]);
       setText('');
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 

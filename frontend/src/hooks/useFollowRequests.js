@@ -10,6 +10,7 @@ import { useState, useCallback } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useSharedResource from './useSharedResource';
+import { toastError } from '../utils/dialogs';
 
 const useFollowRequests = () => {
     const { user } = useAuth();
@@ -31,7 +32,7 @@ const useFollowRequests = () => {
         } catch (err) {
             // 404 = already handled elsewhere (e.g. in another tab): just drop it
             if (err.response?.status === 404) handled();
-            else alert(err.response?.data?.message || 'Something went wrong');
+            else toastError(err);
         }
         setBusyId(null);
     }, [setData]);

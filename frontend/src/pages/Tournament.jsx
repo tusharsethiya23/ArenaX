@@ -4,9 +4,11 @@
 
 import { useState, useEffect } from 'react';
 import { CalendarDays, MapPin, Plus, X } from 'lucide-react';
+import Modal from '../components/Modal';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
+import { toastError, toast } from '../utils/dialogs';
 
 const fmtDate = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -38,7 +40,7 @@ const Tournaments = () => {
       setShowCreateForm(false);
       fetchTournaments();
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 
@@ -55,11 +57,11 @@ const Tournaments = () => {
         name: teamForm.name,
         memberEmails: emails,
       });
-      alert('Team registered!');
+      toast('Team registered!', 'success');
       setRegisteringFor(null);
       setTeamForm({ name: '', memberEmails: '' });
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 
@@ -146,11 +148,10 @@ const Tournaments = () => {
 
       {/* Team registration modal */}
       {registeringFor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-          <div className="card w-full max-w-sm">
-            <h2 className="mb-4 text-xl font-extrabold tracking-tight">Register team</h2>
+        <Modal title="Register team" description={tournaments.find((t) => t._id === registeringFor)?.name} onClose={() => setRegisteringFor(null)}>
             <form onSubmit={handleRegisterTeam} className="space-y-3">
               <input
+                data-autofocus
                 placeholder="Team name"
                 value={teamForm.name}
                 onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
@@ -173,8 +174,7 @@ const Tournaments = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

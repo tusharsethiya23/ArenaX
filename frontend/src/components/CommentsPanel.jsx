@@ -12,6 +12,7 @@ import { X, Send } from 'lucide-react';
 import API from '../api/axios';
 import Avatar from './Avatar';
 import { timeAgo } from '../utils/format';
+import { confirmDialog } from '../utils/dialogs';
 
 const MAX_LENGTH = 500;
 
@@ -222,7 +223,7 @@ const CommentsPanel = ({ post, viewer, onCountChange }) => {
     };
 
     const removeComment = async (comment, replyCount = 0) => {
-        if (replyCount > 0 && !window.confirm('Delete this comment and its replies?')) return;
+        if (replyCount > 0 && !(await confirmDialog({ title: 'Delete this comment?', message: 'Its replies will be deleted too.', confirmLabel: 'Delete', danger: true }))) return;
         try {
             const res = await API.delete(`/posts/${post._id}/comments/${comment._id}`);
             const remaining = comments.filter((c) => c._id !== comment._id);

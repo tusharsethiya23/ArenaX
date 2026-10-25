@@ -14,6 +14,7 @@ import useFollowRequests from '../hooks/useFollowRequests';
 import { fromISODate } from '../utils/slots';
 import { fmtSession, upcomingSessions, hasStarted } from '../utils/sessions';
 import { compact } from '../utils/format';
+import { toastError } from '../utils/dialogs';
 
 const STATUS_BADGE = {
     pending: 'bg-accent/15 text-accent',
@@ -31,7 +32,7 @@ const SessionRequests = ({ bookings, onChanged }) => {
             await API.put(`/bookings/${id}`, { status });
             onChanged();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
         setBusyId(null);
     };

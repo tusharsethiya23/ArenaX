@@ -15,6 +15,7 @@ import PageHeader from '../components/PageHeader';
 import { WEEKDAYS, slotStartMinutes } from '../utils/slots';
 import { DNA_SKILLS, MAX_COACH_FOCUS } from '../utils/dna';
 import Select from '../components/Select';
+import { confirmDialog, toastError } from '../utils/dialogs';
 
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
 const LEVEL_OPTIONS = [{ value: '', label: 'Not set' }, ...LEVELS.map((l) => ({ value: l, label: l.charAt(0).toUpperCase() + l.slice(1) }))];
@@ -50,7 +51,7 @@ const PrivacyCard = ({ initialPrivate }) => {
 
     const toggle = async () => {
         const next = !isPrivate;
-        if (!next && !window.confirm('Make your account public? Anyone with a pending follow request will become a follower.')) return;
+        if (!next && !(await confirmDialog({ title: 'Make your account public?', message: 'Anyone with a pending follow request will become a follower.', confirmLabel: 'Make public' }))) return;
         setSaving(true);
         setIsPrivate(next);
         try {
@@ -160,9 +161,12 @@ const SettingsContent = ({ profile }) => {
 
     // Handles permanent account deletion after user confirmation
     const handleDeleteAccount = async () => {
-        const confirmed = window.confirm(
-            'Are you sure you want to delete your account? This cannot be undone.'
-        );
+        const confirmed = await confirmDialog({
+            title: 'Delete your account?',
+            message: 'Your account will be permanently deleted. This cannot be undone.',
+            confirmLabel: 'Delete account',
+            danger: true,
+        });
         if (!confirmed) return;
 
         try {
@@ -170,7 +174,7 @@ const SettingsContent = ({ profile }) => {
             logout(); // clear local auth state
             navigate('/register'); // send them back to the landing/register page
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 

@@ -7,6 +7,7 @@ import { Check } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
+import { toastError } from '../utils/dialogs';
 
 const Subscription = () => {
     const { user } = useAuth();
@@ -36,7 +37,7 @@ const Subscription = () => {
             await API.post('/subscriptions', { plan });
             fetchStatus();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 
@@ -45,7 +46,7 @@ const Subscription = () => {
             await API.put('/subscriptions/cancel');
             fetchStatus();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     };
 

@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { toastError } from '../utils/dialogs';
 
 const useFollowingIds = () => {
     const { user } = useAuth();
@@ -45,7 +46,7 @@ const useFollowingIds = () => {
             set(id, res.data.isFollowing ? 'following' : res.data.requested ? 'requested' : 'none');
         } catch (err) {
             set(id, before);
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
         }
     }, [states]);
 

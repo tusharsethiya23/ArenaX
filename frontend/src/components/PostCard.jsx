@@ -17,6 +17,7 @@ import RichText from './RichText';
 import ImageCarousel from './ImageCarousel';
 import CommentsPanel from './CommentsPanel';
 import { compact, timeAgo, firstName } from '../utils/format';
+import { confirmDialog } from '../utils/dialogs';
 
 const ROLE_BADGE = {
     coach: { label: 'Coach', className: 'bg-white text-on-ink' },
@@ -98,7 +99,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
 
     const deletePost = async () => {
         closeMenu();
-        if (!window.confirm('Delete this post? This cannot be undone.')) return;
+        if (!(await confirmDialog({ title: 'Delete this post?', message: 'This cannot be undone.', confirmLabel: 'Delete', danger: true }))) return;
         try {
             await API.delete(`/posts/${post._id}`);
             onDeleted?.(post._id);

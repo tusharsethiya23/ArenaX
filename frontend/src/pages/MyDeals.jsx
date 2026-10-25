@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
+import { toastError } from '../utils/dialogs';
 
 // Colour-coded status badge
 const statusColor = {
@@ -34,7 +35,7 @@ const MyDeals = () => {
       await API.put(`/deals/${id}`, { status });
       fetchDeals();
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 

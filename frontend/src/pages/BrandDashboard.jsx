@@ -6,10 +6,12 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Search, MapPin } from 'lucide-react';
+import Modal from '../components/Modal';
 import API from '../api/axios';
 import { useBrandAuth } from '../context/BrandAuthContext';
 import Avatar from '../components/Avatar';
 import PageHeader from '../components/PageHeader';
+import { toastError, toast } from '../utils/dialogs';
 
 const BrandDashboard = () => {
   const { brand, brandLogout } = useBrandAuth();
@@ -52,11 +54,11 @@ const BrandDashboard = () => {
         offerAmount: Number(dealForm.offerAmount),
         message: dealForm.message,
       });
-      alert('Deal offer sent!');
+      toast('Deal offer sent!', 'success');
       setDealTarget(null);
       setDealForm({ offerAmount: '', message: '' });
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 
@@ -126,11 +128,10 @@ const BrandDashboard = () => {
 
       {/* Deal offer modal */}
       {dealTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-          <div className="card w-full max-w-sm">
-            <h2 className="mb-4 text-xl font-extrabold tracking-tight">Send deal offer</h2>
+        <Modal title="Send deal offer" description={`To ${talent.find((t) => t._id === dealTarget)?.name || 'this athlete'}`} onClose={() => setDealTarget(null)}>
             <form onSubmit={handleSendDeal} className="space-y-3">
               <input
+                data-autofocus
                 type="number"
                 placeholder="Offer amount (₹)"
                 value={dealForm.offerAmount}
@@ -154,8 +155,7 @@ const BrandDashboard = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

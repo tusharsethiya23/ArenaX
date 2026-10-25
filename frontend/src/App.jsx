@@ -6,6 +6,7 @@ import AiAssistantButton from './components/AiAssistantButton';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageErrorBoundary from './components/PageErrorBoundary';
 import BackgroundGlow from './components/BackgroundGlow';
+import DialogHost from './components/DialogHost';
 import { useAuth } from './context/AuthContext';
 
 // Pages load on demand, so the first visit only downloads the page being opened
@@ -221,6 +222,9 @@ function App() {
           <AiAssistantButton />
         </>
       )}
+
+      {/* In-app confirm popups and toast messages (utils/dialogs.js) */}
+      <DialogHost />
     </>
   );
 }

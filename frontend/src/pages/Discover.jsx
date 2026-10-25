@@ -26,6 +26,7 @@ import MatchBadge from '../components/MatchBadge';
 import Select from '../components/Select';
 import { nextOpenSlot } from '../utils/slots';
 import { normalizeSport, sportEmoji } from '../utils/sports';
+import { confirmDialog, toastError, toast } from '../utils/dialogs';
 
 const SORTS = {
     // Athletes only: coaches outside their sport have no match (-1) and come last
@@ -228,14 +229,14 @@ const Discover = () => {
 
     // Book the slot shown on the card
     const handleBook = async (coach, next) => {
-        if (!window.confirm(`Book ${coach.name} for ${next.day.label}, ${next.slot.timeSlot}?`)) return;
+        if (!(await confirmDialog({ title: `Book ${coach.name}?`, message: `${next.day.label}, ${next.slot.timeSlot}. The coach will confirm your request.`, confirmLabel: 'Send request' }))) return;
         try {
             await API.post('/bookings', { coachId: coach._id, date: next.day.iso, timeSlot: next.slot.timeSlot });
-            alert('Booking request sent! The coach will confirm it.');
+            toast('Booking request sent! The coach will confirm it.', 'success');
             reloadBookings();
             fetchCoaches(currentParams()).catch(console.error); // refresh taken slots
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong');
+            toastError(err);
             fetchCoaches(currentParams()).catch(console.error);
         }
     };

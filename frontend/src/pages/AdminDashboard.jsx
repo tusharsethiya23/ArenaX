@@ -7,6 +7,7 @@ import API from '../api/axios';
 import Avatar from '../components/Avatar';
 import PageHeader from '../components/PageHeader';
 import VerificationQueue from '../components/portfolio/VerificationQueue';
+import { confirmDialog, toastError } from '../utils/dialogs';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -30,14 +31,14 @@ const AdminDashboard = () => {
   // Admin deletes any user's account (not their own — uses /admin/:id route,
   // unlike the self-delete route which reads the ID from the token)
   const handleDelete = async (id, name) => {
-    const confirmed = window.confirm(`Delete ${name}'s account? This cannot be undone.`);
+    const confirmed = await confirmDialog({ title: `Delete ${name}'s account?`, message: 'This cannot be undone.', confirmLabel: 'Delete', danger: true });
     if (!confirmed) return;
 
     try {
       await API.delete(`/users/admin/${id}`);
       fetchUsers(); // refresh list after deletion
     } catch (err) {
-      alert(err.response?.data?.message || 'Something went wrong');
+      toastError(err);
     }
   };
 

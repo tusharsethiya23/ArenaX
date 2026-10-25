@@ -14,6 +14,7 @@ import AchievementForm from './AchievementForm';
 import VerificationStatus from './VerificationStatus';
 import ReviewActions from './ReviewActions';
 import Select from '../Select';
+import { confirmDialog, toastError } from '../../utils/dialogs';
 
 // "Ask for verification": athletes choose a coach; coaches send to the ArenaX team
 const RequestVerification = ({ achievement, role, verifiers, onDone }) => {
@@ -92,12 +93,12 @@ const Portfolio = ({ userId, isOwn, role }) => {
     };
 
     const remove = async (a) => {
-        if (!window.confirm(`Delete "${a.title}" from your portfolio?`)) return;
+        if (!(await confirmDialog({ title: 'Delete this achievement?', message: `"${a.title}" will be removed from your portfolio.`, confirmLabel: 'Delete', danger: true }))) return;
         try {
             await API.delete(`/achievements/${a._id}`);
             setItems((prev) => prev.filter((x) => x._id !== a._id));
         } catch (err) {
-            alert(err.response?.data?.message || 'Could not delete');
+            toastError(err, 'Could not delete');
         }
     };
 
