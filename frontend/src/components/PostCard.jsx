@@ -19,7 +19,7 @@ import CommentsPanel from './CommentsPanel';
 import { compact, timeAgo, firstName } from '../utils/format';
 
 const ROLE_BADGE = {
-    coach: { label: 'Coach', className: 'bg-lime text-on-ink' },
+    coach: { label: 'Coach', className: 'bg-white text-on-ink' },
     learner: { label: 'Athlete', className: 'bg-canvas text-muted' },
     admin: { label: 'Admin', className: 'bg-ink text-on-ink' },
 };
@@ -183,9 +183,9 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                     onClick={toggleLike}
                     aria-pressed={post.isLiked}
                     aria-label={post.isLiked ? 'Unlike' : 'Like'}
-                    className={`btn px-4 py-2 ${post.isLiked ? 'bg-lime/15 text-lime' : 'hover:bg-canvas'}`}
+                    className={`btn px-4 py-2 ${post.isLiked ? 'bg-accent/15 text-accent' : 'hover:bg-canvas'}`}
                 >
-                    <Heart size={17} className={post.isLiked ? 'fill-lime' : ''} /> {compact(post.likeCount)}
+                    <Heart size={17} className={post.isLiked ? 'fill-accent' : ''} /> {compact(post.likeCount)}
                 </button>
                 <button onClick={() => setCommentsOpen(!commentsOpen)} aria-expanded={commentsOpen} aria-label="Comments" className="btn px-4 py-2 hover:bg-canvas">
                     <MessageCircle size={17} /> {compact(post.commentCount)}
@@ -214,10 +214,10 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
             ) : post.latestComment && (
                 <button onClick={() => setCommentsOpen(true)} className="mt-4 flex w-full gap-3 border-t border-line pt-4 text-left">
                     <Avatar name={post.latestComment.author?.name} photo={post.latestComment.author?.profilePhoto} pastel className="h-9 w-9 text-xs" />
-                    <span className={`min-w-0 flex-1 rounded-2xl px-4 py-2.5 ${latestByAuthor ? 'bg-lime/10 ring-1 ring-lime/60' : 'bg-canvas'}`}>
+                    <span className={`min-w-0 flex-1 rounded-2xl px-4 py-2.5 ${latestByAuthor ? 'bg-white/[0.08] ring-1 ring-accent/50' : 'bg-canvas'}`}>
                         <span className="flex items-center gap-2 text-sm font-semibold">
                             {post.latestComment.author?.name || 'Deleted user'}
-                            {latestByAuthor && <span className="rounded-full bg-lime px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-ink">Author</span>}
+                            {latestByAuthor && <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-ink">Author</span>}
                         </span>
                         <span className="block truncate text-sm">{post.latestComment.text}</span>
                     </span>

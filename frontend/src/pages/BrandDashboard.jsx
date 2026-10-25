@@ -107,11 +107,11 @@ const BrandDashboard = () => {
                   <h3 className="truncate text-lg font-bold tracking-tight">{t.name}</h3>
                   <p className="truncate text-sm text-muted">{t.location}</p>
                 </div>
-                {t.sport && <span className="badge shrink-0 bg-lime text-on-ink">{t.sport}</span>}
+                {t.sport && <span className="badge shrink-0 bg-white text-on-ink">{t.sport}</span>}
               </div>
               {/* Athletes appear here once their Athlete DNA readiness reaches 70% */}
               {t.role === 'learner' && t.readiness != null && (
-                <p className="mt-3"><span className="badge bg-lime text-on-ink">Athlete · {t.readiness}% ready</span></p>
+                <p className="mt-3"><span className="badge bg-white text-on-ink">Athlete · {t.readiness}% ready</span></p>
               )}
               {t.bio && <p className="mt-4 text-sm text-ink/80">{t.bio}</p>}
               <div className="mt-auto pt-5">

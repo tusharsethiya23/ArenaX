@@ -4,9 +4,9 @@
 import { fromISODate, slotStartMinutes } from './slots';
 
 export const STATUS = {
-    pending: { label: 'Requested', className: 'bg-amber-400/15 text-amber-300' },
-    confirmed: { label: 'Confirmed', className: 'bg-lime text-on-ink' },
-    completed: { label: 'Completed', className: 'bg-ink text-on-ink' },
+    pending: { label: 'Requested', className: 'bg-accent/15 text-accent' },
+    confirmed: { label: 'Confirmed', className: 'bg-data-mint/15 text-data-mint' },
+    completed: { label: 'Completed', className: 'bg-white/[0.08] text-ink/65' },
     declined: { label: 'Declined', className: 'bg-danger/10 text-danger' },
     cancelled: { label: 'Cancelled', className: 'bg-canvas text-muted' },
 };

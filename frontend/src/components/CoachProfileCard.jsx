@@ -100,8 +100,8 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                 <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-panel/90 px-4 py-2 text-sm font-semibold text-white">
                     {coach.rating ? (
                         <>
-                            <Star size={15} className="fill-lime text-lime" />
-                            <span className="text-lime">{coach.rating}</span>
+                            <Star size={15} className="fill-highlight text-highlight" />
+                            <span className="text-highlight">{coach.rating}</span>
                             <span>{coach.reviewCount} {coach.reviewCount === 1 ? 'review' : 'reviews'}</span>
                         </>
                     ) : (
@@ -110,8 +110,8 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                 </span>
 
                 {freeToday && (
-                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-on-ink">
-                        <span className="h-2.5 w-2.5 rounded-full bg-[#2E8B3A]" /> Free today
+                    <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-on-ink">
+                        <span className="h-2.5 w-2.5 rounded-full bg-data-mint" /> Free today
                     </span>
                 )}
             </div>

@@ -7,7 +7,7 @@
 const StadiumArt = ({ className = '', silhouette = true, fade = true }) => (
     <div aria-hidden="true" className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
         {/* Sky */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#16213F] via-[#2D4F7B] to-[#2E6B3F]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#141312] via-[#3A2219] to-[#2A2624]" />
 
         {/* Floodlights */}
         <div className="absolute left-[12%] top-[2%] h-28 w-56 rounded-full bg-white/60 blur-3xl" />
@@ -18,7 +18,7 @@ const StadiumArt = ({ className = '', silhouette = true, fade = true }) => (
             className="absolute inset-x-0 bottom-0 h-[42%]"
             style={{
                 background:
-                    'repeating-linear-gradient(90deg, #2F7A35 0 9%, #2A6E30 9% 18%)',
+                    'repeating-linear-gradient(90deg, #2A2624 0 9%, #242120 9% 18%)',
             }}
         />
         <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-b from-transparent to-black/40" />
@@ -26,8 +26,8 @@ const StadiumArt = ({ className = '', silhouette = true, fade = true }) => (
         {/* Player silhouette */}
         {silhouette && (
             <div className="absolute bottom-0 left-[16%] flex flex-col items-center">
-                <div className="h-16 w-16 rounded-full bg-[#141821] sm:h-20 sm:w-20" />
-                <div className="mt-2 h-40 w-36 rounded-t-[64px] bg-[#141821] sm:h-48 sm:w-44" />
+                <div className="h-16 w-16 rounded-full bg-[#141312] sm:h-20 sm:w-20" />
+                <div className="mt-2 h-40 w-36 rounded-t-[64px] bg-[#141312] sm:h-48 sm:w-44" />
             </div>
         )}
 

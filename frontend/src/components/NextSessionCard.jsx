@@ -33,7 +33,7 @@ const NextSessionCard = ({ user, bookings }) => {
                             <p className="truncate text-sm text-muted">
                                 {[booking.timeSlot, other?.location].filter(Boolean).join(' · ')}
                             </p>
-                            <span className={`badge mt-2 ${booking.status === 'confirmed' ? 'bg-lime text-on-ink' : 'bg-amber-400/15 text-amber-300'}`}>
+                            <span className={`badge mt-2 ${booking.status === 'confirmed' ? 'bg-white text-on-ink' : 'bg-accent/15 text-accent'}`}>
                                 {booking.status === 'confirmed'
                                     ? 'Confirmed'
                                     : user.role === 'coach' ? 'Waiting for your reply' : 'Waiting for coach'}

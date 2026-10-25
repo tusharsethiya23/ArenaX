@@ -85,7 +85,7 @@ const FeedSidebar = ({ profile, bookings }) => {
                     >
                         <Icon size={18} strokeWidth={1.8} />
                         <span className="flex-1">{label}</span>
-                        {badge > 0 && <span className="badge bg-lime px-2 py-0.5 text-on-ink">{badge}</span>}
+                        {badge > 0 && <span className="badge bg-white px-2 py-0.5 text-on-ink">{badge}</span>}
                     </NavLink>
                 ))}
             </nav>

@@ -39,7 +39,7 @@ const UpcomingSession = ({ className = '' }) => {
                 </p>
             </div>
 
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas transition-colors group-hover:bg-lime group-hover:text-on-ink">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas transition-colors group-hover:bg-white group-hover:text-on-ink">
                 <ArrowUpRight size={16} />
             </span>
         </Link>

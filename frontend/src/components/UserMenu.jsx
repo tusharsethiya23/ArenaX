@@ -82,7 +82,7 @@ const UserMenu = () => {
                                 View profile
                             </Link>
                         </div>
-                        {isPro && <span className="badge bg-lime text-on-ink">PRO</span>}
+                        {isPro && <span className="badge bg-white text-on-ink">PRO</span>}
                     </div>
 
                     {/* Links */}

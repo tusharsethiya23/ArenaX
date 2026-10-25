@@ -83,7 +83,7 @@ const PrivacyCard = ({ initialPrivate }) => {
                     aria-label="Private account"
                     onClick={toggle}
                     disabled={saving}
-                    className={`relative h-8 w-14 shrink-0 rounded-full transition-colors ${isPrivate ? 'bg-lime' : 'bg-canvas'}`}
+                    className={`relative h-8 w-14 shrink-0 rounded-full transition-colors ${isPrivate ? 'bg-accent' : 'bg-canvas'}`}
                 >
                     <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${isPrivate ? 'left-7' : 'left-1'}`} />
                 </button>

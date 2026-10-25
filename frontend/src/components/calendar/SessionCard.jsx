@@ -77,7 +77,7 @@ const SessionCard = ({ booking: b, me, isCoach, onChanged }) => {
 
                     {/* ---------- Status notes ---------- */}
                     {suggestion && (
-                        <div className="mt-3 rounded-2xl bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
+                        <div className="mt-3 rounded-2xl bg-accent/15 px-4 py-3 text-sm text-ink">
                             {suggestedByMe
                                 ? <>You suggested <b>{fmtSession(suggestion)}</b>. Waiting for {firstName} to accept.</>
                                 : <><b>{firstName}</b> suggested moving to <b>{fmtSession(suggestion)}</b>.</>}
@@ -101,7 +101,7 @@ const SessionCard = ({ booking: b, me, isCoach, onChanged }) => {
                         </p>
                     )}
                     {b.status === 'completed' && !isCoach && b.reviewed && (
-                        <p className="mt-2 flex items-center gap-1 text-sm text-muted"><Star size={14} className="fill-[#F5B800] text-[#F5B800]" /> You rated this session</p>
+                        <p className="mt-2 flex items-center gap-1 text-sm text-muted"><Star size={14} className="fill-highlight text-highlight" /> You rated this session</p>
                     )}
 
                     {/* ---------- Actions ---------- */}

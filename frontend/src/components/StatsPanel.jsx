@@ -56,7 +56,7 @@ const StatsPanel = () => {
                     <h2 className="mb-4 text-lg font-bold tracking-tight">{section.title}</h2>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                         {section.stats.map((s, i) => (
-                            <div key={s.label} className={`rounded-3xl p-4 sm:p-5 ${i === 0 ? 'bg-lime text-on-ink' : 'bg-canvas'}`}>
+                            <div key={s.label} className={`rounded-3xl p-4 sm:p-5 ${i === 0 ? 'bg-white text-on-ink' : 'bg-canvas'}`}>
                                 <p className="break-words text-2xl font-extrabold tracking-tight sm:text-3xl">{s.value}</p>
                                 <p className={`mt-1 text-xs ${i === 0 ? 'text-on-ink/70' : 'text-muted'}`}>{s.label}</p>
                             </div>

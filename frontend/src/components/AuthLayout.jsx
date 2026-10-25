@@ -9,7 +9,7 @@ import StadiumArt from './StadiumArt';
 
 const Tagline = () => (
     <span className="inline-flex items-center gap-2 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-sm font-medium text-white backdrop-blur-sm">
-        <span className="h-5 w-5 rounded-full bg-lime lg:h-6 lg:w-6" />
+        <span className="h-5 w-5 rounded-full bg-accent lg:h-6 lg:w-6" />
         Coaches, athletes and brands
     </span>
 );
@@ -23,7 +23,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
             <div className="relative">
                 <div className="mb-5"><Tagline /></div>
                 <h2 className="text-6xl font-black leading-[0.95] tracking-tighter text-white xl:text-7xl">
-                    Train with<br /><span className="text-lime">the best.</span>
+                    Train with<br /><span className="text-highlight">the best.</span>
                 </h2>
             </div>
         </div>
@@ -37,7 +37,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
                     <div className="relative">
                         <div className="mb-3"><Tagline /></div>
                         <p className="text-[2rem] font-black leading-[0.95] tracking-tighter text-white sm:text-4xl">
-                            Train with <span className="text-lime">the best.</span>
+                            Train with <span className="text-highlight">the best.</span>
                         </p>
                     </div>
                 </div>

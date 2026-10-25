@@ -23,7 +23,7 @@ const VerificationQueue = ({ title = 'Verification requests' }) => {
     return (
         <section className="card mb-6">
             <h2 className="mb-1 flex items-center gap-2 text-lg font-bold tracking-tight">
-                {title} <span className="badge bg-lime px-2 py-0.5 text-on-ink">{items.length}</span>
+                {title} <span className="badge bg-white px-2 py-0.5 text-on-ink">{items.length}</span>
             </h2>
             <p className="mb-4 text-sm text-muted">Only verify what you know is true. Your name appears on the achievement.</p>
             <ul className="divide-y divide-line">

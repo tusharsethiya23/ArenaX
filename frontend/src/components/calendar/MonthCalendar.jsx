@@ -10,7 +10,7 @@ import { toISODate, fromISODate } from '../../utils/slots';
 
 const WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const SHOWN = ['pending', 'confirmed', 'completed']; // declined / cancelled don't appear on the grid
-const DOT = { confirmed: 'bg-ink', pending: 'bg-[#E8A300]', completed: 'bg-muted/50' };
+const DOT = { confirmed: 'bg-data-mint', pending: 'bg-accent', completed: 'bg-ink/40' };
 const LEGEND = [['confirmed', 'Confirmed'], ['pending', 'Requested'], ['completed', 'Completed']];
 
 const MonthCalendar = ({ bookings, selected, onSelect }) => {
@@ -78,13 +78,13 @@ const MonthCalendar = ({ bookings, selected, onSelect }) => {
                             className={`flex aspect-square flex-col items-center justify-center rounded-2xl text-sm font-semibold transition-colors ${
                                 isSelected
                                     ? 'bg-ink text-on-ink'
-                                    : isToday ? 'bg-lime text-on-ink' : list.length ? 'bg-canvas hover:bg-white/10' : 'text-ink/70 hover:bg-canvas'
+                                    : isToday ? 'bg-accent text-on-ink' : list.length ? 'bg-canvas hover:bg-white/10' : 'text-ink/70 hover:bg-canvas'
                             }`}
                         >
                             {date.getDate()}
                             <span className="mt-0.5 flex h-1.5 gap-0.5">
                                 {list.slice(0, 3).map((s, j) => (
-                                    <span key={j} className={`h-1.5 w-1.5 rounded-full ${isSelected && s === 'confirmed' ? 'bg-lime' : DOT[s]}`} />
+                                    <span key={j} className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-on-ink' : DOT[s]}`} />
                                 ))}
                             </span>
                         </button>

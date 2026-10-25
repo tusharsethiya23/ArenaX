@@ -152,7 +152,7 @@ const Select = ({
                             >
                                 <span className="truncate">{o.label}</span>
                                 {isSelected && (
-                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime text-on-ink">
+                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-ink">
                                         <Check size={12} strokeWidth={3} />
                                     </span>
                                 )}

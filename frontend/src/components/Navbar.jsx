@@ -17,7 +17,7 @@ const Navbar = () => {
     const { user } = useAuth();
 
     return (
-        <nav className="sticky top-0 z-40 h-20 bg-canvas/85 backdrop-blur-md">
+        <nav className="sticky top-0 z-40 h-20 bg-smoke-side/85 backdrop-blur-md">
             {/* 2 columns on mobile (logo | right), 3 on desktop so the links sit truly centered */}
             <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
@@ -41,7 +41,7 @@ const Navbar = () => {
                                         `mx-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
                                             isActive
                                                 ? 'bg-ink text-on-ink'
-                                                : 'bg-lime text-on-ink shadow-[0_4px_14px_rgba(212,242,59,0.55)] hover:shadow-[0_6px_22px_rgba(212,242,59,0.9)]'
+                                                : 'bg-white text-on-ink shadow-[0_4px_16px_rgba(255,122,47,0.35)] hover:shadow-[0_6px_22px_rgba(255,122,47,0.55)]'
                                         }`
                                     }
                                 >

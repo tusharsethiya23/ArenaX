@@ -37,7 +37,7 @@ const AiAssistantButton = () => {
             >
                 <div className="flex items-center justify-between border-b border-line px-5 py-4">
                     <div className="flex items-center gap-2.5">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lime text-on-ink">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-on-ink">
                             <Sparkles size={16} />
                         </span>
                         <span className="font-bold">AI coach</span>
@@ -60,7 +60,7 @@ const AiAssistantButton = () => {
                 aria-expanded={open}
                 className="fixed bottom-20 right-4 z-50 flex h-10 items-center gap-1.5 rounded-full border border-white/10 bg-panel p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition-transform active:scale-95 md:bottom-6 md:right-6 md:pr-3.5 lg:right-10"
             >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lime text-on-ink">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-on-ink">
                     {open ? <X size={14} /> : <Sparkles size={14} />}
                 </span>
                 <span className="hidden whitespace-nowrap text-[13px] font-semibold md:block">

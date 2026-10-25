@@ -42,7 +42,7 @@ const RateSession = ({ booking, onDone, onCancel }) => {
                         aria-pressed={rating === n}
                         className="p-1"
                     >
-                        <Star size={26} className={n <= shown ? 'fill-[#F5B800] text-[#F5B800]' : 'text-line'} />
+                        <Star size={26} className={n <= shown ? 'fill-highlight text-highlight' : 'text-line'} />
                     </button>
                 ))}
                 <span className="ml-2 text-sm font-semibold text-muted">{LABELS[shown]}</span>

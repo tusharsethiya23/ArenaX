@@ -16,8 +16,8 @@ import { fmtSession, upcomingSessions, hasStarted } from '../utils/sessions';
 import { compact } from '../utils/format';
 
 const STATUS_BADGE = {
-    pending: 'bg-amber-400/15 text-amber-300',
-    confirmed: 'bg-lime text-on-ink',
+    pending: 'bg-accent/15 text-accent',
+    confirmed: 'bg-white text-on-ink',
 };
 
 const SessionRequests = ({ bookings, onChanged }) => {
@@ -40,7 +40,7 @@ const SessionRequests = ({ bookings, onChanged }) => {
         <section className="card">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
-                    Session requests <span className="badge bg-lime px-2 py-0.5 text-on-ink">{pending.length}</span>
+                    Session requests <span className="badge bg-white px-2 py-0.5 text-on-ink">{pending.length}</span>
                 </h2>
                 <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>
             </div>
@@ -111,7 +111,7 @@ const FollowRequests = () => {
     return (
         <section className="card">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight">
-                Follow requests <span className="badge bg-lime px-2 py-0.5 text-on-ink">{requests.length}</span>
+                Follow requests <span className="badge bg-white px-2 py-0.5 text-on-ink">{requests.length}</span>
             </h2>
             <ul className="space-y-4">
                 {requests.slice(0, 3).map(({ user }) => (

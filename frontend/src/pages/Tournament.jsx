@@ -126,7 +126,7 @@ const Tournaments = () => {
                     {new Date(t.startDate).toLocaleDateString(undefined, { month: 'short' })}
                   </span>
                 </div>
-                <span className="badge bg-lime text-on-ink">{t.sport}</span>
+                <span className="badge bg-white text-on-ink">{t.sport}</span>
               </div>
 
               <h3 className="mt-4 text-lg font-bold tracking-tight">{t.name}</h3>

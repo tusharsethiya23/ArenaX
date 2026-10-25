@@ -66,7 +66,7 @@ const AchievementForm = ({ initial, onSubmit, onCancel }) => {
                 <p className="mt-1 text-xs text-muted">A link helps your coach verify it faster.</p>
             </div>
             {initial?.status === 'verified' && (
-                <p className="rounded-2xl bg-amber-400/15 px-4 py-3 text-sm text-amber-200">Saving changes removes the current verification. You can ask for it again.</p>
+                <p className="rounded-2xl bg-accent/15 px-4 py-3 text-sm text-ink">Saving changes removes the current verification. You can ask for it again.</p>
             )}
             {error && <p className="alert-error">{error}</p>}
             <div className="flex gap-2">

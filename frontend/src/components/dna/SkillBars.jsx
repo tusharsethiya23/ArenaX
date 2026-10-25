@@ -23,7 +23,7 @@ const SkillBars = ({ dimensions, scores, target }) => (
                         aria-label={`${d.label}: ${current} out of 10${target ? `, goal ${target}` : ''}`}
                         title={`${d.label}: ${current}${target ? ` (goal ${target})` : ''}`}
                     >
-                        <div className="absolute inset-y-0 left-0 rounded-full bg-lime" style={{ width: `${current * 10}%` }} />
+                        <div className="absolute inset-y-0 left-0 rounded-full bg-highlight" style={{ width: `${current * 10}%` }} />
                         {target && (
                             // Goal marker: a short upright tick that sticks out above and below the track
                             <div className="absolute -inset-y-1 w-0.5 rounded-full bg-muted" style={{ left: `calc(${target * 10}% - 1px)` }} />
