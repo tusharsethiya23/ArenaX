@@ -19,7 +19,7 @@ import PhotoCropper from '../components/PhotoCropper';
 import { toast, toastError } from '../utils/dialogs';
 
 const Profile = () => {
-    const { user, login } = useAuth();
+    const { user, updateUser } = useAuth();
     const [photoFile, setPhotoFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -54,7 +54,7 @@ const Profile = () => {
             const res = await API.post('/users/profile/photo', formDataObj, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            login({ ...user, profilePhoto: res.data.profilePhoto, token: localStorage.getItem('token') });
+            updateUser({ profilePhoto: res.data.profilePhoto });
             setPhotoFile(null);
             toast('Profile photo updated', 'success');
         } catch (err) {
