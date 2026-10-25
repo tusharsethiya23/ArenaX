@@ -59,7 +59,7 @@ const UserMenu = () => {
                 aria-label="Account menu"
                 aria-haspopup="menu"
                 aria-expanded={open}
-                className="flex items-center gap-2.5 rounded-full bg-surface py-1.5 pl-1.5 pr-3 transition-shadow hover:shadow-sm"
+                className="nav-glass flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 transition-shadow hover:shadow-sm"
             >
                 <Avatar name={user.name} photo={user.profilePhoto} className="h-9 w-9 text-xs" />
                 <span className="hidden text-left leading-tight sm:block md:hidden lg:block">

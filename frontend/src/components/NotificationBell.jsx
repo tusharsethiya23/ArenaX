@@ -152,7 +152,7 @@ const NotificationBell = () => {
                 onClick={toggle}
                 aria-label={hasUnread ? 'Notifications (unread)' : 'Notifications'}
                 aria-expanded={open}
-                className="relative flex h-11 w-11 items-center justify-center rounded-full bg-surface text-ink transition-shadow hover:shadow-sm"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full nav-glass text-ink transition-shadow hover:shadow-sm"
             >
                 <Bell size={18} strokeWidth={1.8} />
                 {hasUnread && (

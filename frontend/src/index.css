@@ -159,6 +159,15 @@ body {
   .chip {
     @apply inline-flex items-center whitespace-nowrap rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/10;
   }
+  /* Navbar pieces (logo, links pill, bell, profile pill): the navbar itself has
+     no background, so each piece is darker frosted glass that stays readable
+     when the page scrolls underneath it */
+  .nav-glass {
+    background-color: rgb(20 19 18 / 0.6);
+    backdrop-filter: blur(24px);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+
   /* Selected chip / tab: tinted in the accent colour (not solid white) */
   .chip-active {
     @apply bg-accent/15 text-accent hover:bg-accent/20;
