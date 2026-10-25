@@ -161,7 +161,10 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full z-50 mt-3 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-line bg-popover shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                // Phones: pinned to the screen with a 16px margin each side (the bell isn't at
+                // the right edge, so hanging off it would push the panel off-screen) and
+                // scrolls inside if long. From sm up: hangs under the bell as before.
+                <div className="fixed inset-x-4 top-20 z-50 max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain rounded-3xl border border-line bg-popover shadow-[0_20px_50px_rgba(0,0,0,0.12)] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-3 sm:max-h-[min(40rem,calc(100dvh-7rem))] sm:w-80">
                     <p className="border-b border-line px-5 py-3.5 text-sm font-bold">
                         Notifications
                     </p>
