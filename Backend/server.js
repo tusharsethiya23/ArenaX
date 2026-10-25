@@ -19,7 +19,6 @@ const tournamentRoutes = require('./routes/tournament.routes.js');
 const allowedOrigins = [
   'http://localhost:5173',
   'https://arenax-frontend.onrender.com', // live site (Render Static Site)
-  'https://arenax-4yzn.onrender.com', // old site, until it's deleted
   ...(process.env.CLIENT_URLS || '').split(',').map((url) => url.trim().replace(/\/$/, '')).filter(Boolean),
 ];
 
