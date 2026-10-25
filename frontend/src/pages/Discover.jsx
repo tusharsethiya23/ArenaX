@@ -39,9 +39,9 @@ const SORTS = {
 
 // A labelled field in the search bar. Dropdowns use a <div> wrapper: a <label>
 // would re-open the list on every click inside it.
-const SearchField = ({ icon: Icon, label, children, as: Tag = 'label' }) => (
+const SearchField = ({ icon: Icon, label, children, as: Tag = 'label', tone = '' }) => (
     <Tag className="flex min-w-0 flex-1 items-center gap-3 px-5 py-2.5">
-        <Icon size={18} className="shrink-0" />
+        <Icon size={18} className={`shrink-0 ${tone}`} />
         <span className="min-w-0 flex-1">
             <span className="block text-xs text-muted">{label}</span>
             {children}
@@ -291,7 +291,7 @@ const Discover = () => {
                         <div className="@container mt-6">
                         <form onSubmit={handleSearch} className="flex flex-col gap-1 rounded-3xl bg-canvas p-1.5 @2xl:flex-row @2xl:items-center @2xl:rounded-full">
                             <div className="grid min-w-0 flex-1 grid-cols-1 divide-y divide-line @md:grid-cols-3 @md:divide-x @md:divide-y-0">
-                            <SearchField icon={Search} label="Sport">
+                            <SearchField icon={Search} label="Sport" tone="text-accent">
                                 <input
                                     value={search.sport}
                                     onChange={(e) => setSearch({ ...search, sport: e.target.value })}
@@ -299,7 +299,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={MapPin} label="Location">
+                            <SearchField icon={MapPin} label="Location" tone="text-data-pink">
                                 <input
                                     value={search.location}
                                     onChange={(e) => setSearch({ ...search, location: e.target.value })}
@@ -307,7 +307,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={BarChart3} label="Level" as="div">
+                            <SearchField icon={BarChart3} label="Level" as="div" tone="text-data-mint">
                                 <Select
                                     variant="inline"
                                     aria-label="Level"
@@ -338,7 +338,7 @@ const Discover = () => {
                                 <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
                                     {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
                                     {s}
-                                    <span className={sportChip === s ? 'text-on-ink/50' : 'text-muted'}>
+                                    <span className={sportChip === s ? 'text-accent/75' : 'text-muted'}>
                                         {s === 'All' ? coaches.length : sportCounts[s]}
                                     </span>
                                 </button>
@@ -407,7 +407,7 @@ const Discover = () => {
                                             <p className="truncate font-semibold">{c.name}</p>
                                             <p className="flex items-center gap-1 truncate text-sm text-muted">
                                                 {c.sport}
-                                                {c.rating && <> · <Star size={12} className="fill-muted" /> {c.rating}</>}
+                                                {c.rating && <> · <Star size={12} className="fill-highlight text-highlight" /> {c.rating}</>}
                                             </p>
                                         </div>
                                         {c.pricePerSession && <span className="badge shrink-0 bg-canvas text-muted">₹{c.pricePerSession}</span>}

@@ -77,14 +77,14 @@ const MonthCalendar = ({ bookings, selected, onSelect }) => {
                             aria-label={`${date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}: ${list.length || 'no'} ${list.length === 1 ? 'session' : 'sessions'}`}
                             className={`flex aspect-square flex-col items-center justify-center rounded-2xl text-sm font-semibold transition-colors ${
                                 isSelected
-                                    ? 'bg-ink text-on-ink'
+                                    ? 'bg-white/[0.12] text-ink ring-1 ring-inset ring-accent'
                                     : isToday ? 'bg-accent text-on-ink' : list.length ? 'bg-canvas hover:bg-white/10' : 'text-ink/70 hover:bg-canvas'
                             }`}
                         >
                             {date.getDate()}
                             <span className="mt-0.5 flex h-1.5 gap-0.5">
                                 {list.slice(0, 3).map((s, j) => (
-                                    <span key={j} className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-on-ink' : DOT[s]}`} />
+                                    <span key={j} className={`h-1.5 w-1.5 rounded-full ${DOT[s]}`} />
                                 ))}
                             </span>
                         </button>

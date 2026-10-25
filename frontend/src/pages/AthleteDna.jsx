@@ -283,8 +283,8 @@ const AthleteDna = () => {
                             <h2 className="mb-4 text-lg font-bold tracking-tight">Opportunities</h2>
 
                             {/* Brands */}
-                            <div className={`mb-5 flex gap-3 rounded-2xl p-4 ${dna.readiness >= BRAND_READY ? 'bg-white text-on-ink' : 'bg-canvas'}`}>
-                                <Megaphone size={18} className="mt-0.5 shrink-0" />
+                            <div className={`mb-5 flex gap-3 rounded-2xl p-4 ${dna.readiness >= BRAND_READY ? 'bg-accent/10' : 'bg-canvas'}`}>
+                                <Megaphone size={18} className="mt-0.5 shrink-0 text-accent" />
                                 <p className="text-sm">
                                     {dna.readiness >= BRAND_READY
                                         ? <><b>You're visible to brands.</b> Athletes at {BRAND_READY}%+ readiness show up in brand talent search{isOwn ? ' (if your account is public)' : ''}.</>
@@ -329,7 +329,7 @@ const AthleteDna = () => {
                                     {dna.opportunities.tournaments.map((t) => (
                                         <li key={t._id}>
                                             <Link to="/tournaments" className="group flex items-center gap-3">
-                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas"><Trophy size={16} /></span>
+                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-highlight/15 text-highlight"><Trophy size={16} /></span>
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate font-semibold">{t.name}</p>
                                                     <p className="truncate text-xs text-muted">{fmtDate(t.startDate)} · register by {fmtDate(t.registrationDeadline)}</p>

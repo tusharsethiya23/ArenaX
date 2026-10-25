@@ -159,8 +159,10 @@ body {
   .chip {
     @apply inline-flex items-center whitespace-nowrap rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/10;
   }
+  /* Selected chip / tab: tinted in the accent colour (not solid white) */
   .chip-active {
-    @apply bg-white text-on-ink hover:bg-white;
+    @apply bg-accent/15 text-accent hover:bg-accent/20;
+    box-shadow: inset 0 0 0 1px rgb(255 122 47 / 0.4);
   }
 
   /* Form fields: a soft translucent fill on the glass cards */

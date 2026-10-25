@@ -2,10 +2,11 @@
 // Coach performance stats (formerly the /analytics page, now the "Stats" tab
 // on /profile). Shows booking stats plus trust/performance metrics (rating,
 // endorsements, achievements) and earnings, aggregated by the backend.
-// The first tile of each section is highlighted in lime, like the mockup.
+// Each tile has a coloured dot; the first tile's number is the highlight colour.
 
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
+import { TONES, STAT_TONES } from '../utils/tones';
 
 const StatsPanel = () => {
     const [data, setData] = useState(null);
@@ -56,9 +57,12 @@ const StatsPanel = () => {
                     <h2 className="mb-4 text-lg font-bold tracking-tight">{section.title}</h2>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                         {section.stats.map((s, i) => (
-                            <div key={s.label} className={`rounded-3xl p-4 sm:p-5 ${i === 0 ? 'bg-white text-on-ink' : 'bg-canvas'}`}>
-                                <p className="break-words text-2xl font-extrabold tracking-tight sm:text-3xl">{s.value}</p>
-                                <p className={`mt-1 text-xs ${i === 0 ? 'text-on-ink/70' : 'text-muted'}`}>{s.label}</p>
+                            <div key={s.label} className="rounded-3xl bg-canvas p-4 sm:p-5">
+                                <p className={`break-words text-2xl font-extrabold tracking-tight sm:text-3xl ${i === 0 ? 'text-highlight' : ''}`}>{s.value}</p>
+                                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+                                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${TONES[STAT_TONES[i % STAT_TONES.length]].dot}`} />
+                                    {s.label}
+                                </p>
                             </div>
                         ))}
                     </div>

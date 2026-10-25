@@ -9,7 +9,7 @@ import PageHeader from '../components/PageHeader';
 // Colour-coded status badge
 const statusColor = {
   pending: 'bg-canvas text-muted',
-  accepted: 'bg-white text-on-ink',
+  accepted: 'bg-data-mint/15 text-data-mint',
   declined: 'bg-danger/10 text-danger',
 };
 

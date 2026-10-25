@@ -4,7 +4,7 @@
 
 const MatchBadge = ({ score, className = '' }) => (
     <span
-        className={`badge shrink-0 ${score >= 75 ? 'bg-white text-on-ink' : 'bg-canvas text-ink'} ${className}`}
+        className={`badge shrink-0 ${score >= 75 ? 'bg-data-mint/15 text-data-mint' : 'bg-canvas text-ink'} ${className}`}
         title="How well this coach fits your DNA gaps, level, city and schedule"
     >
         {score}% match

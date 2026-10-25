@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Whistle, Building2 } from 'lucide-react';
 
 const OPTIONS = [
-    { role: 'learner', label: "I'm a learner", hint: 'Find coaches and track your game', icon: GraduationCap },
-    { role: 'coach', label: "I'm a coach", hint: 'Offer sessions and grow your athletes', icon: Whistle },
-    { role: 'brand', label: "I'm a brand", hint: 'Sponsor athletes (sign up with your work email)', icon: Building2 },
+    { role: 'learner', label: "I'm a learner", hint: 'Find coaches and track your game', icon: GraduationCap, tone: 'bg-data-blue/15 text-data-blue' },
+    { role: 'coach', label: "I'm a coach", hint: 'Offer sessions and grow your athletes', icon: Whistle, tone: 'bg-accent/15 text-accent' },
+    { role: 'brand', label: "I'm a brand", hint: 'Sponsor athletes (sign up with your work email)', icon: Building2, tone: 'bg-data-mint/15 text-data-mint' },
 ];
 
 const GoogleRolePicker = ({ onChoose, onCancel, busy }) => {
@@ -19,7 +19,7 @@ const GoogleRolePicker = ({ onChoose, onCancel, busy }) => {
             <p className="text-lg font-bold">One more step</p>
             <p className="mb-4 text-sm text-muted">You're new to ArenaX. How will you use it?</p>
             <div className="grid gap-3">
-                {OPTIONS.map(({ role, label, hint, icon: Icon }) => (
+                {OPTIONS.map(({ role, label, hint, icon: Icon, tone }) => (
                     <button
                         key={role}
                         type="button"
@@ -27,7 +27,7 @@ const GoogleRolePicker = ({ onChoose, onCancel, busy }) => {
                         onClick={() => (role === 'brand' ? navigate('/brand/register') : onChoose(role))}
                         className="flex items-center gap-3 rounded-3xl border border-line p-4 text-left transition-colors hover:border-ink disabled:opacity-60"
                     >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-on-ink"><Icon size={18} /></span>
+                        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${tone}`}><Icon size={18} /></span>
                         <span className="min-w-0">
                             <span className="block font-semibold">{label}</span>
                             <span className="block text-sm text-muted">{hint}</span>

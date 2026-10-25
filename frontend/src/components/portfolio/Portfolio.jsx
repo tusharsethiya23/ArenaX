@@ -137,7 +137,7 @@ const Portfolio = ({ userId, isOwn, role }) => {
                     const Icon = Category.icon;
                     return (
                         <li key={a._id} className="relative">
-                            <span className={`absolute -left-[37px] top-0 flex h-7 w-7 items-center justify-center rounded-full ring-4 ring-surface ${a.status === 'verified' ? 'bg-data-mint text-on-ink' : 'bg-canvas'}`}>
+                            <span className={`absolute -left-[37px] top-0 flex h-7 w-7 items-center justify-center rounded-full ring-4 ring-surface ${a.status === 'verified' ? 'bg-data-mint text-on-ink' : `bg-canvas ${Category.tone}`}`}>
                                 <Icon size={14} />
                             </span>
 

@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
 import useSubscription from '../hooks/useSubscription';
 import Avatar from './Avatar';
+import { toneFor } from '../utils/tones';
 
 // "Virat Kohli" -> "Virat K."
 const shortName = (name = '') => {
@@ -95,7 +96,7 @@ const UserMenu = () => {
                                 onClick={close}
                                 className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-canvas"
                             >
-                                <Icon size={17} strokeWidth={1.8} className="text-muted" />
+                                <Icon size={17} strokeWidth={1.8} className={toneFor(to).text} />
                                 {label}
                             </Link>
                         ))}

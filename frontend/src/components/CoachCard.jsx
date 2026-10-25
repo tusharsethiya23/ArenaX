@@ -41,7 +41,7 @@ const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFoll
                         {coach.sport && <span>{coach.sport} ·</span>}
                         {coach.rating ? (
                             <>
-                                <Star size={13} className="fill-muted" /> {coach.rating}
+                                <Star size={13} className="fill-highlight text-highlight" /> {coach.rating}
                                 <span>({coach.reviewCount})</span>
                             </>
                         ) : (

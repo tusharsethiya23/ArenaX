@@ -13,6 +13,7 @@ import VerifiedBadge from './VerifiedBadge';
 import useFollow from '../hooks/useFollow';
 import { compact } from '../utils/format';
 import { hasStarted } from '../utils/sessions';
+import { toneFor, TONES, STAT_TONES } from '../utils/tones';
 
 const roleTitle = (profile) => {
     const role = profile.role === 'learner' ? 'athlete' : profile.role;
@@ -63,10 +64,13 @@ const FeedSidebar = ({ profile, bookings }) => {
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 border-t border-line pt-3 text-center">
-                    {stats.map((s) => (
+                    {stats.map((s, i) => (
                         <div key={s.label}>
                             <p className="font-extrabold">{compact(s.value)}</p>
-                            <p className="text-xs text-muted">{s.label}</p>
+                            <p className="flex items-center justify-center gap-1.5 text-xs text-muted">
+                                <span className={`h-1.5 w-1.5 rounded-full ${TONES[STAT_TONES[i]].dot}`} />
+                                {s.label}
+                            </p>
                         </div>
                     ))}
                 </div>
@@ -80,10 +84,10 @@ const FeedSidebar = ({ profile, bookings }) => {
                         to={to}
                         end={end}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-canvas' : 'hover:bg-canvas'}`
+                            `flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors ${isActive ? toneFor(to).soft : 'hover:bg-canvas'}`
                         }
                     >
-                        <Icon size={18} strokeWidth={1.8} />
+                        <Icon size={18} strokeWidth={1.8} className={toneFor(to).text} />
                         <span className="flex-1">{label}</span>
                         {badge > 0 && <span className="badge bg-white px-2 py-0.5 text-on-ink">{badge}</span>}
                     </NavLink>

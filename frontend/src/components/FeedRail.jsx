@@ -17,7 +17,7 @@ import { compact } from '../utils/format';
 
 const STATUS_BADGE = {
     pending: 'bg-accent/15 text-accent',
-    confirmed: 'bg-white text-on-ink',
+    confirmed: 'bg-data-mint/15 text-data-mint',
 };
 
 const SessionRequests = ({ bookings, onChanged }) => {

@@ -1,8 +1,8 @@
 // Navbar.jsx
 // Sticky top bar, 80px tall, sitting on the grey canvas.
 //   LEFT:   logo (black square with lime X + "ARENA X")
-//   CENTER: the 4 primary links inside a white pill; the active one is a
-//           black pill (desktop only; mobile uses MobileTabBar instead)
+//   CENTER: the 4 primary links inside a glass pill; the active one is
+//           tinted in its own colour (desktop only; mobile uses MobileTabBar)
 //   RIGHT:  notification bell + profile pill (or Log in / Join when logged out)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
 
@@ -12,6 +12,7 @@ import NAV_LINKS from './navLinks';
 import Logo from './Logo';
 import NotificationBell from './NotificationBell';
 import UserMenu from './UserMenu';
+import { toneFor } from '../utils/tones';
 
 const Navbar = () => {
     const { user } = useAuth();
@@ -54,7 +55,7 @@ const Navbar = () => {
                                     end={end}
                                     className={({ isActive }) =>
                                         `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
-                                            isActive ? 'bg-ink text-on-ink' : 'text-muted hover:text-ink'
+                                            isActive ? `${toneFor(to).soft} ${toneFor(to).text}` : 'text-muted hover:text-ink'
                                         }`
                                     }
                                 >

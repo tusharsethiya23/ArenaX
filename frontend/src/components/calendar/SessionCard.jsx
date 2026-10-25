@@ -120,15 +120,15 @@ const SessionCard = ({ booking: b, me, isCoach, onChanged }) => {
                                 <button onClick={() => setMode('rate')} className="btn btn-lime px-4 py-2"><Star size={15} /> Rate session</button>
                             )}
                             {(b.status === 'confirmed' || b.status === 'completed') && (
-                                <Link to={`/chat/${b._id}`} className="btn btn-soft px-4 py-2"><MessageCircle size={15} /> Chat</Link>
+                                <Link to={`/chat/${b._id}`} className="btn btn-soft px-4 py-2"><MessageCircle size={15} className="text-data-blue" /> Chat</Link>
                             )}
                             {calendarUrl && (
                                 <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="btn btn-soft px-4 py-2">
-                                    <CalendarPlus size={15} /> Add to Google Calendar
+                                    <CalendarPlus size={15} className="text-data-mint" /> Add to Google Calendar
                                 </a>
                             )}
                             {active && !started && !suggestion && (
-                                <button onClick={() => setMode('reschedule')} className="btn btn-soft px-4 py-2"><CalendarClock size={15} /> Reschedule</button>
+                                <button onClick={() => setMode('reschedule')} className="btn btn-soft px-4 py-2"><CalendarClock size={15} className="text-data-pink" /> Reschedule</button>
                             )}
                             {active && !started && (
                                 <button onClick={() => setMode('cancel')} className="btn px-4 py-2 text-danger hover:bg-danger/10">Cancel</button>

@@ -74,7 +74,7 @@ const BrandDashboard = () => {
         className="mb-8 flex max-w-3xl flex-col gap-1 rounded-3xl bg-surface p-1.5 sm:flex-row sm:items-center sm:rounded-full"
       >
         <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
-          <Search size={18} className="shrink-0 text-muted" />
+          <Search size={18} className="shrink-0 text-accent" />
           <input
             placeholder="Sport"
             value={filters.sport}
@@ -84,7 +84,7 @@ const BrandDashboard = () => {
         </label>
         <span className="mx-4 h-px bg-line sm:mx-0 sm:h-8 sm:w-px" />
         <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
-          <MapPin size={18} className="shrink-0 text-muted" />
+          <MapPin size={18} className="shrink-0 text-data-pink" />
           <input
             placeholder="Location"
             value={filters.location}

@@ -1,11 +1,12 @@
 // MobileTabBar.jsx
 // Bottom tab bar shown below the md breakpoint, replacing the navbar's center
 // links. Same destinations as desktop (from navLinks.js). The active tab's
-// icon sits in a black pill with a lime icon; the "Post" action in the
-// middle is a raised round lime button.
+// icon sits in a pill tinted with that tab's colour (utils/tones.js); the
+// "Post" action in the middle is a raised round white button.
 
 import { NavLink } from 'react-router-dom';
 import NAV_LINKS from './navLinks';
+import { toneFor } from '../utils/tones';
 
 const MobileTabBar = () => (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-smoke-side/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
@@ -36,7 +37,7 @@ const MobileTabBar = () => (
                     >
                         {({ isActive }) => (
                             <>
-                                <span className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-ink text-on-ink' : ''}`}>
+                                <span className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors ${isActive ? `${toneFor(to).soft} ${toneFor(to).text}` : ''}`}>
                                     <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                                 </span>
                                 <span className="max-w-full truncate">{label}</span>
