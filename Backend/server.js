@@ -8,6 +8,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const Booking = require('./models/booking.model');
 
 const app = express();
 const server = http.createServer(app);
@@ -42,6 +44,7 @@ app.use('/api/auth', require('./routes/auth.routes.js'));
 app.use('/api/users', require('./routes/user.routes.js'));
 app.use('/api/bookings', require('./routes/booking.routes.js'));
 app.use('/api/messages', require('./routes/message.routes.js'));
+app.use('/api/dm', require('./routes/directMessage.routes.js'));
 app.use('/api/reviews', require('./routes/review.routes.js'));
 app.use('/api/endorsements', require('./routes/endorsement.routes.js'));
 app.use('/api/achievements', require('./routes/achievement.routes.js'));
@@ -72,13 +75,35 @@ app.get('/', (req, res) => {
 const io = new Server(server, {
   cors: { origin: allowedOrigins, methods: ['GET', 'POST'] },
 });
+app.set('io', io); // controllers push events with req.app.get('io')
 
 io.on('connection', (socket) => {
-  // Each booking has its own room, so only its two participants get messages
-  socket.on('joinBookingRoom', (bookingId) => socket.join(bookingId));
+  // Logged-in users (token sent in the handshake) join their own room, where
+  // their direct messages are delivered. Rooms are joined only here, after the
+  // token is verified, so nobody can listen to another user's messages.
+  let userId = null;
+  const token = socket.handshake.auth?.token;
+  if (token) {
+    try {
+      const { id, type } = jwt.verify(token, process.env.JWT_SECRET);
+      if (type !== 'brand') {
+        userId = String(id);
+        socket.join(`user:${userId}`);
+      }
+    } catch { /* invalid token: no rooms */ }
+  }
+
+  // Each booking has its own room ("booking:<id>"), joined only by that
+  // booking's learner or coach, so only those two get its messages
+  socket.on('joinBookingRoom', async (bookingId) => {
+    if (!userId || !mongoose.Types.ObjectId.isValid(bookingId)) return;
+    const isParticipant = await Booking.exists({ _id: bookingId, $or: [{ learner: userId }, { coach: userId }] });
+    if (isParticipant) socket.join(`booking:${bookingId}`);
+  });
 
   socket.on('sendMessage', (messageData) => {
-    socket.to(messageData.bookingId).emit('receiveMessage', messageData);
+    const room = `booking:${messageData?.bookingId}`;
+    if (socket.rooms.has(room)) socket.to(room).emit('receiveMessage', messageData);
   });
 });
 

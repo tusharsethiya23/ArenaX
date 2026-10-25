@@ -8,6 +8,7 @@ import PageErrorBoundary from './components/PageErrorBoundary';
 import BackgroundGlow from './components/BackgroundGlow';
 import DialogHost from './components/DialogHost';
 import ProfileSync from './components/ProfileSync';
+import RealtimeConnection from './components/RealtimeConnection';
 import { useAuth } from './context/AuthContext';
 
 // Pages load on demand, so the first visit only downloads the page being opened
@@ -22,6 +23,8 @@ const UserProfileView = lazy(() => import('./pages/UserProfileView'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Chat = lazy(() => import('./pages/Chat'));
+const Messages = lazy(() => import('./pages/Messages'));
+const DirectChat = lazy(() => import('./pages/DirectChat'));
 const Tournaments = lazy(() => import('./pages/Tournament'));
 const BrandLogin = lazy(() => import('./pages/BrandLogin'));
 const BrandDashboard = lazy(() => import('./pages/BrandDashboard'));
@@ -172,6 +175,23 @@ function App() {
         />
 
         <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/messages/:userId"
+          element={
+            <ProtectedRoute>
+              <DirectChat />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/tournaments"
           element={
             <ProtectedRoute>
@@ -229,6 +249,9 @@ function App() {
 
       {/* Keep the saved user's photo and name matching the server */}
       {user && <ProfileSync />}
+
+      {/* Live updates (new direct messages) while logged in */}
+      {user && <RealtimeConnection />}
     </>
   );
 }

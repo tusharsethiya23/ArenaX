@@ -13,6 +13,7 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import FollowButton from '../components/FollowButton';
+import MessageButton from '../components/MessageButton';
 import FollowCounts from '../components/FollowCounts';
 import CoachProfileCard from '../components/CoachProfileCard';
 import Portfolio from '../components/portfolio/Portfolio';
@@ -162,7 +163,8 @@ const UserProfileView = () => {
                 </div>
 
                 {!isOwnProfile && follow.loaded && (
-                    <div className="shrink-0">
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                        {follow.isFollowing && <MessageButton userId={userId} name={profileUser.name} />}
                         <FollowButton isFollowing={follow.isFollowing} requested={follow.requested} onClick={follow.toggle} disabled={follow.busy} />
                     </div>
                 )}

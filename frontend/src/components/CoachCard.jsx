@@ -10,6 +10,7 @@ import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
 import MatchBadge from './MatchBadge';
 import { nextOpenSlot } from '../utils/slots';
+import MessageButton from './MessageButton';
 
 const Chip = ({ children }) => (
     <span className="badge bg-canvas font-medium text-ink">{children}</span>
@@ -60,6 +61,7 @@ const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFoll
                         {followState === 'none' && 'Follow'}
                     </button>
                 )}
+                {canFollow && followState === 'following' && <MessageButton compact userId={coach._id} name={coach.name} />}
             </div>
 
             {/* ---------- Detail chips ---------- */}

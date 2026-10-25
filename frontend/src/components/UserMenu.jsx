@@ -7,13 +7,14 @@ import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     ChevronDown, CalendarDays, BarChart3, CreditCard, Settings,
-    Handshake, ShieldCheck, LogOut, Bookmark, Dna, Users,
+    Handshake, ShieldCheck, LogOut, Bookmark, Dna, Users, MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
 import useSubscription from '../hooks/useSubscription';
 import Avatar from './Avatar';
 import { toneFor } from '../utils/tones';
+import useInbox from '../hooks/useInbox';
 
 // "Virat Kohli" -> "Virat K."
 const shortName = (name = '') => {
@@ -23,6 +24,7 @@ const shortName = (name = '') => {
 
 const UserMenu = () => {
     const { user, logout } = useAuth();
+    const { unread: unreadMessages } = useInbox();
     const isPro = useSubscription();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -42,6 +44,7 @@ const UserMenu = () => {
     const items = [
         user.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
         user.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
+        { to: '/messages', label: 'Messages', icon: MessageCircle, badge: unreadMessages },
         { to: '/calendar', label: 'Calendar', icon: CalendarDays },
         user.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },
@@ -88,7 +91,7 @@ const UserMenu = () => {
 
                     {/* Links */}
                     <div className="p-2">
-                        {items.map(({ to, label, icon: Icon }) => (
+                        {items.map(({ to, label, icon: Icon, badge }) => (
                             <Link
                                 key={to}
                                 to={to}
@@ -97,7 +100,8 @@ const UserMenu = () => {
                                 className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-canvas"
                             >
                                 <Icon size={17} strokeWidth={1.8} className={toneFor(to).text} />
-                                {label}
+                                <span className="flex-1">{label}</span>
+                                {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-on-ink">{badge > 99 ? '99+' : badge}</span>}
                             </Link>
                         ))}
                     </div>

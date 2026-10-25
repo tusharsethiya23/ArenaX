@@ -18,6 +18,7 @@ import ImageCarousel from './ImageCarousel';
 import CommentsPanel from './CommentsPanel';
 import { compact, timeAgo, firstName } from '../utils/format';
 import { confirmDialog } from '../utils/dialogs';
+import MessageButton from './MessageButton';
 
 const ROLE_BADGE = {
     coach: { label: 'Coach', className: 'bg-white text-on-ink' },
@@ -148,6 +149,9 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                         {followState === 'requested' && <><Clock size={15} className="hidden sm:block" /> Requested</>}
                         {followState === 'none' && <><Plus size={15} className="hidden sm:block" /> Follow</>}
                     </button>
+                )}
+                {post.author && !isMine && onToggleFollow && followState === 'following' && (
+                    <MessageButton compact userId={author._id} name={author.name} />
                 )}
 
                 <div ref={menuRef} className="relative shrink-0">

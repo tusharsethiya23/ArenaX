@@ -22,17 +22,19 @@ const Chat = () => {
   useEffect(() => {
     API.get(`/messages/${bookingId}`).then((res) => setMessages(res.data));
 
-    socket.connect();
-    socket.emit('joinBookingRoom', bookingId);
+    // The connection itself is opened by RealtimeConnection; join this booking's
+    // room now and again after any reconnect (rooms are lost on reconnect)
+    const join = () => socket.emit('joinBookingRoom', bookingId);
+    join();
+    socket.on('connect', join);
 
     // When another user sends a message, add it to our list instantly
-    socket.on('receiveMessage', (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+    const onMessage = (message) => setMessages((prev) => [...prev, message]);
+    socket.on('receiveMessage', onMessage);
 
     return () => {
-      socket.off('receiveMessage'); // stop listening when leaving this page
-      socket.disconnect();
+      socket.off('connect', join); // stop listening when leaving this page
+      socket.off('receiveMessage', onMessage);
     };
   }, [bookingId]);
 

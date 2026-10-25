@@ -35,6 +35,15 @@ const load = (url, entry) => {
 // Forget everything (e.g. on logout), so the next user starts fresh
 export const clearSharedResources = () => store.clear();
 
+// Mark one shared URL stale and refetch it if it's on screen (e.g. when a
+// Socket.io event says it changed)
+export const refreshSharedResource = (url) => {
+    const entry = store.get(url);
+    if (!entry) return;
+    entry.fetchedAt = 0;
+    if (entry.listeners.size) load(url, entry);
+};
+
 // After a successful change on the server, refresh the shared data it can
 // affect (anywhere on screen, without each page having to remember to).
 // Keys: the start of the changed API path; values: which shared URLs to refresh.
@@ -43,6 +52,7 @@ const AFFECTS = [
     [/^\/users\/profile\b/, /^\/users\/[0-9a-f]{24}$/],
     [/^\/subscriptions\b/, /^\/subscriptions\//],
     [/^\/follows\b/, /^\/follows\/requests$/],
+    [/^\/dm\b/, /^\/dm$/],
 ];
 
 API.interceptors.response.use((res) => {

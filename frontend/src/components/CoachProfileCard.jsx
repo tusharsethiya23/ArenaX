@@ -10,7 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Check, UserPlus, ArrowRight, Clock } from 'lucide-react';
+import { Star, Check, UserPlus, ArrowRight, Clock, MessageCircle } from 'lucide-react';
 import API from '../api/axios';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
@@ -85,16 +85,23 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                 )}
 
                 {!isOwn && follow.loaded && (
-                    <button
-                        onClick={follow.toggle}
-                        disabled={follow.busy}
-                        aria-label={follow.isFollowing ? 'Unfollow' : follow.requested ? 'Cancel follow request' : 'Follow'}
-                        className="btn absolute right-4 top-4 bg-panel/90 px-5 text-white hover:bg-panel"
-                    >
-                        {follow.isFollowing
-                            ? <><Check size={16} /> Following</>
-                            : follow.requested ? <><Clock size={16} /> Requested</> : <><UserPlus size={16} /> Follow</>}
-                    </button>
+                    <div className="absolute right-4 top-4 flex gap-2">
+                        {follow.isFollowing && (
+                            <Link to={`/messages/${coach._id}`} aria-label={`Message ${coach.name}`} className="btn bg-panel/90 px-4 text-white hover:bg-panel">
+                                <MessageCircle size={16} className="text-data-blue" /> Message
+                            </Link>
+                        )}
+                        <button
+                            onClick={follow.toggle}
+                            disabled={follow.busy}
+                            aria-label={follow.isFollowing ? 'Unfollow' : follow.requested ? 'Cancel follow request' : 'Follow'}
+                            className="btn bg-panel/90 px-5 text-white hover:bg-panel"
+                        >
+                            {follow.isFollowing
+                                ? <><Check size={16} /> Following</>
+                                : follow.requested ? <><Clock size={16} /> Requested</> : <><UserPlus size={16} /> Follow</>}
+                        </button>
+                    </div>
                 )}
 
                 <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-panel/90 px-4 py-2 text-sm font-semibold text-white">

@@ -28,6 +28,7 @@ const ROUTE_TONES = {
     '/dna': 'highlight',
     '/my-athletes': 'pink',
     '/calendar': 'blue',
+    '/messages': 'blue',
     '/profile?tab=stats': 'mint',
     '/saved': 'pink',
     '/subscription': 'highlight',
