@@ -60,7 +60,7 @@ const ImageCarousel = ({ images, location }) => {
 
             {location && (
                 <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-popover px-3 py-1.5 backdrop-blur-md text-sm font-semibold">
-                    <MapPin size={14} className="shrink-0 text-danger" /> {location}
+                    <MapPin size={14} className="shrink-0 text-accent" /> {location}
                 </span>
             )}
         </div>

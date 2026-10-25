@@ -156,7 +156,7 @@ const NotificationBell = () => {
             >
                 <Bell size={18} strokeWidth={1.8} />
                 {hasUnread && (
-                    <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-danger ring-2 ring-surface" />
+                    <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
                 )}
             </button>
 

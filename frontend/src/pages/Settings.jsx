@@ -324,7 +324,7 @@ const SettingsContent = ({ profile }) => {
             </div>
 
             {/* ================= DANGER ZONE ================= */}
-            <section className="card mt-6">
+            <section className="card mt-6 ring-1 ring-inset ring-danger/30">
                 <h2 className="text-lg font-bold tracking-tight text-danger">Danger zone</h2>
                 <p className="mb-4 mt-1 text-sm text-muted">
                     Deleting your account is permanent and cannot be undone.
