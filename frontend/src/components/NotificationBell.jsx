@@ -18,7 +18,6 @@ import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
 import useDismiss from '../hooks/useDismiss';
 import useFollowRequests from '../hooks/useFollowRequests';
-import useInbox from '../hooks/useInbox';
 import Avatar from './Avatar';
 import { timeAgo } from '../utils/format';
 import { fmtSession, hasStarted } from '../utils/sessions';
@@ -74,17 +73,6 @@ const bookingNotifications = (bookings, role, myId) => bookings.flatMap((b) => {
 });
 
 // Turn bookings and new followers into notification items, newest first
-// Unread direct messages: one item per person
-const messageItems = (conversations) => conversations
-    .filter((c) => c.unread > 0)
-    .map((c) => ({
-        id: `dm-${c.user._id}-${c.lastMessage.createdAt}`,
-        to: `/messages/${c.user._id}`,
-        text: c.unread > 1 ? `${c.user.name} sent you ${c.unread} messages` : `${c.user.name} sent you a message`,
-        detail: c.lastMessage.text.length > 50 ? `${c.lastMessage.text.slice(0, 50)}…` : c.lastMessage.text,
-        time: new Date(c.lastMessage.createdAt).getTime(),
-    }));
-
 const buildNotifications = (bookings, followers, role, myId, verificationItems = []) => {
     const bookingItems = bookingNotifications(bookings, role, myId);
     const followerItems = followers.map((f) => ({
@@ -143,8 +131,7 @@ const NotificationBell = () => {
     // Follow requests waiting for me (private accounts), shown first with Accept / Decline
     const { requests, busyId, accept, decline, reload: reloadRequests } = useFollowRequests();
 
-    const { conversations } = useInbox();
-    const notifications = buildNotifications(bookings, followers, user.role, user._id, [...buildVerificationItems(verifyRequests, reviewed, user.role), ...messageItems(conversations)]);
+    const notifications = buildNotifications(bookings, followers, user.role, user._id, buildVerificationItems(verifyRequests, reviewed, user.role));
     const hasUnread = notifications.some((n) => n.time > seenAt)
         || requests.some((r) => new Date(r.requestedAt).getTime() > seenAt);
 

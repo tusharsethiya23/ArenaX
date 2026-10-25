@@ -24,7 +24,7 @@ const shortName = (name = '') => {
 
 const UserMenu = () => {
     const { user, logout } = useAuth();
-    const { unread: unreadMessages } = useInbox();
+    const { unreadChats: unreadMessages } = useInbox(); // people with unread messages
     const isPro = useSubscription();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);

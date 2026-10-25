@@ -3,7 +3,7 @@
 //   1. Profile summary: avatar, name, "<sport> coach · <city>", and
 //      followers / following / sessions counts
 //   2. Menu: Home feed, My DNA (athletes) / My athletes (coaches), Messages
-//      (with the unread count), Calendar
+//      (with how many people sent unread messages), Calendar
 //      (with a badge for sessions waiting on my answer), My stats (coaches),
 //      Saved posts, Settings
 
@@ -25,7 +25,7 @@ const roleTitle = (profile) => {
 
 const FeedSidebar = ({ profile, bookings }) => {
     const follow = useFollow(profile._id);
-    const { unread: unreadMessages } = useInbox();
+    const { unreadChats: unreadMessages } = useInbox(); // people with unread messages
     // Sessions that actually happen or will: confirmed + completed
     const sessions = bookings.filter((b) => b.status === 'confirmed' || b.status === 'completed').length;
     const pending = bookings.filter((b) => ['pending', 'confirmed'].includes(b.status) && (

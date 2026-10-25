@@ -5,7 +5,8 @@
 //   LEFT:   logo (black square with lime X + "ARENA X")
 //   CENTER: the 4 primary links inside a glass pill; the active one is
 //           tinted in its own colour (desktop only; mobile uses MobileTabBar)
-//   RIGHT:  notification bell + profile pill (or Log in / Join when logged out)
+//   RIGHT:  notification bell + messages (chat) button + profile pill
+//           (or Log in / Join when logged out)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
 
 import { Link, NavLink } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import NAV_LINKS from './navLinks';
 import Logo from './Logo';
 import NotificationBell from './NotificationBell';
+import MessagesButton from './MessagesButton';
 import UserMenu from './UserMenu';
 import { toneFor } from '../utils/tones';
 import useHideOnScroll from '../hooks/useHideOnScroll';
@@ -28,7 +30,7 @@ const Navbar = () => {
             <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
                 {/* ---------- LEFT: logo ---------- */}
-                <div className="nav-glass justify-self-start rounded-2xl p-1 pr-4 md:pr-1 xl:pr-4">
+                <div className="nav-glass justify-self-start rounded-2xl p-1 pr-4 max-[379px]:pr-1 md:pr-1 xl:pr-4">
                     <Logo />
                 </div>
 
@@ -83,6 +85,7 @@ const Navbar = () => {
                     {user ? (
                         <>
                             <NotificationBell />
+                            <MessagesButton />
                             <UserMenu />
                         </>
                     ) : (
