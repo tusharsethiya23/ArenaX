@@ -1,9 +1,11 @@
 // Discover.jsx
-// Find a coach. Layout follows the design mockup:
-//   main column:  white search hero (sport / location / level) + lime promo card,
-//                 then "Top coaches" with sport chips, sort and filters
-//   right column: upcoming session, best-matching coaches (athletes) or coaches
-//                 in your city, athlete spotlight
+// Find a coach. Layout:
+//   top left:   search hero (sport / location / level) + promo card
+//   top right:  upcoming session, best-matching coaches (athletes) or coaches
+//               in your city, athlete spotlight
+//   full width: "Top coaches" with sport chips, sort and filters, then the
+//               coach cards (3 per row from 1280px, 2 on tablets/small laptops)
+// On smaller screens everything stacks: hero, top coaches, then the side cards.
 // Search hits the backend (/users/coaches); chips, sort and filters then work
 // on the loaded results in the browser.
 
@@ -273,12 +275,12 @@ const Discover = () => {
     return (
         <div className="page grid max-w-[1680px] grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
 
-            {/* ===================== MAIN COLUMN ===================== */}
-            <div className="min-w-0 space-y-6">
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+            {/* ===================== TOP LEFT: search + promo ===================== */}
+            <div className="min-w-0 xl:col-start-1 xl:row-start-1">
+                <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
 
-                    {/* ---------- Search hero ---------- */}
-                    <section className="card sm:p-8">
+                    {/* ---------- Search hero (centred vertically when the side column is taller) ---------- */}
+                    <section className="card flex flex-col justify-center sm:p-8">
                         <h1 className="text-4xl font-black tracking-tighter sm:text-5xl">
                             Find your <span className="rounded-2xl bg-white px-3 text-on-ink">coach</span>
                         </h1>
@@ -328,64 +330,64 @@ const Discover = () => {
 
                     <PromoCard showPremium={user.role === 'learner' && !isPro} />
                 </div>
-
-                {/* ---------- Top coaches ---------- */}
-                <section>
-                    <div className="mb-5 flex flex-wrap items-center gap-3">
-                        <h2 className="section-title mr-1">Top coaches</h2>
-                        <div className="-mx-1 flex max-w-full flex-1 gap-2 overflow-x-auto px-1 pb-1">
-                            {['All', ...sports].map((s) => (
-                                <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
-                                    {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
-                                    {s}
-                                    <span className={sportChip === s ? 'text-accent/75' : 'text-muted'}>
-                                        {s === 'All' ? coaches.length : sportCounts[s]}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="chip gap-1 pr-3">
-                                <span className="text-muted">Sort:</span>
-                                <Select
-                                    variant="inline"
-                                    aria-label="Sort coaches"
-                                    value={sortKey}
-                                    onChange={setSortKey}
-                                    options={Object.entries(SORTS)
-                                        .filter(([k]) => k !== 'match' || isLearner)
-                                        .map(([k, s]) => ({ value: k, label: s.label }))}
-                                />
-                            </div>
-                            <FiltersButton filters={filters} setFilters={setFilters} />
-                        </div>
-                    </div>
-
-                    {loading ? (
-                        <p className="empty-state">Loading coaches...</p>
-                    ) : visible.length === 0 ? (
-                        <p className="empty-state">No coaches match. Try a different search or clear the filters.</p>
-                    ) : (
-                        <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr))]">
-                            {visible.map((coach) => (
-                                <CoachCard
-                                    key={coach._id}
-                                    coach={coach}
-                                    match={matchById[coach._id]}
-                                    canFollow={coach._id !== user._id}
-                                    followState={followState(coach._id)}
-                                    onToggleFollow={toggleFollow}
-                                    canBook={user.role === 'learner'}
-                                    onBook={handleBook}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </section>
             </div>
 
-            {/* ===================== RIGHT COLUMN ===================== */}
-            <aside className="space-y-6">
+            {/* ===================== FULL WIDTH: top coaches ===================== */}
+            <section className="min-w-0 xl:col-span-2 xl:row-start-2">
+                <div className="mb-5 flex flex-wrap items-center gap-3">
+                    <h2 className="section-title mr-1">Top coaches</h2>
+                    <div className="-mx-1 flex max-w-full flex-1 gap-2 overflow-x-auto px-1 pb-1">
+                        {['All', ...sports].map((s) => (
+                            <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
+                                {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
+                                {s}
+                                <span className={sportChip === s ? 'text-accent/75' : 'text-muted'}>
+                                    {s === 'All' ? coaches.length : sportCounts[s]}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="chip gap-1 pr-3">
+                            <span className="text-muted">Sort:</span>
+                            <Select
+                                variant="inline"
+                                aria-label="Sort coaches"
+                                value={sortKey}
+                                onChange={setSortKey}
+                                options={Object.entries(SORTS)
+                                    .filter(([k]) => k !== 'match' || isLearner)
+                                    .map(([k, s]) => ({ value: k, label: s.label }))}
+                            />
+                        </div>
+                        <FiltersButton filters={filters} setFilters={setFilters} />
+                    </div>
+                </div>
+
+                {loading ? (
+                    <p className="empty-state">Loading coaches...</p>
+                ) : visible.length === 0 ? (
+                    <p className="empty-state">No coaches match. Try a different search or clear the filters.</p>
+                ) : (
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        {visible.map((coach) => (
+                            <CoachCard
+                                key={coach._id}
+                                coach={coach}
+                                match={matchById[coach._id]}
+                                canFollow={coach._id !== user._id}
+                                followState={followState(coach._id)}
+                                onToggleFollow={toggleFollow}
+                                canBook={user.role === 'learner'}
+                                onBook={handleBook}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* ===================== TOP RIGHT ===================== */}
+            <aside className="space-y-6 xl:col-start-2 xl:row-start-1">
                 <NextSessionCard user={user} bookings={bookings} />
 
                 {/* Athletes: best matches for their DNA gaps, with the reasons */}
