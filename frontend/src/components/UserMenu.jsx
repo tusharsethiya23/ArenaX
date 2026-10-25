@@ -62,7 +62,7 @@ const UserMenu = () => {
                 className="nav-glass flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 transition-shadow hover:shadow-sm"
             >
                 <Avatar name={user.name} photo={user.profilePhoto} className="h-9 w-9 text-xs" />
-                <span className="hidden text-left leading-tight sm:block md:hidden lg:block">
+                <span className="hidden text-left leading-tight sm:block md:hidden xl:block">
                     <span className="block max-w-[120px] truncate text-sm font-semibold">{shortName(user.name)}</span>
                     <span className="block text-xs text-muted">{isPro ? 'Pro member' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
                 </span>

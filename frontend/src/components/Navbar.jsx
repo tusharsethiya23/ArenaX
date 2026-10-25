@@ -28,13 +28,16 @@ const Navbar = () => {
             <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
                 {/* ---------- LEFT: logo ---------- */}
-                <div className="nav-glass justify-self-start rounded-2xl p-1 pr-4 md:pr-1 lg:pr-4">
+                <div className="nav-glass justify-self-start rounded-2xl p-1 pr-4 md:pr-1 xl:pr-4">
                     <Logo />
                 </div>
 
                 {/* ---------- CENTER: primary links (desktop) ---------- */}
+                {/* Grid: the four links get equal-width columns (as wide as the longest
+                    label) with the Post button in its own column, so it sits exactly
+                    in the middle */}
                 {user && (
-                    <div className="nav-glass hidden items-center gap-1 rounded-full p-1 md:flex">
+                    <div className="nav-glass hidden grid-cols-[1fr_1fr_auto_1fr_1fr] items-center gap-1 rounded-full p-1 md:grid">
                         {NAV_LINKS.map(({ to, label, end, icon: Icon, accent }) => (
                             accent ? (
                                 // "Post" in the middle: round icon-only button that grows and glows on hover
@@ -58,13 +61,17 @@ const Navbar = () => {
                                     key={to}
                                     to={to}
                                     end={end}
+                                    aria-label={label}
+                                    title={label}
                                     className={({ isActive }) =>
-                                        `whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-medium transition-colors lg:px-6 ${
+                                        `flex h-11 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors lg:px-3 xl:px-5 xl:text-[15px] ${
                                             isActive ? `${toneFor(to).soft} ${toneFor(to).text}` : 'text-muted hover:text-ink'
                                         }`
                                     }
                                 >
-                                    {label}
+                                    {/* Tablet: icon only (the label is on hover); laptops and up: the label */}
+                                    <Icon size={19} strokeWidth={1.9} className="lg:hidden" />
+                                    <span className="hidden lg:inline">{label}</span>
                                 </NavLink>
                             )
                         ))}
