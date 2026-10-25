@@ -160,7 +160,8 @@ const googleClient = new OAuth2Client();
 
 const googleLogin = async (req, res) => {
   try {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    // Tolerate stray spaces or quotes pasted into the environment variable
+    const clientId = (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/^["']|["']$/g, '');
     if (!clientId) {
       return res.status(503).json({ message: 'Google sign-in is not set up on the server' });
     }
@@ -174,7 +175,9 @@ const googleLogin = async (req, res) => {
     try {
       const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: clientId });
       payload = ticket.getPayload(); // { sub, email, email_verified, name, picture, ... }
-    } catch {
+    } catch (err) {
+      // Shows in the server logs, e.g. a GOOGLE_CLIENT_ID that doesn't match the frontend's
+      console.error('Google sign-in rejected:', err.message, `(server GOOGLE_CLIENT_ID ends in ...${clientId.slice(-30)})`);
       return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
     }
     if (!payload?.email || !payload.email_verified) {
