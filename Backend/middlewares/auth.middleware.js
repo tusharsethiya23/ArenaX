@@ -1,6 +1,20 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const Brand = require('../models/brand.model');
+const userCache = require('../utils/userCache.util');
+
+// The logged-in user as a Mongoose document (so handlers can still .save()
+// it), from the short-lived cache when possible: saves a database round
+// trip on most requests. null if the account no longer exists.
+const loadUser = async (id) => {
+    let plain = userCache.get(id);
+    if (!plain) {
+        plain = await User.findById(id).select('-password').lean();
+        if (!plain) return null;
+        userCache.set(id, plain);
+    }
+    return User.hydrate(plain);
+};
 
 const protect = async (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
@@ -15,7 +29,7 @@ const protect = async (req, res, next) => {
             req.brand = await Brand.findById(decoded.id).select('-password');
             req.userType = 'brand';
         } else {
-            req.user = await User.findById(decoded.id).select('-password');
+            req.user = await loadUser(decoded.id);
             req.userType = 'user';
         }
     } catch {
@@ -46,7 +60,7 @@ const optionalProtect = async (req, res, next) => {
             req.brand = await Brand.findById(decoded.id).select('-password');
             req.userType = 'brand';
         } else {
-            req.user = await User.findById(decoded.id).select('-password');
+            req.user = await loadUser(decoded.id);
             req.userType = 'user';
         }
     } catch {

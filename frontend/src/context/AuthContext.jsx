@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from 'react';
+import { clearSharedResources } from '../hooks/useSharedResource';
 
 const AuthContext = createContext();
 
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    clearSharedResources(); // the next person to log in starts with no cached data
     setUser(null);
   };
 

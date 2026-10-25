@@ -26,6 +26,9 @@ app.use(cors({
   // Tools like Postman send no origin and are allowed. Other websites get no
   // CORS headers, so their browser blocks the response (instead of a 500).
   origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
+  // Browsers may reuse the answer to their "may I call this API?" check
+  // (preflight) for 2 hours instead of asking before every request
+  maxAge: 2 * 60 * 60,
 }));
 app.use(express.json());
 
@@ -54,6 +57,12 @@ app.use('/api/follows', require('./routes/follow.routes.js'));
 app.use('/api/dna', require('./routes/dna.routes.js'));
 app.use('/api/ai', require('./routes/ai.routes.js'));
 app.use('/api/match', require('./routes/match.routes.js'));
+
+// Cheap "is the server up?" check (no database), e.g. for an uptime monitor
+// that pings it every few minutes so the free Render instance doesn't sleep
+app.get('/api/health', (req, res) => {
+  res.set('Cache-Control', 'no-store').json({ ok: true });
+});
 
 app.get('/', (req, res) => {
   res.send('Sports Mentor Platform API is running 🎉');

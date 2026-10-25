@@ -2,44 +2,27 @@
 // Follow requests waiting for the logged-in user to accept (they only get
 // these when their account is private), with accept / decline actions that
 // remove the request from the list straight away.
-// Several places show requests at once (the bell and the Feed card), so when
-// one handles a request it tells the others through a window event, and
-// `reload()` refetches (the bell calls it each time it opens).
+// Shared: the bell and the Feed card use one request and one list, so a
+// request handled in one disappears from both. `reload()` refetches (the
+// bell calls it each time it opens).
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-
-const HANDLED_EVENT = 'arenax:follow-request-handled';
+import useSharedResource from './useSharedResource';
 
 const useFollowRequests = () => {
     const { user } = useAuth();
-    const [requests, setRequests] = useState([]);
+    const { data: requests, reload, setData } = useSharedResource(user?._id ? '/follows/requests' : null, { initial: [], maxAge: 5000 });
     const [busyId, setBusyId] = useState(null);
-
-    const reload = useCallback(() => {
-        API.get('/follows/requests').then((res) => setRequests(res.data)).catch(() => {});
-    }, []);
-
-    useEffect(() => {
-        if (!user?._id) return;
-        let cancelled = false;
-        API.get('/follows/requests')
-            .then((res) => !cancelled && setRequests(res.data))
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, [user?._id]);
-
-    // Drop requests handled by another component on the page
-    useEffect(() => {
-        const onHandled = (e) => setRequests((prev) => prev.filter((r) => r.user._id !== e.detail));
-        window.addEventListener(HANDLED_EVENT, onHandled);
-        return () => window.removeEventListener(HANDLED_EVENT, onHandled);
-    }, []);
 
     const respond = useCallback(async (followerId, accept) => {
         setBusyId(followerId);
-        const handled = () => window.dispatchEvent(new CustomEvent(HANDLED_EVENT, { detail: followerId }));
+        const handled = () => {
+            setData((prev) => (prev || []).filter((r) => r.user._id !== followerId));
+            // Follower counts (useFollow) refresh on this
+            window.dispatchEvent(new CustomEvent('arenax:follow-request-handled', { detail: followerId }));
+        };
         try {
             await (accept
                 ? API.post(`/follows/requests/${followerId}/accept`)
@@ -51,7 +34,7 @@ const useFollowRequests = () => {
             else alert(err.response?.data?.message || 'Something went wrong');
         }
         setBusyId(null);
-    }, []);
+    }, [setData]);
 
     return {
         requests,

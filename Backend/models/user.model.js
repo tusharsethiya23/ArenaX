@@ -93,4 +93,16 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+// The auth middleware keeps users in a short-lived cache: drop a user from it
+// whenever they change, so the next request sees the new data.
+const userCache = require('../utils/userCache.util');
+userSchema.post('save', (doc) => userCache.forget(doc._id));
+userSchema.post(['deleteOne', 'findOneAndDelete', 'findOneAndUpdate', 'findOneAndReplace', 'updateOne', 'replaceOne'], { document: false, query: true }, function () {
+  const id = this.getFilter()?._id;
+  if (typeof id === 'string' || id instanceof mongoose.Types.ObjectId) userCache.forget(id);
+  else userCache.clear(); // filter isn't a single id: just start over
+});
+userSchema.post(['updateMany', 'deleteMany'], { document: false, query: true }, () => userCache.clear());
+userSchema.post('deleteOne', { document: true, query: false }, (doc) => userCache.forget(doc._id));
+
 module.exports = mongoose.model('User', userSchema);
