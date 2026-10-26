@@ -19,7 +19,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
 
         {/* ---------- Hero panel (large screens) ---------- */}
         <div className="relative hidden overflow-hidden rounded-2xl bg-panel p-10 lg:flex lg:flex-col lg:justify-end">
-            <StadiumArt src="/images/auth.jpg" dim="bg-black/50" />
+            <StadiumArt src="/images/auth-athlete.jpg" dim="bg-black/40" position="object-[center_30%]" />
             <div className="relative">
                 <div className="mb-5"><Tagline /></div>
                 <h2 className="text-6xl font-black leading-[0.95] tracking-tighter text-white xl:text-7xl">
@@ -33,7 +33,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
             <div className="w-full max-w-md">
                 {/* Short hero for phones and tablets */}
                 <div className="relative mb-4 flex h-40 flex-col justify-end overflow-hidden rounded-2xl bg-panel p-5 sm:h-44 sm:p-6 lg:hidden">
-                    <StadiumArt src="/images/auth.jpg" />
+                    <StadiumArt src="/images/auth-athlete.jpg" position="object-[center_25%]" />
                     <div className="relative">
                         <div className="mb-3"><Tagline /></div>
                         <p className="font-display text-[2.5rem] leading-[0.95] text-white sm:text-5xl">

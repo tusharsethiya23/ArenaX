@@ -9,6 +9,18 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
 import { toastError, toast } from '../utils/dialogs';
+import StadiumArt from '../components/StadiumArt';
+
+// Backdrop photo for each tournament card, by sport (others get a stadium at night)
+const SPORT_PHOTO = {
+  cricket: '/images/tournament-cricket.jpg',
+  football: '/images/stadium-night.jpg',
+  badminton: '/images/tournament-badminton.jpg',
+  basketball: '/images/tournament-basketball.jpg',
+  boxing: '/images/tournament-boxing.jpg',
+  tennis: '/images/tournament-tennis.jpg',
+};
+const sportPhoto = (sport = '') => SPORT_PHOTO[sport.trim().toLowerCase()] || '/images/stadium-night.jpg';
 
 const fmtDate = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -119,7 +131,8 @@ const Tournaments = () => {
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {tournaments.map((t, i) => (
-            <div key={t._id} className="flex flex-col rounded-2xl bg-surface p-5">
+            <div key={t._id} className="relative isolate flex flex-col overflow-hidden rounded-2xl bg-surface p-5">
+              <StadiumArt src={sportPhoto(t.sport)} dim="bg-black/70" className="-z-10" />
               <div className="flex items-start justify-between gap-3">
                 {/* Start date tile, like the Upcoming sessions list */}
                 <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-on-ink' : 'bg-canvas'}`}>

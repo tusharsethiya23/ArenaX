@@ -20,6 +20,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-26 (Mon)
+**Dark theme photos behind existing cards**
+- Added 10 free Unsplash photos with dark, black backgrounds. They sit behind cards that already existed, so nothing moved: the login/sign-up banner, the Discover search card and promo card, the home feed profile card, and every tournament card (a photo per sport: cricket, football, badminton, basketball, boxing, tennis; a night stadium for the rest). Removed the 6 old photos. Credits are in `frontend/public/images/CREDITS.md`.
+
 **Uploaded photos in colour again**
 - Profile pictures, post photos, marketplace photos and the photo cropper show original colours again. Only the theme backdrop photos (login banner, coach profile background) stay black and white.
 

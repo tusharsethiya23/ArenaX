@@ -19,6 +19,7 @@ import { hasStarted } from '../utils/sessions';
 import { TONES, STAT_TONES } from '../utils/tones';
 import useInbox from '../hooks/useInbox';
 import { canAccess } from '../utils/access';
+import StadiumArt from './StadiumArt';
 
 const roleTitle = (profile) => {
     const role = profile.role === 'learner' ? 'athlete' : profile.role;
@@ -57,7 +58,8 @@ const FeedSidebar = ({ profile, bookings }) => {
     return (
         <aside className="space-y-4">
             {/* ---------- Profile summary (compact so the whole column fits on short screens) ---------- */}
-            <section className="card p-4 sm:p-4">
+            <section className="card relative isolate overflow-hidden p-4 sm:p-4">
+                <StadiumArt src="/images/cover-sprint.jpg" dim="bg-black/75" className="-z-10" />
                 <div className="flex items-center gap-3">
                     <Link to="/profile" className="shrink-0 rounded-full ring-2 ring-ink ring-offset-2 ring-offset-surface">
                         <Avatar name={profile.name} photo={profile.profilePhoto} className="h-12 w-12 text-base" />

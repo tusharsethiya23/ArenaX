@@ -27,6 +27,7 @@ import { nextOpenSlot } from '../utils/slots';
 import { normalizeSport, sportEmoji } from '../utils/sports';
 import { confirmDialog, toastError, toast } from '../utils/dialogs';
 import { canAccess } from '../utils/access';
+import StadiumArt from '../components/StadiumArt';
 
 const SORTS = {
     // Athletes only: coaches outside their sport have no match (-1) and come last
@@ -58,7 +59,8 @@ const LEVEL_OPTIONS = [
 ];
 
 const PromoCard = ({ showPro, user }) => (
-    <section className="flex flex-col justify-between rounded-2xl bg-surface p-6 text-ink sm:p-8">
+    <section className="relative isolate flex flex-col justify-between overflow-hidden rounded-2xl bg-surface p-6 text-ink sm:p-8">
+        <StadiumArt src="/images/promo-boxer.jpg" dim="bg-black/55" className="-z-10" />
         {showPro ? (
             <>
                 <div>
@@ -266,7 +268,8 @@ const Discover = () => {
                 <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
 
                     {/* ---------- Search hero (centred vertically when the side column is taller) ---------- */}
-                    <section className="card flex flex-col justify-center sm:p-8">
+                    <section className="card relative isolate flex flex-col justify-center overflow-hidden sm:p-8">
+                        <StadiumArt src="/images/hero-sprinter.jpg" dim="bg-black/65" position="object-right" className="-z-10" />
                         <h1 className="text-4xl font-black tracking-tighter sm:text-5xl">
                             Find your <span className="rounded-2xl bg-white px-3 text-on-ink">coach</span>
                         </h1>
