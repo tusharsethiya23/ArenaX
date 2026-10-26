@@ -53,6 +53,7 @@ Free for now: there are no payments.
   - decorative icons: neutral or yellow, never blue, green or red
 - **Fonts:** Bebas Neue (uppercase headings and big numbers, key word in yellow); Inter for body text.
 - **Photos:** only the theme backdrop photos (`StadiumArt`, `.photo` class) are black and white. Photos people upload (profile pictures, posts, listings) always keep their original colours. New theme photos must be free Unsplash photos (not Unsplash+) with dark or black backgrounds, added to `public/images/CREDITS.md`, and placed behind an existing card (`isolate` on the card, `<StadiumArt className="-z-10" />`) without moving anything.
+- **Navbar:** the active link is a yellow pill with black text (no underline).
 - **Layout is fixed.** Change colours and fonts only. Don't move components or change the navbar or profile menu without asking first.
 
 ## Key decisions

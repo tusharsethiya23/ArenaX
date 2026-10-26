@@ -3,8 +3,8 @@
 // the links pill and the right-hand buttons are drawn (each is its own glass piece).
 // It hides while scrolling down and reappears on any scroll up (useHideOnScroll).
 //   LEFT:   logo (black square with lime X + "ARENA X")
-//   CENTER: the 4 primary links inside a pill; the active one is white with a
-//           yellow underline (desktop only; mobile uses MobileTabBar)
+//   CENTER: the 4 primary links inside a pill; the active one is a yellow
+//           pill with black text (desktop only; mobile uses MobileTabBar)
 //   RIGHT:  notification bell + messages (chat) button + profile pill
 //           (or Log in / Join when logged out)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
@@ -60,8 +60,8 @@ const Navbar = () => {
                                     aria-label={label}
                                     title={label}
                                     className={({ isActive }) =>
-                                        `relative flex h-11 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors lg:px-3 xl:px-5 xl:text-[15px] ${
-                                            isActive ? 'text-ink after:absolute after:inset-x-5 after:bottom-1 after:h-0.5 after:rounded-full after:bg-brand' : 'text-muted hover:text-ink'
+                                        `relative flex h-9 items-center justify-center justify-self-center whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors lg:px-3 xl:px-4 xl:text-[15px] ${
+                                            isActive ? 'bg-brand font-semibold text-on-ink' : 'text-muted hover:bg-canvas hover:text-ink'
                                         }`
                                     }
                                 >

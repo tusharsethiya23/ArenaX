@@ -20,6 +20,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-26 (Mon)
+**Navbar active link**
+- The active navbar link is now a small yellow pill (36px tall, sized to its label) with black text instead of a yellow underline; other links get a dark background on hover.
+
 **Feed hero and session photos**
 - New hero banner at the top of the home feed (`FeedHero.jsx`): "Train · Learn · Compete · Grow", "Build a stronger you", Explore coaches → Discover. It is the only new element; nothing else moved.
 - Dark photo behind the Upcoming session cards (feed right column, the compact card on smaller screens, Discover).
