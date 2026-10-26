@@ -36,7 +36,7 @@ const AuthLayout = ({ title, subtitle, children, footer }) => (
                     <StadiumArt src="/images/auth.jpg" />
                     <div className="relative">
                         <div className="mb-3"><Tagline /></div>
-                        <p className="text-[2rem] font-black leading-[0.95] tracking-tighter text-white sm:text-4xl">
+                        <p className="font-display text-[2.5rem] leading-[0.95] text-white sm:text-5xl">
                             Train with <span className="text-highlight">the best.</span>
                         </p>
                     </div>
