@@ -23,6 +23,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 **Yellow pills are now outlined**
 - Every yellow pill (main buttons such as Search, Book session, Register team, Log in; selected chips; Joining as; the selected booking slot) has no yellow fill any more: a thin (1px) yellow border with white text. On hover it fills solid yellow with black text (counts and icons inside turn black too); clicking darkens it slightly and presses it in. All other pills and chips also press in when clicked. One shared CSS rule: `.btn-dark`, `.btn-lime`, `.chip-active`, `.pill-selected` in `index.css`.
 
+**Fix: Google sign-in button on login and sign-up**
+- The button sat in a white box that clashed with the dark page. It is now Google's dark pill style, with no white box, and as wide as the form on every screen (Google allows up to 400px). It re-draws when the screen is resized. Checked on login and sign-up at 1440, 390 and 360px wide.
+
 **Less yellow (Discover and app-wide)**
 - Yellow is now kept for the main action and the current selection only (navbar active pill, + button, Search, selected chip, star ratings).
 - Discover: search-field icons and the "ArenaX Pro · coming soon" label are grey; Get notified, Ask now, View details and Chat are plain dark buttons; the coach card "Next slot" line is white with only a yellow clock icon.
