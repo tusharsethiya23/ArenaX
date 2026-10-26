@@ -1,8 +1,8 @@
 // Avatar.jsx
 // Round profile picture. Falls back to the person's initials when they
 // haven't uploaded a photo, or when their photo fails to load (deleted or
-// broken link): on yellow by default, or (with `pastel`) on a grey or yellow
-// tint picked from their name, so the same person always gets the same colour.
+// broken link): on light grey by default, or (with `pastel`) on a shade of
+// grey picked from their name, so the same person always gets the same colour.
 
 import { useState } from 'react';
 
@@ -13,10 +13,10 @@ const getInitials = (name = '') =>
 // [background, text] pairs for pastel avatars
 const PASTELS = [
     ['bg-raised', 'text-ink'], // grey
-    ['bg-accent/20', 'text-accent'], // yellow
     ['bg-white/15', 'text-ink'], // light grey
-    ['bg-raised', 'text-accent'], // grey + yellow
-    ['bg-accent/10', 'text-ink'], // soft yellow
+    ['bg-white/10', 'text-ink/80'], // mid grey
+    ['bg-canvas', 'text-ink'], // dark grey
+    ['bg-white/20', 'text-ink'], // lighter grey
 ];
 
 const pastelFor = (name = '') => {
@@ -39,7 +39,7 @@ const Avatar = ({ name, photo, pastel = false, className = 'h-10 w-10 text-sm' }
             />
         );
     }
-    const [bg, text] = pastel ? pastelFor(name) : ['bg-accent', 'text-on-ink'];
+    const [bg, text] = pastel ? pastelFor(name) : ['bg-white/15', 'text-ink'];
     return (
         <span className={`${className} flex shrink-0 items-center justify-center rounded-full font-bold ${bg} ${text}`}>
             {getInitials(name)}

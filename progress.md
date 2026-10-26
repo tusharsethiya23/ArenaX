@@ -23,6 +23,11 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 **Yellow pills are now outlined**
 - Every yellow pill (main buttons such as Search, Book session, Register team, Log in; selected chips; Joining as; the selected booking slot) has no yellow fill any more: a thin (1px) yellow border with white text. On hover it fills solid yellow with black text (counts and icons inside turn black too); clicking darkens it slightly and presses it in. All other pills and chips also press in when clicked. One shared CSS rule: `.btn-dark`, `.btn-lime`, `.chip-active`, `.pill-selected` in `index.css`.
 
+**Less yellow (Discover and app-wide)**
+- Yellow is now kept for the main action and the current selection only (navbar active pill, + button, Search, selected chip, star ratings).
+- Discover: search-field icons and the "ArenaX Pro · coming soon" label are grey; Get notified, Ask now, View details and Chat are plain dark buttons; the coach card "Next slot" line is white with only a yellow clock icon.
+- App-wide: Follow buttons have a thin light-grey outline with white text (was yellow); initials avatars are shades of grey only (no yellow).
+
 **Fix: broken profile photos**
 - When a profile photo link no longer loads (for example the file was deleted), avatars now show the person's initials instead of a broken-image icon with cut-off text. The coach profile card shows the stadium backdrop instead. Tested by making every photo link fail: no broken images left, initials everywhere.
 

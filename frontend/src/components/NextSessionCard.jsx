@@ -46,9 +46,9 @@ const NextSessionCard = ({ user, bookings }) => {
                     <div className="mt-5 grid grid-cols-2 gap-2">
                         <Link to="/calendar" className="btn btn-soft">Calendar</Link>
                         {booking.status === 'confirmed' ? (
-                            <Link to={`/chat/${booking._id}`} className="btn btn-dark"><MessageCircle size={16} /> Chat</Link>
+                            <Link to={`/chat/${booking._id}`} className="btn btn-soft"><MessageCircle size={16} /> Chat</Link>
                         ) : (
-                            <Link to="/calendar" className="btn btn-dark">View details</Link>
+                            <Link to="/calendar" className="btn btn-soft">View details</Link>
                         )}
                     </div>
                 </>

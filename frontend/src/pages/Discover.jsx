@@ -64,10 +64,10 @@ const PromoCard = ({ showPro, user }) => (
         {showPro ? (
             <>
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-accent">ArenaX Pro · coming soon</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-ink/65">ArenaX Pro · coming soon</p>
                     <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">AI plans, video analysis and more</h2>
                 </div>
-                <Link to="/pro" className="btn btn-dark mt-6 self-start">Get notified <ArrowRight size={16} /></Link>
+                <Link to="/pro" className="btn btn-soft mt-6 self-start">Get notified <ArrowRight size={16} /></Link>
             </>
         ) : (
             <>
@@ -75,7 +75,7 @@ const PromoCard = ({ showPro, user }) => (
                     <p className="text-xs font-bold uppercase tracking-wider text-ink/65">AI coach</p>
                     <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">Not sure who to pick? Ask the AI coach</h2>
                 </div>
-                <Link to={canAccess(user, 'aiCoach') ? '/ai-assistant' : '/pro'} className="btn btn-dark mt-6 self-start">Ask now <ArrowRight size={16} /></Link>
+                <Link to={canAccess(user, 'aiCoach') ? '/ai-assistant' : '/pro'} className="btn btn-soft mt-6 self-start">Ask now <ArrowRight size={16} /></Link>
             </>
         )}
     </section>
@@ -282,7 +282,7 @@ const Discover = () => {
                         <div className="@container mt-6">
                         <form onSubmit={handleSearch} className="flex flex-col gap-1 rounded-3xl bg-canvas p-1.5 @2xl:flex-row @2xl:items-center @2xl:rounded-full">
                             <div className="grid min-w-0 flex-1 grid-cols-1 divide-y divide-line @md:grid-cols-3 @md:divide-x @md:divide-y-0">
-                            <SearchField icon={Search} label="Sport" tone="text-accent">
+                            <SearchField icon={Search} label="Sport" tone="text-muted">
                                 <input
                                     value={search.sport}
                                     onChange={(e) => setSearch({ ...search, sport: e.target.value })}
@@ -290,7 +290,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={MapPin} label="Location" tone="text-accent">
+                            <SearchField icon={MapPin} label="Location" tone="text-muted">
                                 <input
                                     value={search.location}
                                     onChange={(e) => setSearch({ ...search, location: e.target.value })}
@@ -298,7 +298,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={BarChart3} label="Level" as="div" tone="text-accent">
+                            <SearchField icon={BarChart3} label="Level" as="div" tone="text-muted">
                                 <Select
                                     variant="inline"
                                     aria-label="Level"

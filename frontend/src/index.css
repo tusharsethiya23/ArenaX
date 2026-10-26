@@ -153,10 +153,10 @@ h2.text-xl { font-size: 1.75rem; }
   .btn-danger {
     @apply bg-danger/10 text-danger hover:bg-danger/15;
   }
-  /* Follow: yellow outline + yellow text */
+  /* Follow: thin light-grey outline + white text (neutral, so yellow stays for main actions) */
   .btn-follow {
-    @apply bg-transparent text-brand hover:bg-brand/10;
-    box-shadow: inset 0 0 0 1.5px var(--color-brand);
+    @apply bg-transparent text-ink hover:bg-white/10;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
   }
   /* Following: dark fill, white text (with a check icon) */
   .btn-following {
