@@ -37,7 +37,7 @@ const ImageCarousel = ({ images, location }) => {
                         alt={`Photo ${i + 1} of ${images.length}`}
                         loading="lazy"
                         draggable={false}
-                        className="h-full w-full shrink-0 snap-center photo"
+                        className="h-full w-full shrink-0 snap-center object-cover"
                     />
                 ))}
             </div>

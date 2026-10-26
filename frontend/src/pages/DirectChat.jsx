@@ -119,7 +119,7 @@ const DirectChat = () => {
                 {/* The marketplace item this chat is about ("Contact seller") */}
                 {chat?.listing && (
                     <Link to="/marketplace" className="flex items-center gap-3 border-b border-line px-4 py-3 transition-colors hover:bg-canvas">
-                        {chat.listing.photo && <img src={chat.listing.photo} alt="" className="photo h-11 w-11 shrink-0 rounded-xl" />}
+                        {chat.listing.photo && <img src={chat.listing.photo} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />}
                         <span className="min-w-0">
                             <span className="flex items-center gap-1.5 text-xs text-muted"><Tag size={12} className="text-accent" /> Asking about</span>
                             <span className="block truncate text-sm font-semibold">{chat.listing.title}</span>

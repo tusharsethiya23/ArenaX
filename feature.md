@@ -103,7 +103,7 @@ Status: ✅ done · 🟡 partly done · ⏳ planned
 ### Look and feel
 | Feature | Status | Where |
 |---|---|---|
-| Black + yellow theme, Bebas Neue headings, Inter body text, black-and-white photos | ✅ | `index.css` (`@theme` tokens), `index.html` |
+| Black + yellow theme, Bebas Neue headings, Inter body text, black-and-white theme backdrops (uploaded photos keep their colours) | ✅ | `index.css` (`@theme` tokens), `index.html` |
 | Colours by meaning: like red, verified blue, statuses amber/green/red | ✅ | `index.css`, `utils/sessions.js` |
 | Phone layout: bottom tab bar, no sideways scrolling | ✅ | `MobileTabBar.jsx` |
 | In-app popups and toasts (no browser alerts) | ✅ | `DialogHost.jsx`, `utils/dialogs.js` |

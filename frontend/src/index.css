@@ -4,7 +4,7 @@
    ArenaX design tokens: black + yellow sports dashboard
    Flat dark surfaces (no glass, blur, glows or gradients), one brand
    colour (yellow), bold condensed uppercase headings, and black-and-white
-   photos. Other colours only carry a meaning (liked, up/down, verified,
+   theme photos (uploads keep their colours). Other colours only carry a meaning (liked, up/down, verified,
    status). Use these names (bg-surface, text-ink, bg-brand...) instead of
    raw colours so the theme stays consistent.
    ============================================================ */
@@ -210,7 +210,8 @@ h2.text-xl { font-size: 1.75rem; }
     @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-like px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white;
   }
 
-  /* Photos: black and white, punchy */
+  /* Theme photos only (StadiumArt backdrops): black and white, punchy.
+     Photos people upload (avatars, posts, listings) keep their own colours. */
   .photo {
     @apply object-cover grayscale contrast-125;
   }

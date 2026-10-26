@@ -45,7 +45,7 @@ const ContactButton = ({ listing, me, className = '' }) => (String(listing.selle
 const ListingCard = ({ listing, me, onOpen }) => (
     <article className="flex flex-col overflow-hidden rounded-2xl bg-surface">
         <button onClick={() => onOpen(listing)} className="relative block aspect-[4/3] w-full overflow-hidden bg-canvas text-left" aria-label={`Open ${listing.title}`}>
-            <img src={listing.photos[0]} alt="" loading="lazy" className="photo h-full w-full transition-transform duration-300 hover:scale-[1.03]" />
+            <img src={listing.photos[0]} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]" />
             {listing.photos.length > 1 && <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-white">1/{listing.photos.length}</span>}
             {listing.status === 'sold' && <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-on-ink">Sold</span>}
         </button>
@@ -173,7 +173,7 @@ const NewListingForm = ({ me, onClose, onCreated }) => {
                     <div className="grid grid-cols-4 gap-2">
                         {photos.map((p, i) => (
                             <div key={p.preview} className="relative aspect-square overflow-hidden rounded-2xl bg-canvas">
-                                <img src={p.preview} alt="" className="photo h-full w-full" />
+                                <img src={p.preview} alt="" className="h-full w-full object-cover" />
                                 <button type="button" onClick={() => removePhoto(i)} aria-label={`Remove photo ${i + 1}`} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white">
                                     <X size={13} />
                                 </button>

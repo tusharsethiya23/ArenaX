@@ -72,7 +72,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
             <div className="relative h-56 overflow-hidden rounded-[26px] sm:h-64">
                 {coach.profilePhoto ? (
                     <>
-                        <img src={coach.profilePhoto} alt={coach.name} className="photo absolute inset-0 h-full w-full" />
+                        <img src={coach.profilePhoto} alt={coach.name} className="absolute inset-0 h-full w-full object-cover" />
                         <div className="absolute inset-0 bg-black/30" />
                     </>
                 ) : (

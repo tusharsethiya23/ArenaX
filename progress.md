@@ -20,6 +20,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-26 (Mon)
+**Uploaded photos in colour again**
+- Profile pictures, post photos, marketplace photos and the photo cropper show original colours again. Only the theme backdrop photos (login banner, coach profile background) stay black and white.
+
 **Project docs**
 - Added `session.md`: a handoff for new sessions (app, stack, deploy and env var names, UI rules, key decisions, working rules, next task).
 - Added `feature.md` (features, where they live in the code, end goal, folder structure) and this `progress.md`. Both get updated after every change from now on.

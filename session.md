@@ -52,7 +52,7 @@ Free for now: there are no payments.
   - saved: yellow
   - decorative icons: neutral or yellow, never blue, green or red
 - **Fonts:** Bebas Neue (uppercase headings and big numbers, key word in yellow); Inter for body text.
-- **Photos:** black and white (`.photo` class).
+- **Photos:** only the theme backdrop photos (`StadiumArt`, `.photo` class) are black and white. Photos people upload (profile pictures, posts, listings) always keep their original colours.
 - **Layout is fixed.** Change colours and fonts only. Don't move components or change the navbar or profile menu without asking first.
 
 ## Key decisions

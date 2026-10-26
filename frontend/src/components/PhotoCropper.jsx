@@ -151,7 +151,7 @@ const PhotoCropper = ({ file, onCancel, onSave, saving }) => {
                 src={src}
                 alt=""
                 draggable={false}
-                className="pointer-events-none absolute left-0 top-0 max-w-none origin-top-left select-none grayscale contrast-125"
+                className="pointer-events-none absolute left-0 top-0 max-w-none origin-top-left select-none"
                 style={{ width: img.w, height: img.h, transform: `translate(${pos.x * k}px, ${pos.y * k}px) scale(${scale * k})` }}
             />
         );
