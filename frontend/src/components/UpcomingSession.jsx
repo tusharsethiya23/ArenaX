@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
 import { fromISODate } from '../utils/slots';
 import { upcomingSessions } from '../utils/sessions';
+import StadiumArt from './StadiumArt';
 
 const UpcomingSession = ({ className = '' }) => {
     const { user } = useAuth();
@@ -23,7 +24,8 @@ const UpcomingSession = ({ className = '' }) => {
     const date = booking.date && fromISODate(booking.date);
 
     return (
-        <Link to="/calendar" className={`group flex items-center gap-4 rounded-2xl bg-surface p-4 ${className}`}>
+        <Link to="/calendar" className={`group relative isolate flex items-center gap-4 overflow-hidden rounded-2xl bg-surface p-4 ${className}`}>
+            <StadiumArt src="/images/session-training.jpg" dim="bg-black/75" position="object-[center_30%]" className="-z-10" />
             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-on-ink">
                 <span className="text-base font-extrabold leading-none">
                     {date ? date.getDate() : booking.day?.slice(0, 3).toUpperCase()}

@@ -15,6 +15,7 @@ import { fromISODate } from '../utils/slots';
 import { fmtSession, upcomingSessions, hasStarted } from '../utils/sessions';
 import { compact } from '../utils/format';
 import { toastError } from '../utils/dialogs';
+import StadiumArt from './StadiumArt';
 
 const STATUS_BADGE = {
     pending: 'bg-warn/15 text-warn',
@@ -70,7 +71,8 @@ const Upcoming = ({ bookings, role }) => {
     const items = upcomingSessions(bookings).slice(0, 3);
 
     return (
-        <section className="card">
+        <section className="card relative isolate overflow-hidden">
+            <StadiumArt src="/images/session-training.jpg" dim="bg-black/75" position="object-[center_30%]" className="-z-10" />
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-bold tracking-tight">Upcoming</h2>
                 <Link to="/calendar" className="text-sm text-muted hover:text-ink">See all</Link>

@@ -18,6 +18,7 @@ import FeedSidebar from '../components/FeedSidebar';
 import FeedRail from '../components/FeedRail';
 import UpcomingSession from '../components/UpcomingSession';
 import Select from '../components/Select';
+import FeedHero from '../components/FeedHero';
 
 const TABS = [
     { id: 'all', label: 'For you', endpoint: '/posts' },
@@ -67,6 +68,7 @@ const Feed = () => {
 
             {/* ===================== FEED ===================== */}
             <main className="min-w-0">
+                <FeedHero className="mb-5" />
                 <UpcomingSession className="mb-5 lg:hidden" />
 
                 {/* Tabs + sort; the sort drops to its own line on narrow screens instead of covering a tab */}

@@ -105,7 +105,8 @@ Status: ✅ done · 🟡 partly done · ⏳ planned
 |---|---|---|
 | Black + yellow theme, Bebas Neue headings, Inter body text, black-and-white theme backdrops (uploaded photos keep their colours) | ✅ | `index.css` (`@theme` tokens), `index.html` |
 | Colours by meaning: like red, verified blue, statuses amber/green/red | ✅ | `index.css`, `utils/sessions.js` |
-| Dark sports photos behind existing cards (auth banner, Discover hero and promo, feed profile card, tournament cards by sport) | ✅ | `StadiumArt.jsx`, `public/images/` (credits in `CREDITS.md`) |
+| Dark sports photos behind existing cards (auth banner, Discover hero and promo, feed profile card, upcoming session cards, tournament cards by sport) | ✅ | `StadiumArt.jsx`, `public/images/` (credits in `CREDITS.md`) |
+| Home feed hero banner ("Build a stronger you", Explore coaches) | ✅ | `FeedHero.jsx`, `pages/Feed.jsx` |
 | Phone layout: bottom tab bar, no sideways scrolling | ✅ | `MobileTabBar.jsx` |
 | In-app popups and toasts (no browser alerts) | ✅ | `DialogHost.jsx`, `utils/dialogs.js` |
 | Profile photo crop and zoom before upload | ✅ | `PhotoCropper.jsx` |
