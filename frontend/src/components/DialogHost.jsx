@@ -47,7 +47,7 @@ const DialogHost = () => {
             )}
 
             {/* ---------- Toasts (above the mobile tab bar) ---------- */}
-            <div className="pointer-events-none fixed inset-x-0 bottom-20 z-70 flex flex-col items-center gap-2 px-4 md:bottom-6">
+            <div className="pointer-events-none fixed inset-x-0 bottom-20 z-70 flex flex-col items-center gap-2 px-4 lg:bottom-6">
                 {toasts.map((t) => (
                     <div
                         key={t.id}

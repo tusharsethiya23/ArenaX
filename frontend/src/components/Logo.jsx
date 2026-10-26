@@ -9,9 +9,8 @@ const Logo = ({ to = '/' }) => (
         <span className="font-display flex h-10 w-10 items-center justify-center rounded-xl bg-brand pt-0.5 text-[26px] text-on-ink">
             X
         </span>
-        {/* Wordmark is hidden on small phones (room for the bell, messages and profile)
-            and on tablet / small laptop widths, where the navbar links need the room */}
-        <span className="font-display whitespace-nowrap pt-1 text-[28px] text-ink max-[379px]:hidden sm:text-[30px] md:hidden xl:inline">
+        {/* Wordmark is hidden on small phones (room for the bell, messages and profile) */}
+        <span className="font-display whitespace-nowrap pt-1 text-[28px] text-ink max-[379px]:hidden sm:text-[30px]">
             ARENA <span className="text-brand">X</span>
         </span>
     </Link>

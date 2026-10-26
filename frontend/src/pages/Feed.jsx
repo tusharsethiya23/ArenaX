@@ -1,6 +1,5 @@
 // Feed.jsx
-// Homepage, three columns on large screens (design mockup):
-//   left    profile summary + menu (FeedSidebar)
+// Homepage. Two columns on wide screens (the app's left sidebar holds the menu):
 //   center  tabs (For you / Following / Coaches), Latest / Most liked, posts
 //   right   session requests, upcoming sessions, coaches to follow (FeedRail)
 // Smaller screens show just the feed, with a compact upcoming-session card.
@@ -14,7 +13,6 @@ import useMyProfile from '../hooks/useMyProfile';
 import useMyBookings from '../hooks/useMyBookings';
 import useFollowingIds from '../hooks/useFollowingIds';
 import PostList from '../components/PostList';
-import FeedSidebar from '../components/FeedSidebar';
 import FeedRail from '../components/FeedRail';
 import UpcomingSession from '../components/UpcomingSession';
 import Select from '../components/Select';
@@ -45,8 +43,6 @@ const EMPTY = {
 // never taller than the screen (24px gap at the bottom), and scroll inside
 // themselves when their content is taller.
 const SIDE_COLUMN = 'sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]';
-// The left column fits on screen, so it never shows a scrollbar (the wheel still works on very short screens)
-const LEFT_COLUMN = SIDE_COLUMN.replace('[scrollbar-width:thin]', '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden');
 
 const Feed = () => {
     const { user } = useAuth();
@@ -58,16 +54,11 @@ const Feed = () => {
     const endpoint = TABS.find((t) => t.id === tab).endpoint;
 
     return (
-        <div className="page grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-
-            {/* ===================== LEFT ===================== */}
-            <div className="hidden xl:block">
-                <div className={LEFT_COLUMN}><FeedSidebar profile={profile} bookings={bookings} /></div>
-            </div>
+        <div className="page grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
 
             {/* ===================== FEED ===================== */}
             <main className="min-w-0">
-                <UpcomingSession className="mb-5 lg:hidden" />
+                <UpcomingSession className="mb-5 xl:hidden" />
 
                 {/* Tabs + sort; the sort drops to its own line on narrow screens instead of covering a tab */}
                 <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
@@ -108,7 +99,7 @@ const Feed = () => {
             </main>
 
             {/* ===================== RIGHT ===================== */}
-            <div className="hidden lg:block">
+            <div className="hidden xl:block">
                 <div className={SIDE_COLUMN}>
                     <FeedRail
                         profile={profile}

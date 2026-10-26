@@ -166,10 +166,12 @@ const Discover = () => {
 
     const [coaches, setCoaches] = useState([]);
     const [allCoaches, setAllCoaches] = useState([]); // unfiltered, for the hero text and "near you"
-    const [search, setSearch] = useState({ sport: '', location: '', level: '' });
+    const [searchParams] = useSearchParams();
+    // ?q=... comes from the top bar's search: it fills the Sport field
+    const topQuery = searchParams.get('q') || '';
+    const [search, setSearch] = useState({ sport: topQuery, location: '', level: '' });
     const [sportChip, setSportChip] = useState('All');
     const isLearner = user.role === 'learner';
-    const [searchParams] = useSearchParams();
     const [sortKey, setSortKey] = useState(() => {
         const wanted = searchParams.get('sort');
         if (SORTS[wanted] && (wanted !== 'match' || isLearner)) return wanted;
@@ -189,13 +191,29 @@ const Discover = () => {
     const { followState, toggleFollow } = useFollowingIds();
 
     // Initial load: coaches, spotlight, recommendations
+    const initialLoad = useRef(null);
     useEffect(() => {
-        fetchCoaches().catch(console.error).finally(() => setLoading(false));
+        initialLoad.current = fetchCoaches().catch(console.error).finally(() => setLoading(false));
         API.get('/spotlight/current').then((res) => setSpotlight(res.data)).catch(() => {});
         if (isLearner && canAccess(user, 'coachMatching')) {
             API.get('/match/coaches').then((res) => setMatches(res.data)).catch(() => {});
         }
     }, [fetchCoaches, isLearner, user]);
+    // A new search from the top bar while you're on Discover: show it in the Sport field
+    const [seenQuery, setSeenQuery] = useState(topQuery);
+    if (topQuery !== seenQuery) {
+        setSeenQuery(topQuery);
+        setSearch((s) => ({ ...s, sport: topQuery }));
+        setSportChip('All');
+    }
+    // ...and search for it, after the initial all-coaches load (so that load
+    // can't overwrite the results, and the hero counts stay right)
+    useEffect(() => {
+        if (!topQuery) return;
+        let cancelled = false;
+        Promise.resolve(initialLoad.current).then(() => !cancelled && fetchCoaches({ sport: topQuery }).catch(console.error));
+        return () => { cancelled = true; };
+    }, [topQuery, fetchCoaches]);
     const matchById = Object.fromEntries((matches?.coaches || []).map((c) => [c._id, c.match]));
 
     const currentParams = () => {

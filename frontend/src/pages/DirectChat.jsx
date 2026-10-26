@@ -93,7 +93,7 @@ const DirectChat = () => {
     const other = chat?.user;
 
     return (
-        <div className="mx-auto flex h-[calc(100dvh-80px-4rem)] w-full max-w-3xl flex-col px-4 pb-4 pt-4 sm:px-6 md:h-[calc(100dvh-80px)] md:pb-8">
+        <div className="mx-auto flex h-[calc(100dvh-80px-4rem)] w-full max-w-3xl flex-col px-4 pb-4 pt-4 sm:px-6 lg:h-[calc(100dvh-80px)] md:pb-8">
             {/* ---------- Header ---------- */}
             <div className="mb-4 flex items-center gap-3">
                 <Link to="/messages" aria-label="Back to messages" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface">
