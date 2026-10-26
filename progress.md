@@ -1,0 +1,106 @@
+# ArenaX progress
+
+Day-by-day log of what changed, newest first. Updated after every change.
+Feature list and end goal: [feature.md](feature.md).
+
+## Where we are
+
+- **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
+- **Next up:** waiting for your next request.
+- **To do on your side:**
+  - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
+  - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
+  - Google Cloud Console: fill in the Branding URLs (home page, privacy, terms).
+- **Known issues:**
+  - Old lint errors in `AuthContext`, `BrandAuthContext`, `AdminDashboard`, `BrandDashboard`, `MyDeals` and `Tournament` (setState inside an effect). These existed before the restyle.
+- **Offered, not started:**
+  - Delete the old content/purchase/subscription collections from the database.
+  - Hide email addresses on public profiles.
+
+---
+
+## 2026-10-26 (Mon)
+**Project docs**
+- Added `feature.md` (features, where they live in the code, end goal, folder structure) and this `progress.md`. Both get updated after every change from now on.
+
+**Removed money, added engagement**
+- Removed prices and payments everywhere.
+- Added Arena Points (daily check-in streak, points for sessions, posts and invites), drill levels, a Founding Member badge, a Pro waitlist page and a gear marketplace with "Contact seller".
+- Added feature gates: every user is on `plan: "free"`, and `canAccess` controls what each one can use.
+
+**Black + yellow restyle**
+- **Step 1:** black + yellow theme, Bebas Neue headings, flat cards (no glass, blur or glows), black-and-white photos, colours by meaning (like red, verified blue, statuses amber/green/red).
+- **Step 2:** new left sidebar and top bar. **Reverted the same day**, because the restyle should change colours only, not move components.
+- Recoloured decorative icons, hashtags and initials avatars, so blue, green and red only appear where they mean something. Recoloured the DNA progress chart to yellow.
+- Login/sign-up banner on phones now uses the Bebas heading font.
+
+## 2026-10-25 (Sun)
+- **Messaging:**
+  - Direct messages between users who follow each other.
+  - A Messages button in the navbar with a people-count badge; the notification bell no longer shows messages.
+- **Profile:**
+  - Crop and zoom the profile photo before upload.
+  - The saved user's photo and name stay in sync with the server.
+- **Popups:**
+  - In-app popups and toasts replace browser alerts.
+  - Red for destructive actions (delete account, log out).
+  - The notifications panel stays on screen on phones.
+- **Navbar and Discover:**
+  - The navbar hides while scrolling down.
+  - Equal-width links with the Post button centred.
+  - Discover's top coaches show 3 per row on large screens.
+- **Themes:** dark glass theme, then the "Smoke + Ember" palette, with coloured icons and selected states.
+- **Deploy and speed:**
+  - New Render setup: static frontend, backend in Singapore.
+  - Fewer, faster API requests.
+  - Google sign-in tolerates stray spaces or quotes in `GOOGLE_CLIENT_ID`.
+
+## 2026-10-24 (Sat)
+- **Core features:**
+  - Athlete DNA dashboard (#1).
+  - Coach matching from DNA gaps (#2).
+  - Calendar with real session dates, reschedule and completion (#4).
+  - Portfolio with coach verification (#5).
+  - AI coach with Gemini (#8).
+- **Social:**
+  - Posts API, feed homepage, likes, comments, replies, saves.
+  - Follow users and a Following feed.
+  - Private accounts with follow requests.
+- **Discover:** redesigned, with a coach profile card for slot booking.
+- **Sign-in:**
+  - Continue with Google.
+  - Gmail-only sign-up confirmed by an emailed code.
+  - "Joining as" Learner / Coach / Brand.
+  - Privacy and Terms pages.
+- **Fixes:**
+  - Deleting an account removes everything linked to it.
+  - No sideways scrolling on phones.
+  - Login/sign-up layout on phones.
+  - The live frontend can call the API.
+- **Look:** light lime theme; themed dropdowns replace native selects.
+- **Speed:** pages load on demand, halving the first download.
+- **Demo data:** seed and clear scripts (`npm run seed:demo` / `clear:demo`).
+
+## 2026-10-09 (Fri)
+- Brand login, brand dashboard and a coach deals page.
+- Tournaments backend.
+- Fixed route mounts in `server.js`.
+
+## 2026-10-07 (Wed)
+- Real-time chat (Socket.io) for confirmed bookings.
+- Analytics dashboard: rating, endorsements, achievements, completion rate.
+
+## 2026-10-06 (Tue)
+- Google OAuth turned off for now; back to the standard login screen.
+
+## 2026-10-03 (Sat)
+- Admin role and admin dashboard: list users, delete any user.
+- Account deletion route.
+- CORS allows the local frontend during development.
+
+## 2026-10-02 (Fri)
+- Booking list shows the profile photo and a clickable name.
+
+## 2026-09-05 (Sat)
+- First commit: ArenaX V1–V3.
+- First deploy to Render (fixed the allowed Vite host and the routes).
