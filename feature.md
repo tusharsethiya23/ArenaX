@@ -131,6 +131,7 @@ ArenaX/
 │       ├── utils/           helpers (access, format, sessions, tones, ...)
 │       ├── api/             axios client
 │       └── index.css        theme tokens and component classes
+├── session.md               start here in a new session
 ├── feature.md               this file
 └── progress.md              daily progress log
 ```

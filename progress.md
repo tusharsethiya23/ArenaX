@@ -1,12 +1,12 @@
 # ArenaX progress
 
 Day-by-day log of what changed, newest first. Updated after every change.
-Feature list and end goal: [feature.md](feature.md).
+Feature list and end goal: [feature.md](feature.md). New session? Start with [session.md](session.md).
 
 ## Where we are
 
 - **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
-- **Next up:** waiting for your next request.
+- **Next up:** not decided. Open questions are in session.md (Brevo or Gmail, features #3/#6/#7, end goal).
 - **To do on your side:**
   - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
   - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
@@ -21,6 +21,7 @@ Feature list and end goal: [feature.md](feature.md).
 
 ## 2026-10-26 (Mon)
 **Project docs**
+- Added `session.md`: a handoff for new sessions (app, stack, deploy and env var names, UI rules, key decisions, working rules, next task).
 - Added `feature.md` (features, where they live in the code, end goal, folder structure) and this `progress.md`. Both get updated after every change from now on.
 
 **Removed money, added engagement**
