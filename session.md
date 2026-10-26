@@ -41,7 +41,7 @@ Free for now: there are no payments.
 ## UI rules
 - **Colours:**
   - page `#0A0A0A`; cards `#121212` with a `white/8` border and `rounded-2xl`; inner items and inputs `#1A1A1A`
-  - brand yellow `#FFC21A` with black text; secondary text `#A1A1A1`
+  - brand yellow `#FFC21A` (borders, accents, key words); secondary text `#A1A1A1`
   - no glass, blur, gradients or glows
 - **Colours carry meaning:**
   - like and alerts: red `#EF4444`
@@ -53,7 +53,7 @@ Free for now: there are no payments.
   - decorative icons: neutral or yellow, never blue, green or red
 - **Fonts:** Bebas Neue (uppercase headings and big numbers, key word in yellow); Inter for body text.
 - **Photos:** only the theme backdrop photos (`StadiumArt`, `.photo` class) are black and white. Photos people upload (profile pictures, posts, listings) always keep their original colours. New theme photos must be free Unsplash photos (not Unsplash+) with dark or black backgrounds, added to `public/images/CREDITS.md`, and placed behind an existing card (`isolate` on the card, `<StadiumArt className="-z-10" />`) without moving anything.
-- **Navbar:** the active link is a yellow pill with black text (no underline).
+- **Pills and buttons:** no yellow fills. Primary buttons and selected pills have a thin 1px yellow border with white text (`.btn-dark`, `.chip-active`, `.pill-selected`). On hover they fill solid yellow with black text; clicking darkens them slightly and presses them in (`active:scale-95`). Exception: the navbar active link is a small solid yellow pill with black text. Solid yellow stays only on the logo, the round + buttons, dots, progress bars and toggles.
 - **Layout is fixed.** Change colours and fonts only. Don't move components or change the navbar or profile menu without asking first.
 
 ## Key decisions

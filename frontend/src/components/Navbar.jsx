@@ -4,7 +4,7 @@
 // It hides while scrolling down and reappears on any scroll up (useHideOnScroll).
 //   LEFT:   logo (black square with lime X + "ARENA X")
 //   CENTER: the 4 primary links inside a pill; the active one is a yellow
-//           pill with black text (desktop only; mobile uses MobileTabBar)
+//           filled pill with black text (desktop only; mobile uses MobileTabBar)
 //   RIGHT:  notification bell + messages (chat) button + profile pill
 //           (or Log in / Join when logged out)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
@@ -61,7 +61,7 @@ const Navbar = () => {
                                     title={label}
                                     className={({ isActive }) =>
                                         `relative flex h-9 items-center justify-center justify-self-center whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors lg:px-3 xl:px-4 xl:text-[15px] ${
-                                            isActive ? 'bg-brand font-semibold text-on-ink' : 'text-muted hover:bg-canvas hover:text-ink'
+                                            isActive ? 'bg-brand font-semibold text-on-ink active:scale-95' : 'text-muted hover:bg-canvas hover:text-ink active:scale-95'
                                         }`
                                     }
                                 >

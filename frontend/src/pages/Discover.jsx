@@ -330,7 +330,7 @@ const Discover = () => {
                             <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
                                 {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
                                 {s}
-                                <span className={sportChip === s ? 'text-on-ink/60' : 'text-muted'}>
+                                <span className={sportChip === s ? 'text-brand' : 'text-muted'}>
                                     {s === 'All' ? coaches.length : sportCounts[s]}
                                 </span>
                             </button>

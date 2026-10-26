@@ -20,6 +20,12 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-26 (Mon)
+**Yellow pills are now outlined**
+- Every yellow pill (main buttons such as Search, Book session, Register team, Log in; selected chips; Joining as; the selected booking slot) has no yellow fill any more: a thin (1px) yellow border with white text. On hover it fills solid yellow with black text (counts and icons inside turn black too); clicking darkens it slightly and presses it in. All other pills and chips also press in when clicked. One shared CSS rule: `.btn-dark`, `.btn-lime`, `.chip-active`, `.pill-selected` in `index.css`.
+
+**Navbar active link back to solid yellow**
+- The navbar keeps its small solid yellow pill with black text for the active link (the outline style is for buttons and chips only).
+
 **Navbar active link**
 - The active navbar link is now a small yellow pill (36px tall, sized to its label) with black text instead of a yellow underline; other links get a dark background on hover.
 

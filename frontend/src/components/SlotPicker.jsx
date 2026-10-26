@@ -74,7 +74,7 @@ const SlotPicker = ({ availability = [], takenSlots = [], dayCount = 14, value, 
                                 title={s.taken ? 'Already booked' : s.past ? 'Already passed' : s.timeSlot}
                                 className={`rounded-2xl px-2 py-3 text-sm font-bold transition-colors ${
                                     isSelected
-                                        ? 'bg-brand text-on-ink'
+                                        ? 'pill-selected'
                                         : unavailable
                                             ? 'cursor-not-allowed bg-canvas/50 text-muted/60 line-through'
                                             : readOnly ? 'cursor-default bg-canvas' : 'bg-canvas hover:bg-white/10'

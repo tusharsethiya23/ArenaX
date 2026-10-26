@@ -143,13 +143,9 @@ h2.text-xl { font-size: 1.75rem; }
 
   /* Buttons: pill shaped. Combine .btn with one colour variant. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40;
   }
-  /* Primary: yellow with black text */
-  .btn-dark,
-  .btn-lime {
-    @apply bg-brand text-on-ink hover:brightness-110;
-  }
+  /* Primary: see the yellow outline pill rule below the chips */
   /* Secondary: dark */
   .btn-soft {
     @apply bg-canvas text-ink hover:bg-raised;
@@ -167,12 +163,21 @@ h2.text-xl { font-size: 1.75rem; }
     @apply bg-canvas text-ink hover:bg-raised;
   }
 
-  /* Filter chips (e.g. sport filters); the selected one is yellow */
+  /* Filter chips (e.g. sport filters); the selected one has a yellow outline */
   .chip {
-    @apply inline-flex items-center whitespace-nowrap rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-raised;
+    @apply inline-flex items-center whitespace-nowrap rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-all hover:bg-raised active:scale-95;
   }
-  .chip-active {
-    @apply bg-brand text-on-ink hover:bg-brand;
+
+  /* Yellow outline pill: primary buttons, the selected chip, and other
+     selected pills (navbar link, Joining as, booking slot). A thin yellow
+     border with white text; on hover it fills solid yellow with black text,
+     and clicking darkens it slightly and presses it in. */
+  .btn-dark,
+  .btn-lime,
+  .chip-active,
+  .pill-selected {
+    @apply bg-transparent text-ink transition-all hover:bg-brand hover:text-on-ink active:scale-95 active:brightness-90;
+    box-shadow: inset 0 0 0 1px var(--color-brand);
   }
 
   /* Tabs (feed, profile, marketplace...): white text with a yellow underline when active */
@@ -259,4 +264,13 @@ h2.text-xl { font-size: 1.75rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .dropdown-panel, .modal-backdrop, .modal-panel, .toast-in, .like-pop { animation: none; }
+}
+
+/* Yellow outline pills fill solid yellow on hover: everything inside (counts,
+   icons) turns black with the label. Unlayered so it beats colour utilities. */
+.btn-dark:hover *,
+.btn-lime:hover *,
+.chip-active:hover *,
+.pill-selected:hover * {
+  color: inherit;
 }
