@@ -23,10 +23,10 @@ import { confirmDialog, toast, toastError } from '../utils/dialogs';
 
 const MAX_PHOTOS = 4;
 const CONDITIONS = [
-    { value: 'new', label: 'New', tone: 'bg-data-mint/15 text-data-mint' },
-    { value: 'like_new', label: 'Like new', tone: 'bg-data-blue/15 text-data-blue' },
+    { value: 'new', label: 'New', tone: 'bg-ok/15 text-ok' },
+    { value: 'like_new', label: 'Like new', tone: 'bg-ok/15 text-ok' },
     { value: 'good', label: 'Good', tone: 'bg-highlight/15 text-highlight' },
-    { value: 'fair', label: 'Fair', tone: 'bg-data-pink/15 text-data-pink' },
+    { value: 'fair', label: 'Fair', tone: 'bg-warn/15 text-warn' },
 ];
 const CONDITION = Object.fromEntries(CONDITIONS.map((c) => [c.value, c]));
 
@@ -57,7 +57,7 @@ const ListingCard = ({ listing, me, onOpen }) => (
                 <ConditionChip value={listing.condition} />
             </div>
             <p className="mt-1 flex items-center gap-1 text-sm text-muted">
-                <MapPin size={13} className="shrink-0 text-data-pink" /> <span className="truncate">{listing.location}</span> · {timeAgo(listing.createdAt)}
+                <MapPin size={13} className="shrink-0 text-muted" /> <span className="truncate">{listing.location}</span> · {timeAgo(listing.createdAt)}
             </p>
             <div className="mt-4 flex items-center gap-2.5">
                 <Avatar name={listing.seller.name} photo={listing.seller.profilePhoto} pastel className="h-8 w-8 text-xs" />
@@ -280,7 +280,7 @@ const Marketplace = () => {
                 <p className="empty-state">Loading listings...</p>
             ) : listings.length === 0 ? (
                 <div className="card flex flex-col items-center py-12 text-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-data-mint/15 text-data-mint"><Tag size={24} /></span>
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/15 text-accent"><Tag size={24} /></span>
                     <p className="mt-4 font-semibold">{tab === 'mine' ? "You haven't listed anything yet" : 'No listings match'}</p>
                     <p className="mt-1 max-w-xs text-sm text-muted">{tab === 'mine' ? 'Got gear you no longer use? List it in a minute.' : 'Try another search, or list something yourself.'}</p>
                     {canList && <button onClick={() => setCreating(true)} className="btn btn-dark mt-5"><Plus size={18} /> List an item</button>}

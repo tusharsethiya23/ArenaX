@@ -8,7 +8,7 @@ const RichText = ({ text, className = '' }) => (
     <p className={`whitespace-pre-wrap break-words ${className}`}>
         {text.split(TOKEN).map((part, i) =>
             i % 2 === 1
-                ? <span key={i} className="font-medium text-data-blue">{part}</span>
+                ? <span key={i} className="font-medium text-accent">{part}</span>
                 : part
         )}
     </p>

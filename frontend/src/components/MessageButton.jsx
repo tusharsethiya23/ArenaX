@@ -17,10 +17,10 @@ const MessageButton = ({ userId, name, compact = false, className = '' }) => {
             aria-label={`Message ${name}`}
             title={`Message ${name}`}
             className={compact
-                ? `flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-canvas text-data-blue transition-colors hover:bg-data-blue/15 sm:h-10 sm:w-10 ${className}`
+                ? `flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-canvas text-ink transition-colors hover:bg-raised sm:h-10 sm:w-10 ${className}`
                 : `btn btn-soft ${className}`}
         >
-            <MessageCircle size={compact ? 17 : 16} className="text-data-blue" />
+            <MessageCircle size={compact ? 17 : 16} />
             {!compact && 'Message'}
         </Link>
     );

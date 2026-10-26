@@ -287,7 +287,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={MapPin} label="Location" tone="text-data-pink">
+                            <SearchField icon={MapPin} label="Location" tone="text-accent">
                                 <input
                                     value={search.location}
                                     onChange={(e) => setSearch({ ...search, location: e.target.value })}
@@ -295,7 +295,7 @@ const Discover = () => {
                                     className="w-full bg-transparent font-medium outline-none placeholder:text-ink/40"
                                 />
                             </SearchField>
-                            <SearchField icon={BarChart3} label="Level" as="div" tone="text-data-mint">
+                            <SearchField icon={BarChart3} label="Level" as="div" tone="text-accent">
                                 <Select
                                     variant="inline"
                                     aria-label="Level"

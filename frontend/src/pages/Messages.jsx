@@ -23,7 +23,7 @@ const Messages = () => {
                     <p className="empty-state">Loading messages...</p>
                 ) : conversations.length === 0 ? (
                     <div className="flex flex-col items-center px-6 py-12 text-center">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-data-blue/15 text-data-blue">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/15 text-accent">
                             <MessageCircle size={24} />
                         </span>
                         <p className="mt-4 font-semibold">No messages yet</p>

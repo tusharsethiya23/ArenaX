@@ -132,8 +132,8 @@ const Tournaments = () => {
               </div>
 
               <h3 className="mt-4 text-lg font-bold tracking-tight">{t.name}</h3>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted"><MapPin size={14} className="text-data-pink" /> {t.location}</p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted"><CalendarDays size={14} className="text-data-blue" /> Register by {fmtDate(t.registrationDeadline)}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted"><MapPin size={14} /> {t.location}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted"><CalendarDays size={14} /> Register by {fmtDate(t.registrationDeadline)}</p>
               {t.description && <p className="mt-3 text-sm text-ink/80">{t.description}</p>}
 
               <div className="mt-auto pt-5">

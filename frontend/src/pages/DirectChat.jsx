@@ -121,7 +121,7 @@ const DirectChat = () => {
                     <Link to="/marketplace" className="flex items-center gap-3 border-b border-line px-4 py-3 transition-colors hover:bg-canvas">
                         {chat.listing.photo && <img src={chat.listing.photo} alt="" className="photo h-11 w-11 shrink-0 rounded-xl" />}
                         <span className="min-w-0">
-                            <span className="flex items-center gap-1.5 text-xs text-muted"><Tag size={12} className="text-data-mint" /> Asking about</span>
+                            <span className="flex items-center gap-1.5 text-xs text-muted"><Tag size={12} className="text-accent" /> Asking about</span>
                             <span className="block truncate text-sm font-semibold">{chat.listing.title}</span>
                         </span>
                     </Link>
@@ -145,7 +145,7 @@ const DirectChat = () => {
                                         <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                                             <div className={`max-w-[78%] rounded-3xl px-4 py-2 text-sm ${mine ? 'rounded-br-md bg-white text-on-ink' : 'rounded-bl-md bg-canvas text-ink'}`}>
                                                 {m.listing && (
-                                                    <p className={`mb-1 flex items-center gap-1 text-[11px] font-semibold ${mine ? 'text-on-ink/70' : 'text-data-mint'}`}>
+                                                    <p className={`mb-1 flex items-center gap-1 text-[11px] font-semibold ${mine ? 'text-on-ink/70' : 'text-accent'}`}>
                                                         <Tag size={11} /> {m.listing.title}
                                                     </p>
                                                 )}

@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Whistle, Building2 } from 'lucide-react';
 
 const OPTIONS = [
-    { role: 'learner', label: "I'm a learner", hint: 'Find coaches and track your game', icon: GraduationCap, tone: 'bg-data-blue/15 text-data-blue' },
+    { role: 'learner', label: "I'm a learner", hint: 'Find coaches and track your game', icon: GraduationCap, tone: 'bg-accent/15 text-accent' },
     { role: 'coach', label: "I'm a coach", hint: 'Offer sessions and grow your athletes', icon: Whistle, tone: 'bg-accent/15 text-accent' },
-    { role: 'brand', label: "I'm a brand", hint: 'Sponsor athletes (sign up with your work email)', icon: Building2, tone: 'bg-data-mint/15 text-data-mint' },
+    { role: 'brand', label: "I'm a brand", hint: 'Sponsor athletes (sign up with your work email)', icon: Building2, tone: 'bg-accent/15 text-accent' },
 ];
 
 const GoogleRolePicker = ({ onChoose, onCancel, busy }) => {

@@ -17,8 +17,8 @@ const FollowCounts = ({ userId, followers, following, className = '' }) => {
     return (
         <>
             <div className={`flex items-center gap-4 ${className}`}>
-                {item('followers', followers, followers === 1 ? 'follower' : 'followers', 'bg-data-blue')}
-                {item('following', following, 'following', 'bg-data-pink')}
+                {item('followers', followers, followers === 1 ? 'follower' : 'followers', 'bg-accent')}
+                {item('following', following, 'following', 'bg-accent')}
             </div>
             {openList && <FollowListModal userId={userId} type={openList} onClose={() => setOpenList(null)} />}
         </>

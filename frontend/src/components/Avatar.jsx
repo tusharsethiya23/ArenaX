@@ -1,7 +1,7 @@
 // Avatar.jsx
 // Round profile picture. Falls back to the person's initials when they
-// haven't uploaded a photo: on lime by default, or (with `pastel`) on a soft
-// colour picked from their name, so the same person always gets the same colour.
+// haven't uploaded a photo: on yellow by default, or (with `pastel`) on a grey or
+// yellow tint picked from their name, so the same person always gets the same colour.
 
 // "Virat Kohli" -> "VK", "Madonna" -> "M"
 const getInitials = (name = '') =>
@@ -9,11 +9,11 @@ const getInitials = (name = '') =>
 
 // [background, text] pairs for pastel avatars
 const PASTELS = [
-    ['bg-data-blue/20', 'text-data-blue'], // blue
-    ['bg-accent/20', 'text-accent'], // peach
-    ['bg-data-mint/20', 'text-data-mint'], // mint
-    ['bg-mauve/35', 'text-ink'], // lavender
-    ['bg-data-pink/20', 'text-data-pink'], // butter
+    ['bg-raised', 'text-ink'], // grey
+    ['bg-accent/20', 'text-accent'], // yellow
+    ['bg-white/15', 'text-ink'], // light grey
+    ['bg-raised', 'text-accent'], // grey + yellow
+    ['bg-accent/10', 'text-ink'], // soft yellow
 ];
 
 const pastelFor = (name = '') => {

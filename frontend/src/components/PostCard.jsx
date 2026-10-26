@@ -194,10 +194,10 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                 >
                     <Heart key={post.isLiked ? 'liked' : 'not'} size={17} className={post.isLiked ? 'like-pop fill-like text-like' : ''} /> {compact(post.likeCount)}
                 </button>
-                <button onClick={() => setCommentsOpen(!commentsOpen)} aria-expanded={commentsOpen} aria-label="Comments" className={`btn px-4 py-2 ${commentsOpen ? 'bg-data-blue/15 text-data-blue' : 'hover:bg-canvas'}`}>
+                <button onClick={() => setCommentsOpen(!commentsOpen)} aria-expanded={commentsOpen} aria-label="Comments" className={`btn px-4 py-2 ${commentsOpen ? 'bg-canvas text-ink' : 'hover:bg-canvas'}`}>
                     <MessageCircle size={17} /> {compact(post.commentCount)}
                 </button>
-                <button onClick={share} className="btn px-4 py-2 hover:bg-canvas hover:text-data-mint">
+                <button onClick={share} className="btn px-4 py-2 hover:bg-canvas">
                     <Share2 size={17} /> <span className="hidden sm:inline">Share</span>
                 </button>
                 <button onClick={toggleSave} aria-pressed={post.isSaved} aria-label={post.isSaved ? 'Remove from saved' : 'Save post'} className={`btn px-3 py-2 ${post.isSaved ? 'bg-highlight/15 text-highlight' : 'hover:bg-canvas'}`}>

@@ -3,7 +3,7 @@
 // unlocked is decided by the server (Backend/utils/dna.util.js).
 
 export const LEVEL_STYLE = {
-    beginner: { label: 'Beginner', chip: 'bg-data-mint/15 text-data-mint', bar: 'bg-data-mint' },
-    intermediate: { label: 'Intermediate', chip: 'bg-data-blue/15 text-data-blue', bar: 'bg-data-blue' },
+    beginner: { label: 'Beginner', chip: 'bg-ok/15 text-ok', bar: 'bg-ok' },
+    intermediate: { label: 'Intermediate', chip: 'bg-warn/15 text-warn', bar: 'bg-warn' },
     advanced: { label: 'Advanced', chip: 'bg-accent/15 text-accent', bar: 'bg-accent' },
 };

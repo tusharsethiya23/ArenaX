@@ -50,29 +50,29 @@ const ProgressChart = ({ history, target }) => {
                     {[0, 5, 10].map((v) => (
                         <g key={v}>
                             <line x1={PAD.left} x2={W - PAD.right} y1={y(v)} y2={y(v)} stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-                            <text x={PAD.left - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fill="rgba(245,242,238,0.65)">{v}</text>
+                            <text x={PAD.left - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#A1A1A1">{v}</text>
                         </g>
                     ))}
 
                     {/* Goal reference line */}
                     {target && (
                         <g>
-                            <line x1={PAD.left} x2={W - PAD.right} y1={y(target)} y2={y(target)} stroke="rgba(245,242,238,0.35)" strokeWidth="1" />
-                            <text x={W - PAD.right + 6} y={y(target) + 4} fontSize="11" fill="rgba(245,242,238,0.65)">Goal {target}</text>
+                            <line x1={PAD.left} x2={W - PAD.right} y1={y(target)} y2={y(target)} stroke="rgba(255,255,255,0.35)" strokeWidth="1" />
+                            <text x={W - PAD.right + 6} y={y(target) + 4} fontSize="11" fill="#A1A1A1">Goal {target}</text>
                         </g>
                     )}
 
-                    {history.length > 1 && <path d={area} fill="#E6F45A" fillOpacity="0.12" />}
-                    {history.length > 1 && <path d={line} fill="none" stroke="#E6F45A" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />}
+                    {history.length > 1 && <path d={area} fill="#FFC21A" fillOpacity="0.12" />}
+                    {history.length > 1 && <path d={line} fill="none" stroke="#FFC21A" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />}
 
                     {/* Crosshair */}
                     {hover !== null && (
-                        <line x1={points[hover][0]} x2={points[hover][0]} y1={PAD.top} y2={y(0)} stroke="#F5F2EE" strokeOpacity="0.25" strokeWidth="1" />
+                        <line x1={points[hover][0]} x2={points[hover][0]} y1={PAD.top} y2={y(0)} stroke="#FFFFFF" strokeOpacity="0.25" strokeWidth="1" />
                     )}
 
                     {/* End dot (2px surface ring) + its value; hovered dot */}
                     {[history.length - 1, ...(hover !== null && hover !== history.length - 1 ? [hover] : [])].map((i) => (
-                        <circle key={i} cx={points[i][0]} cy={points[i][1]} r="5" fill="#E6F45A" stroke="#2A2624" strokeWidth="2" />
+                        <circle key={i} cx={points[i][0]} cy={points[i][1]} r="5" fill="#FFC21A" stroke="#121212" strokeWidth="2" />
                     ))}
                     {/* Latest value; drops below the dot when it would collide with the goal label */}
                     <text
@@ -80,14 +80,14 @@ const ProgressChart = ({ history, target }) => {
                         y={points.at(-1)[1] + (target && Math.abs(target - last.overall) < 1 ? 18 : -8)}
                         fontSize="12"
                         fontWeight="700"
-                        fill="#F5F2EE"
+                        fill="#FFFFFF"
                     >
                         {last.overall}
                     </text>
 
                     {/* First and last dates */}
-                    <text x={points[0][0]} y={H - 8} textAnchor={history.length === 1 ? 'middle' : 'start'} fontSize="11" fill="rgba(245,242,238,0.65)">{fmtDate(history[0].date)}</text>
-                    {history.length > 1 && <text x={points.at(-1)[0]} y={H - 8} textAnchor="end" fontSize="11" fill="rgba(245,242,238,0.65)">{fmtDate(last.date)}</text>}
+                    <text x={points[0][0]} y={H - 8} textAnchor={history.length === 1 ? 'middle' : 'start'} fontSize="11" fill="#A1A1A1">{fmtDate(history[0].date)}</text>
+                    {history.length > 1 && <text x={points.at(-1)[0]} y={H - 8} textAnchor="end" fontSize="11" fill="#A1A1A1">{fmtDate(last.date)}</text>}
                 </svg>
 
                 {/* Tooltip: one line, above the point; anchored left/right near the edges so it stays inside */}

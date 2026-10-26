@@ -89,7 +89,7 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
                     <div className="absolute right-4 top-4 flex gap-2">
                         {follow.isFollowing && (
                             <Link to={`/messages/${coach._id}`} aria-label={`Message ${coach.name}`} className="btn bg-panel/90 px-4 text-white hover:bg-panel">
-                                <MessageCircle size={16} className="text-data-blue" /> Message
+                                <MessageCircle size={16} /> Message
                             </Link>
                         )}
                         <button

@@ -4,10 +4,10 @@
 import { Trophy, Users, Award, Timer, Medal } from 'lucide-react';
 
 export const CATEGORIES = [
-    { key: 'competition', label: 'Competition result', icon: Trophy, tone: 'text-highlight' },
-    { key: 'selection', label: 'Team / squad selection', icon: Users, tone: 'text-data-blue' },
-    { key: 'certification', label: 'Certification', icon: Award, tone: 'text-data-mint' },
-    { key: 'record', label: 'Personal or club record', icon: Timer, tone: 'text-data-pink' },
+    { key: 'competition', label: 'Competition result', icon: Trophy, tone: 'text-accent' },
+    { key: 'selection', label: 'Team / squad selection', icon: Users, tone: 'text-accent' },
+    { key: 'certification', label: 'Certification', icon: Award, tone: 'text-accent' },
+    { key: 'record', label: 'Personal or club record', icon: Timer, tone: 'text-accent' },
     { key: 'award', label: 'Award', icon: Medal, tone: 'text-accent' },
 ];
 export const CATEGORY_BY_KEY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));

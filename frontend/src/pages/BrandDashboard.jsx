@@ -85,7 +85,7 @@ const BrandDashboard = () => {
         </label>
         <span className="mx-4 h-px bg-line sm:mx-0 sm:h-8 sm:w-px" />
         <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2.5">
-          <MapPin size={18} className="shrink-0 text-data-pink" />
+          <MapPin size={18} className="shrink-0 text-muted" />
           <input
             placeholder="Location"
             value={filters.location}

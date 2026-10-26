@@ -16,4 +16,4 @@ export const TONES = {
 };
 
 // Fixed order for lists of stats, so the same position always gets the same colour
-export const STAT_TONES = ['blue', 'pink', 'mint', 'accent'];
+export const STAT_TONES = ['accent', 'accent', 'accent', 'accent'];

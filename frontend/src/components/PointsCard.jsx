@@ -9,7 +9,7 @@ import usePoints from '../hooks/usePoints';
 import { timeAgo } from '../utils/format';
 import { toast } from '../utils/dialogs';
 
-const REASON_TONE = { streak: 'text-accent', session: 'text-data-mint', post: 'text-data-blue', referral: 'text-data-pink' };
+const REASON_TONE = { streak: 'text-accent', session: 'text-accent', post: 'text-accent', referral: 'text-accent' };
 
 const PointsCard = () => {
     const { points, streak, inviteCode, earn, history, loaded } = usePoints();

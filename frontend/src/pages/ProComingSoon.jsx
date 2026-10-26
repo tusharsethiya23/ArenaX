@@ -12,9 +12,9 @@ import { toastError } from '../utils/dialogs';
 
 const FEATURES = [
     { icon: BrainCircuit, tone: 'bg-accent/15 text-accent', title: 'Personal AI training plans', text: 'A new plan every week, built from your DNA, sessions and drills.' },
-    { icon: Video, tone: 'bg-data-blue/15 text-data-blue', title: 'Video technique analysis', text: 'Upload a clip and get feedback on your form from the AI coach.' },
-    { icon: LineChart, tone: 'bg-data-mint/15 text-data-mint', title: 'Deeper DNA insights', text: 'See how you compare with athletes already at your target level.' },
-    { icon: CalendarCheck, tone: 'bg-data-pink/15 text-data-pink', title: 'Priority booking', text: 'First pick of new slots from the most popular coaches.' },
+    { icon: Video, tone: 'bg-accent/15 text-accent', title: 'Video technique analysis', text: 'Upload a clip and get feedback on your form from the AI coach.' },
+    { icon: LineChart, tone: 'bg-accent/15 text-accent', title: 'Deeper DNA insights', text: 'See how you compare with athletes already at your target level.' },
+    { icon: CalendarCheck, tone: 'bg-accent/15 text-accent', title: 'Priority booking', text: 'First pick of new slots from the most popular coaches.' },
     { icon: Rocket, tone: 'bg-highlight/15 text-highlight', title: 'Coach growth tools', text: 'For coaches: detailed stats and a boost in Discover.' },
     { icon: BadgeCheck, tone: 'bg-accent/15 text-accent', title: 'Pro badge', text: 'Show it on your profile and posts.' },
 ];
