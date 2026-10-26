@@ -32,6 +32,8 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
     const [pick, setPick] = useState(() => nextOpenSlot(availability, coach.takenSlots, DAY_TABS));
     const [booking, setBooking] = useState(false);
     const [message, setMessage] = useState(null); // { text, error }
+    // Photo URL that failed to load (deleted or broken link): show the backdrop instead
+    const [failedPhoto, setFailedPhoto] = useState(null);
     const [followers, setFollowers] = useState([]);
     const [showFollowers, setShowFollowers] = useState(false);
 
@@ -70,9 +72,9 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
 
             {/* ---------- Header image ---------- */}
             <div className="relative h-56 overflow-hidden rounded-[26px] sm:h-64">
-                {coach.profilePhoto ? (
+                {coach.profilePhoto && coach.profilePhoto !== failedPhoto ? (
                     <>
-                        <img src={coach.profilePhoto} alt={coach.name} className="absolute inset-0 h-full w-full object-cover" />
+                        <img src={coach.profilePhoto} alt={coach.name} onError={() => setFailedPhoto(coach.profilePhoto)} className="absolute inset-0 h-full w-full object-cover" />
                         <div className="absolute inset-0 bg-black/30" />
                     </>
                 ) : (

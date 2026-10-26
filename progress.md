@@ -23,6 +23,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 **Yellow pills are now outlined**
 - Every yellow pill (main buttons such as Search, Book session, Register team, Log in; selected chips; Joining as; the selected booking slot) has no yellow fill any more: a thin (1px) yellow border with white text. On hover it fills solid yellow with black text (counts and icons inside turn black too); clicking darkens it slightly and presses it in. All other pills and chips also press in when clicked. One shared CSS rule: `.btn-dark`, `.btn-lime`, `.chip-active`, `.pill-selected` in `index.css`.
 
+**Fix: broken profile photos**
+- When a profile photo link no longer loads (for example the file was deleted), avatars now show the person's initials instead of a broken-image icon with cut-off text. The coach profile card shows the stadium backdrop instead. Tested by making every photo link fail: no broken images left, initials everywhere.
+
 **Navbar active link back to solid yellow**
 - The navbar keeps its small solid yellow pill with black text for the active link (the outline style is for buttons and chips only).
 
