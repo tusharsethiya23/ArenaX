@@ -31,7 +31,7 @@ const AiAssistantButton = () => {
                 role="dialog"
                 aria-label="AI coach"
                 inert={!open}
-                className={`fixed bottom-[8.5rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-popover shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out lg:bottom-20 lg:right-8 lg:max-h-[calc(100dvh-80px-6.5rem)] ${
+                className={`fixed bottom-[8.5rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-popover shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out md:bottom-20 md:right-6 md:max-h-[calc(100dvh-80px-6.5rem)] lg:right-10 ${
                     open ? 'visible translate-y-0 opacity-100' : 'invisible translate-y-6 opacity-0'
                 }`}
             >
@@ -58,12 +58,12 @@ const AiAssistantButton = () => {
                 onClick={() => setOpen(!open)}
                 aria-label={open ? 'Close AI coach' : 'Ask AI coach'}
                 aria-expanded={open}
-                className="fixed bottom-20 right-4 z-50 flex h-10 items-center gap-1.5 rounded-full border border-white/10 bg-panel p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition-transform active:scale-95 lg:bottom-6 lg:right-8 lg:pr-3.5"
+                className="fixed bottom-20 right-4 z-50 flex h-10 items-center gap-1.5 rounded-full border border-white/10 bg-panel p-1 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] transition-transform active:scale-95 md:bottom-6 md:right-6 md:pr-3.5 lg:right-10"
             >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-on-ink">
                     {open ? <X size={14} /> : <Sparkles size={14} />}
                 </span>
-                <span className="hidden whitespace-nowrap text-[13px] font-semibold lg:block">
+                <span className="hidden whitespace-nowrap text-[13px] font-semibold md:block">
                     {open ? 'Close' : 'Ask AI coach'}
                 </span>
             </button>

@@ -1,6 +1,6 @@
 // MobileTabBar.jsx
-// Bottom tab bar on phones and tablets (below lg), where the left sidebar is
-// hidden. Main destinations from navLinks.js. The active tab's
+// Bottom tab bar shown below the md breakpoint, replacing the navbar's center
+// links. Same destinations as desktop (from navLinks.js). The active tab's
 // icon is yellow; the "Post" action in the middle is a raised round
 // yellow button.
 
@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import NAV_LINKS from './navLinks';
 
 const MobileTabBar = () => (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-smoke-side/95 pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-smoke-side/95 pb-[env(safe-area-inset-bottom)] md:hidden">
         <div className="grid h-16 grid-cols-5">
             {NAV_LINKS.map(({ to, label, icon: Icon, end, accent }) =>
                 accent ? (

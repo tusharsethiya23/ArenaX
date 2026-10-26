@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import AppSidebar from './components/AppSidebar';
 import MobileTabBar from './components/MobileTabBar';
 import AiAssistantButton from './components/AiAssistantButton';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -47,12 +46,9 @@ function App() {
   const { pathname } = useLocation();
   return (
     <>
-      {/* Desktop: fixed left sidebar; the top bar and pages sit to its right */}
-      {user && <AppSidebar />}
-      <div className={user ? 'lg:pl-[230px]' : ''}>
       <Navbar />
-      {/* Below lg, leave room at the bottom for the fixed tab bar */}
-      <main className={user ? 'pb-16 lg:pb-0' : ''}>
+      {/* On mobile, leave room at the bottom for the fixed tab bar */}
+      <main className={user ? 'pb-16 md:pb-0' : ''}>
       <PageErrorBoundary resetKey={pathname}>
       <Suspense fallback={<p className="empty-state" role="status">Loading...</p>}>
       <Routes>
@@ -243,9 +239,8 @@ function App() {
       </Suspense>
       </PageErrorBoundary>
       </main>
-      </div>
 
-      {/* Logged-in extras: bottom tabs (below lg) and the floating AI coach (every page) */}
+      {/* Logged-in extras: bottom tabs (mobile) and the floating AI coach (every page) */}
       {user && (
         <>
           <MobileTabBar />
