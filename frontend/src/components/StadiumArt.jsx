@@ -1,38 +1,13 @@
 // StadiumArt.jsx
-// Decorative floodlit-stadium backdrop drawn with CSS gradients (no image
-// files): night sky, two floodlights, a striped pitch and (optionally) a
-// player silhouette and a fade into black on the left so text can sit on top.
+// Black-and-white sports photo used as a backdrop (auth pages, coach profile
+// header), dimmed with a flat dark layer so text on top stays readable.
+// Photos live in public/images (credits in public/images/CREDITS.md).
 // Purely visual, so it's hidden from screen readers.
 
-const StadiumArt = ({ className = '', silhouette = true, fade = true }) => (
+const StadiumArt = ({ className = '', src = '/images/stadium.jpg', dim = 'bg-black/55' }) => (
     <div aria-hidden="true" className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
-        {/* Sky */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#141312] via-[#3A2219] to-[#2A2624]" />
-
-        {/* Floodlights */}
-        <div className="absolute left-[12%] top-[2%] h-28 w-56 rounded-full bg-white/60 blur-3xl" />
-        <div className="absolute right-[6%] top-[0%] h-24 w-52 rounded-full bg-white/50 blur-3xl" />
-
-        {/* Pitch with mowing stripes */}
-        <div
-            className="absolute inset-x-0 bottom-0 h-[42%]"
-            style={{
-                background:
-                    'repeating-linear-gradient(90deg, #2A2624 0 9%, #242120 9% 18%)',
-            }}
-        />
-        <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-b from-transparent to-black/40" />
-
-        {/* Player silhouette */}
-        {silhouette && (
-            <div className="absolute bottom-0 left-[16%] flex flex-col items-center">
-                <div className="h-16 w-16 rounded-full bg-[#141312] sm:h-20 sm:w-20" />
-                <div className="mt-2 h-40 w-36 rounded-t-[64px] bg-[#141312] sm:h-48 sm:w-44" />
-            </div>
-        )}
-
-        {/* Fade to black on the left, where a headline sits */}
-        {fade && <div className="absolute inset-0 bg-gradient-to-r from-panel via-panel/40 to-transparent" />}
+        <img src={src} alt="" className="photo h-full w-full" />
+        {dim && <div className={`absolute inset-0 ${dim}`} />}
     </div>
 );
 

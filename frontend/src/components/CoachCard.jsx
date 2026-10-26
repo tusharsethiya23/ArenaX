@@ -25,7 +25,7 @@ const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFoll
     const profileUrl = `/profile-view/${coach._id}`;
 
     return (
-        <article className="flex flex-col rounded-[28px] bg-surface p-5">
+        <article className="flex flex-col rounded-2xl bg-surface p-5">
             {/* ---------- Header: avatar + name link to the profile ---------- */}
             <div className="flex items-start gap-3">
                 <Link to={profileUrl} aria-label={`${coach.name}'s profile`} className="shrink-0 rounded-full transition-opacity hover:opacity-85">
@@ -54,7 +54,7 @@ const CoachCard = ({ coach, match, followState = 'none', canFollow, onToggleFoll
                     <button
                         onClick={() => onToggleFollow(coach._id)}
                         aria-label={{ following: `Unfollow ${coach.name}`, requested: `Cancel follow request to ${coach.name}` }[followState] || `Follow ${coach.name}`}
-                        className={`btn shrink-0 px-4 py-2 ${followState === 'none' ? 'btn-dark' : 'btn-soft'}`}
+                        className={`btn shrink-0 px-4 py-2 ${followState === 'none' ? 'btn-follow' : 'btn-following'}`}
                     >
                         {followState === 'following' && <><Check size={15} /> Following</>}
                         {followState === 'requested' && <><Hourglass size={15} /> Requested</>}

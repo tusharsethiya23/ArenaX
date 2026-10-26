@@ -119,7 +119,7 @@ const Tournaments = () => {
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {tournaments.map((t, i) => (
-            <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
+            <div key={t._id} className="flex flex-col rounded-2xl bg-surface p-5">
               <div className="flex items-start justify-between gap-3">
                 {/* Start date tile, like the Upcoming sessions list */}
                 <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${i === 0 ? 'bg-ink text-on-ink' : 'bg-canvas'}`}>

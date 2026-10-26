@@ -20,12 +20,12 @@ const MessagesButton = () => {
             aria-label={label}
             title="Messages"
             className={({ isActive }) =>
-                `nav-glass relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${isActive ? 'text-data-blue' : 'text-ink hover:text-data-blue'}`
+                `nav-glass relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${isActive ? 'text-brand' : 'text-ink hover:text-brand'}`
             }
         >
             <Send size={18} strokeWidth={1.8} className="-translate-x-px translate-y-px" />
             {unreadChats > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold leading-none text-on-ink ring-2 ring-smoke-side">
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-like px-1 text-[11px] font-bold leading-none text-white ring-2 ring-smoke-side">
                     {unreadChats > 9 ? '9+' : unreadChats}
                 </span>
             )}

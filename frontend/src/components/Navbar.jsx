@@ -3,8 +3,8 @@
 // the links pill and the right-hand buttons are drawn (each is its own glass piece).
 // It hides while scrolling down and reappears on any scroll up (useHideOnScroll).
 //   LEFT:   logo (black square with lime X + "ARENA X")
-//   CENTER: the 4 primary links inside a glass pill; the active one is
-//           tinted in its own colour (desktop only; mobile uses MobileTabBar)
+//   CENTER: the 4 primary links inside a pill; the active one is white with a
+//           yellow underline (desktop only; mobile uses MobileTabBar)
 //   RIGHT:  notification bell + messages (chat) button + profile pill
 //           (or Log in / Join when logged out)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
@@ -16,7 +16,6 @@ import Logo from './Logo';
 import NotificationBell from './NotificationBell';
 import MessagesButton from './MessagesButton';
 import UserMenu from './UserMenu';
-import { toneFor } from '../utils/tones';
 import useHideOnScroll from '../hooks/useHideOnScroll';
 import { canAccess } from '../utils/access';
 
@@ -49,13 +48,7 @@ const Navbar = () => {
                                     to={to}
                                     aria-label="New post"
                                     title="New post"
-                                    className={({ isActive }) =>
-                                        `mx-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
-                                            isActive
-                                                ? 'bg-ink text-on-ink'
-                                                : 'bg-white text-on-ink shadow-[0_4px_16px_rgba(255,122,47,0.35)] hover:shadow-[0_6px_22px_rgba(255,122,47,0.55)]'
-                                        }`
-                                    }
+                                    className="mx-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-on-ink transition-all duration-200 hover:scale-110 active:scale-95"
                                 >
                                     <Icon size={22} strokeWidth={2.75} />
                                 </NavLink>
@@ -67,8 +60,8 @@ const Navbar = () => {
                                     aria-label={label}
                                     title={label}
                                     className={({ isActive }) =>
-                                        `flex h-11 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors lg:px-3 xl:px-5 xl:text-[15px] ${
-                                            isActive ? `${toneFor(to).soft} ${toneFor(to).text}` : 'text-muted hover:text-ink'
+                                        `relative flex h-11 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors lg:px-3 xl:px-5 xl:text-[15px] ${
+                                            isActive ? 'text-ink after:absolute after:inset-x-5 after:bottom-1 after:h-0.5 after:rounded-full after:bg-brand' : 'text-muted hover:text-ink'
                                         }`
                                     }
                                 >

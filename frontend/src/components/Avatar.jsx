@@ -24,7 +24,7 @@ const pastelFor = (name = '') => {
 
 const Avatar = ({ name, photo, pastel = false, className = 'h-10 w-10 text-sm' }) => {
     if (photo) {
-        return <img src={photo} alt={name} className={`${className} shrink-0 rounded-full object-cover`} />;
+        return <img src={photo} alt={name} className={`${className} photo shrink-0 rounded-full`} />;
     }
     const [bg, text] = pastel ? pastelFor(name) : ['bg-accent', 'text-on-ink'];
     return (

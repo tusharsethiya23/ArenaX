@@ -14,7 +14,7 @@ const VerificationStatus = ({ achievement: a }) => {
     }
     if (a.status === 'pending') {
         return (
-            <span className="badge gap-1 bg-accent/15 text-accent">
+            <span className="badge gap-1 bg-warn/15 text-warn">
                 <Hourglass size={13} /> Waiting for {a.requestedFrom?.name || 'ArenaX team'}
             </span>
         );

@@ -66,21 +66,21 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
         : follow.followers > 0 ? <><b>{compact(follow.followers)}</b> {follow.followers === 1 ? 'person follows' : 'people follow'}</> : 'No followers yet';
 
     return (
-        <article className="overflow-hidden rounded-[32px] bg-surface p-3 sm:p-4">
+        <article className="overflow-hidden rounded-2xl bg-surface p-3 sm:p-4">
 
             {/* ---------- Header image ---------- */}
             <div className="relative h-56 overflow-hidden rounded-[26px] sm:h-64">
                 {coach.profilePhoto ? (
                     <>
-                        <img src={coach.profilePhoto} alt={coach.name} className="absolute inset-0 h-full w-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+                        <img src={coach.profilePhoto} alt={coach.name} className="photo absolute inset-0 h-full w-full" />
+                        <div className="absolute inset-0 bg-black/30" />
                     </>
                 ) : (
-                    <StadiumArt silhouette={false} fade={false} />
+                    <StadiumArt dim="bg-black/35" />
                 )}
 
                 {coach.sport && (
-                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-popover px-4 py-2 text-sm font-semibold backdrop-blur-md">
+                    <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-popover px-4 py-2 text-sm font-semibold">
                         <span aria-hidden="true">{sportEmoji(coach.sport)}</span> {coach.sport}
                     </span>
                 )}

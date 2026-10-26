@@ -19,7 +19,7 @@ const AiAssistant = () => (
             </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-[28px] bg-surface">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-2xl bg-surface">
             <AiChat />
         </div>
     </div>

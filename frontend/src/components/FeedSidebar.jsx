@@ -16,7 +16,7 @@ import usePoints from '../hooks/usePoints';
 import useFollow from '../hooks/useFollow';
 import { compact } from '../utils/format';
 import { hasStarted } from '../utils/sessions';
-import { toneFor, TONES, STAT_TONES } from '../utils/tones';
+import { TONES, STAT_TONES } from '../utils/tones';
 import useInbox from '../hooks/useInbox';
 import { canAccess } from '../utils/access';
 
@@ -99,12 +99,12 @@ const FeedSidebar = ({ profile, bookings }) => {
                         to={to}
                         end={end}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-colors ${isActive ? toneFor(to).soft : 'hover:bg-canvas'}`
+                            `relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-canvas text-ink before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r before:bg-brand' : 'text-muted hover:bg-canvas hover:text-ink'}`
                         }
                     >
-                        <Icon size={18} strokeWidth={1.8} className={toneFor(to).text} />
+                        <Icon size={18} strokeWidth={1.8} />
                         <span className="flex-1">{label}</span>
-                        {badge > 0 && <span className="badge bg-white px-2 py-0.5 text-on-ink">{badge}</span>}
+                        {badge > 0 && <span className="badge bg-like px-2 py-0.5 text-white">{badge}</span>}
                     </NavLink>
                 ))}
             </nav>

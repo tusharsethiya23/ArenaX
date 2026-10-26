@@ -71,7 +71,7 @@ const Chat = () => {
         <h1 className="text-2xl font-extrabold tracking-tight">Chat</h1>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] bg-surface">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-surface">
         <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
           {messages.length === 0 && (
             <p className="py-10 text-center text-sm text-muted">No messages yet. Say hello!</p>

@@ -31,7 +31,7 @@ const AiAssistantButton = () => {
                 role="dialog"
                 aria-label="AI coach"
                 inert={!open}
-                className={`fixed bottom-[8.5rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] border border-line bg-popover shadow-[0_25px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-300 ease-out md:bottom-20 md:right-6 md:max-h-[calc(100dvh-80px-6.5rem)] lg:right-10 ${
+                className={`fixed bottom-[8.5rem] right-4 z-50 flex h-[540px] max-h-[calc(100dvh-80px-10rem)] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-popover shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out md:bottom-20 md:right-6 md:max-h-[calc(100dvh-80px-6.5rem)] lg:right-10 ${
                     open ? 'visible translate-y-0 opacity-100' : 'invisible translate-y-6 opacity-0'
                 }`}
             >

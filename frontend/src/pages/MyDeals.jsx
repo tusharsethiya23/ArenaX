@@ -50,7 +50,7 @@ const MyDeals = () => {
           {deals.map((d) => (
             <div
               key={d._id}
-              className="flex flex-col gap-4 rounded-[28px] bg-surface p-5 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-2xl bg-surface p-5 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <p className="font-semibold">{d.brand?.companyName}</p>

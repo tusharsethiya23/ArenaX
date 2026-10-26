@@ -115,11 +115,11 @@ const DirectChat = () => {
             </div>
 
             {/* ---------- Messages ---------- */}
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] bg-surface">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-surface">
                 {/* The marketplace item this chat is about ("Contact seller") */}
                 {chat?.listing && (
                     <Link to="/marketplace" className="flex items-center gap-3 border-b border-line px-4 py-3 transition-colors hover:bg-canvas">
-                        {chat.listing.photo && <img src={chat.listing.photo} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />}
+                        {chat.listing.photo && <img src={chat.listing.photo} alt="" className="photo h-11 w-11 shrink-0 rounded-xl" />}
                         <span className="min-w-0">
                             <span className="flex items-center gap-1.5 text-xs text-muted"><Tag size={12} className="text-data-mint" /> Asking about</span>
                             <span className="block truncate text-sm font-semibold">{chat.listing.title}</span>

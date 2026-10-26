@@ -53,7 +53,7 @@ const Modal = ({ title, description, icon, onClose, children, alert = false, cla
 
     return createPortal(
         <div
-            className="modal-backdrop fixed inset-0 z-60 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
+            className="modal-backdrop fixed inset-0 z-60 flex items-end justify-center bg-black/60 p-4 sm:items-center"
             onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
             <div
@@ -63,7 +63,7 @@ const Modal = ({ title, description, icon, onClose, children, alert = false, cla
                 aria-labelledby={titleId}
                 aria-describedby={description ? descId : undefined}
                 tabIndex={-1}
-                className={`modal-panel relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-[28px] border border-line bg-popover shadow-[0_24px_60px_rgba(0,0,0,0.5)] outline-none ${className}`}
+                className={`modal-panel relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-2xl border border-line bg-popover shadow-[0_24px_60px_rgba(0,0,0,0.5)] outline-none ${className}`}
             >
                 <div className="px-6 pb-2 pt-6">
                     {icon && <div className="mb-4">{icon}</div>}

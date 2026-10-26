@@ -103,7 +103,7 @@ const CreatePost = ({ onPostCreated }) => {
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {images.map((img, i) => (
                         <div key={img.preview} className="relative">
-                            <img src={img.preview} alt={`Selected ${i + 1}`} className="aspect-square w-full rounded-2xl object-cover" />
+                            <img src={img.preview} alt={`Selected ${i + 1}`} className="photo aspect-square w-full rounded-xl" />
                             <button
                                 type="button"
                                 onClick={() => removeImage(i)}

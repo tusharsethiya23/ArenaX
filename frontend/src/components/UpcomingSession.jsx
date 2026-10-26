@@ -23,7 +23,7 @@ const UpcomingSession = ({ className = '' }) => {
     const date = booking.date && fromISODate(booking.date);
 
     return (
-        <Link to="/calendar" className={`group flex items-center gap-4 rounded-[28px] bg-surface p-4 ${className}`}>
+        <Link to="/calendar" className={`group flex items-center gap-4 rounded-2xl bg-surface p-4 ${className}`}>
             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink text-on-ink">
                 <span className="text-base font-extrabold leading-none">
                     {date ? date.getDate() : booking.day?.slice(0, 3).toUpperCase()}

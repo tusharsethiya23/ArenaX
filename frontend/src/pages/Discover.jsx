@@ -58,7 +58,7 @@ const LEVEL_OPTIONS = [
 ];
 
 const PromoCard = ({ showPro, user }) => (
-    <section className="flex flex-col justify-between rounded-[32px] bg-surface p-6 text-ink backdrop-blur-2xl sm:p-8">
+    <section className="flex flex-col justify-between rounded-2xl bg-surface p-6 text-ink sm:p-8">
         {showPro ? (
             <>
                 <div>
@@ -92,7 +92,7 @@ const FiltersButton = ({ filters, setFilters }) => {
                 <SlidersHorizontal size={15} /> Filters{active > 0 && <span className="badge bg-white px-2 py-0 text-on-ink">{active}</span>}
             </button>
             {open && (
-                <div className="absolute right-0 top-full z-30 mt-2 w-64 space-y-4 rounded-3xl border border-line bg-popover p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                <div className="absolute right-0 top-full z-30 mt-2 w-64 space-y-4 rounded-3xl border border-line bg-popover p-5 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
                     <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
                         Open slot in the next 2 weeks
                         <input
@@ -327,7 +327,7 @@ const Discover = () => {
                             <button key={s} onClick={() => setSportChip(s)} className={`chip gap-1.5 ${sportChip === s ? 'chip-active' : ''}`}>
                                 {s !== 'All' && <span aria-hidden="true">{sportEmoji(s)}</span>}
                                 {s}
-                                <span className={sportChip === s ? 'text-accent/75' : 'text-muted'}>
+                                <span className={sportChip === s ? 'text-on-ink/60' : 'text-muted'}>
                                     {s === 'All' ? coaches.length : sportCounts[s]}
                                 </span>
                             </button>

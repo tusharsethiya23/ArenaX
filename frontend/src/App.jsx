@@ -5,7 +5,6 @@ import MobileTabBar from './components/MobileTabBar';
 import AiAssistantButton from './components/AiAssistantButton';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageErrorBoundary from './components/PageErrorBoundary';
-import BackgroundGlow from './components/BackgroundGlow';
 import DialogHost from './components/DialogHost';
 import ProfileSync from './components/ProfileSync';
 import RealtimeConnection from './components/RealtimeConnection';
@@ -47,7 +46,6 @@ function App() {
   const { pathname } = useLocation();
   return (
     <>
-      <BackgroundGlow />
       <Navbar />
       {/* On mobile, leave room at the bottom for the fixed tab bar */}
       <main className={user ? 'pb-16 md:pb-0' : ''}>

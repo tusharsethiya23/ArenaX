@@ -13,7 +13,6 @@ import { useAuth } from '../context/AuthContext';
 import useDismiss from '../hooks/useDismiss';
 import usePoints from '../hooks/usePoints';
 import Avatar from './Avatar';
-import { toneFor } from '../utils/tones';
 import useInbox from '../hooks/useInbox';
 import { canAccess } from '../utils/access';
 
@@ -111,9 +110,9 @@ const UserMenu = () => {
                                 onClick={close}
                                 className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-canvas"
                             >
-                                <Icon size={17} strokeWidth={1.8} className={toneFor(to).text} />
+                                <Icon size={17} strokeWidth={1.8} className="text-muted" />
                                 <span className="flex-1">{label}</span>
-                                {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-on-ink">{badge > 99 ? '99+' : badge}</span>}
+                                {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-like px-1.5 text-[11px] font-bold text-white">{badge > 99 ? '99+' : badge}</span>}
                                 {tag && <span className="badge bg-highlight/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-highlight">{tag}</span>}
                             </Link>
                         ))}

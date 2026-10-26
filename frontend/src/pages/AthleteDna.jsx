@@ -56,7 +56,7 @@ const Onboarding = ({ dna, onDone }) => {
     const [goal, setGoal] = useState(dna.goal?.key || null);
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <section className="rounded-[32px] bg-panel p-6 text-white sm:p-8">
+            <section className="rounded-2xl bg-panel p-6 text-white sm:p-8">
                 <p className="text-xs font-bold uppercase tracking-wider text-highlight">Athlete DNA</p>
                 <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter sm:text-4xl">Where am I? Where do I want to go? What should I do next?</h2>
                 <ol className="mt-6 space-y-3 text-sm text-white/80">
@@ -171,7 +171,7 @@ const AthleteDna = () => {
 
                     {/* ---------- Headline numbers ---------- */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <section className="rounded-[28px] bg-panel p-5 text-white">
+                        <section className="rounded-2xl bg-panel p-5 text-white">
                             <p className="text-sm text-white/60">Career readiness</p>
                             <p className="mt-1 text-5xl font-black tracking-tighter text-highlight">{dna.readiness ?? '—'}{dna.readiness !== null && <span className="text-2xl">%</span>}</p>
                             <p className="mt-1 text-sm text-white/70">{dna.goal ? `for ${dna.goal.label}` : 'Pick a goal to see this'}</p>

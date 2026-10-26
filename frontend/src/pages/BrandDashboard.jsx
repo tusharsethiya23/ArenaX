@@ -101,7 +101,7 @@ const BrandDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {talent.map((t) => (
-            <div key={t._id} className="flex flex-col rounded-[28px] bg-surface p-5">
+            <div key={t._id} className="flex flex-col rounded-2xl bg-surface p-5">
               <div className="flex items-center gap-3">
                 <Avatar name={t.name} photo={t.profilePhoto} className="h-14 w-14 text-base" />
                 <div className="min-w-0 flex-1">

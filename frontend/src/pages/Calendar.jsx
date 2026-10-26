@@ -27,7 +27,7 @@ const Section = ({ title, items, empty, children, ...card }) => {
                 {title} {items.length > 0 && <span className="badge bg-surface px-2 py-0.5 text-ink">{items.length}</span>}
             </h2>
             {items.length === 0 ? (
-                <p className="rounded-[28px] bg-surface px-5 py-6 text-sm text-muted">{empty}</p>
+                <p className="rounded-2xl bg-surface px-5 py-6 text-sm text-muted">{empty}</p>
             ) : (
                 <div className="space-y-3">
                     {items.map((b) => <SessionCard key={b._id} booking={b} {...card} />)}

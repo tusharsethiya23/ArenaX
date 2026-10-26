@@ -43,9 +43,9 @@ const ContactButton = ({ listing, me, className = '' }) => (String(listing.selle
 
 // ---------- One card in the grid ----------
 const ListingCard = ({ listing, me, onOpen }) => (
-    <article className="flex flex-col overflow-hidden rounded-[28px] bg-surface">
+    <article className="flex flex-col overflow-hidden rounded-2xl bg-surface">
         <button onClick={() => onOpen(listing)} className="relative block aspect-[4/3] w-full overflow-hidden bg-canvas text-left" aria-label={`Open ${listing.title}`}>
-            <img src={listing.photos[0]} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]" />
+            <img src={listing.photos[0]} alt="" loading="lazy" className="photo h-full w-full transition-transform duration-300 hover:scale-[1.03]" />
             {listing.photos.length > 1 && <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-white">1/{listing.photos.length}</span>}
             {listing.status === 'sold' && <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-on-ink">Sold</span>}
         </button>
@@ -173,7 +173,7 @@ const NewListingForm = ({ me, onClose, onCreated }) => {
                     <div className="grid grid-cols-4 gap-2">
                         {photos.map((p, i) => (
                             <div key={p.preview} className="relative aspect-square overflow-hidden rounded-2xl bg-canvas">
-                                <img src={p.preview} alt="" className="h-full w-full object-cover" />
+                                <img src={p.preview} alt="" className="photo h-full w-full" />
                                 <button type="button" onClick={() => removePhoto(i)} aria-label={`Remove photo ${i + 1}`} className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white">
                                     <X size={13} />
                                 </button>
@@ -258,9 +258,9 @@ const Marketplace = () => {
 
             {/* ---------- Filters ---------- */}
             <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center">
-                <div className="flex gap-2">
+                <div className="flex gap-6 border-b border-line">
                     {[['all', 'All listings'], ['mine', 'My listings']].map(([id, label]) => (
-                        <button key={id} onClick={() => setTab(id)} className={`chip ${tab === id ? 'chip-active' : ''}`}>{label}</button>
+                        <button key={id} onClick={() => setTab(id)} className={`tab ${tab === id ? 'tab-active' : ''}`}>{label}</button>
                     ))}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row md:justify-end">

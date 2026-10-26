@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api/axios';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import Avatar from './Avatar';
 import useFollowRequests from '../hooks/useFollowRequests';
 import { fromISODate } from '../utils/slots';
@@ -17,7 +17,7 @@ import { compact } from '../utils/format';
 import { toastError } from '../utils/dialogs';
 
 const STATUS_BADGE = {
-    pending: 'bg-accent/15 text-accent',
+    pending: 'bg-warn/15 text-warn',
     confirmed: 'bg-data-mint/15 text-data-mint',
 };
 
@@ -191,9 +191,9 @@ const CoachesToFollow = ({ followState, onToggleFollow }) => {
                             <button
                                 onClick={() => onToggleFollow(c._id)}
                                 aria-label={{ following: `Unfollow ${c.name}`, requested: `Cancel follow request to ${c.name}` }[state] || `Follow ${c.name}`}
-                                className={`btn shrink-0 border px-4 py-2 ${state === 'none' ? 'border-line hover:border-ink' : 'border-transparent bg-canvas'}`}
+                                className={`btn shrink-0 px-4 py-2 ${state === 'none' ? 'btn-follow' : 'btn-following'}`}
                             >
-                                {FOLLOW_LABEL[state]}
+                                {state === 'following' && <Check size={15} />}{FOLLOW_LABEL[state]}
                             </button>
                         </li>
                     );

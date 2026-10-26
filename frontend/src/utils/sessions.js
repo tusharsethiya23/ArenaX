@@ -4,11 +4,11 @@
 import { fromISODate, slotStartMinutes } from './slots';
 
 export const STATUS = {
-    pending: { label: 'Requested', className: 'bg-accent/15 text-accent' },
-    confirmed: { label: 'Confirmed', className: 'bg-data-mint/15 text-data-mint' },
-    completed: { label: 'Completed', className: 'bg-white/[0.08] text-ink/65' },
-    declined: { label: 'Declined', className: 'bg-danger/10 text-danger' },
-    cancelled: { label: 'Cancelled', className: 'bg-canvas text-muted' },
+    pending: { label: 'Requested', className: 'bg-warn/15 text-warn' },
+    confirmed: { label: 'Confirmed', className: 'bg-ok/15 text-ok' },
+    completed: { label: 'Completed', className: 'bg-ok/15 text-ok' },
+    declined: { label: 'Declined', className: 'bg-danger/15 text-danger' },
+    cancelled: { label: 'Cancelled', className: 'bg-danger/15 text-danger' },
 };
 
 // "Mon, 27 Oct" (or another format) for a "YYYY-MM-DD" date

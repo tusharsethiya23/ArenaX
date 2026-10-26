@@ -25,7 +25,7 @@ const FollowButton = ({ isFollowing, requested, onClick, disabled, className = '
             <button
                 onClick={() => { setJustFollowed(true); onClick(); }}
                 disabled={disabled}
-                className={`btn btn-dark min-w-[132px] ${className}`}
+                className={`btn btn-follow min-w-[132px] ${className}`}
             >
                 <UserPlus size={16} /> Follow
             </button>
@@ -40,7 +40,7 @@ const FollowButton = ({ isFollowing, requested, onClick, disabled, className = '
             onMouseLeave={() => setJustFollowed(false)}
             disabled={disabled}
             aria-label="Unfollow"
-            className={`btn btn-soft min-w-[132px] ${hoverable ? 'group hover:bg-danger/10 hover:text-danger' : ''} ${className}`}
+            className={`btn btn-following min-w-[132px] ${hoverable ? 'group hover:bg-danger/10 hover:text-danger' : ''} ${className}`}
         >
             <span className="flex items-center gap-2 group-hover:hidden"><UserCheck size={16} /> Following</span>
             <span className="hidden items-center gap-2 group-hover:flex"><UserMinus size={16} /> Unfollow</span>

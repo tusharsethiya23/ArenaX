@@ -48,7 +48,7 @@ const SlotPicker = ({ availability = [], takenSlots = [], dayCount = 14, value, 
                             aria-selected={i === dayIndex}
                             onClick={() => pickDay(i)}
                             className={`-mb-px shrink-0 whitespace-nowrap border-b-2 pb-2.5 font-semibold transition-colors ${
-                                i === dayIndex ? 'border-accent text-accent' : hasOpen ? 'border-transparent text-muted hover:text-ink' : 'border-transparent text-muted/50 hover:text-muted'
+                                i === dayIndex ? 'border-brand text-ink' : hasOpen ? 'border-transparent text-muted hover:text-ink' : 'border-transparent text-muted/50 hover:text-muted'
                             }`}
                         >
                             {d.label}
@@ -74,7 +74,7 @@ const SlotPicker = ({ availability = [], takenSlots = [], dayCount = 14, value, 
                                 title={s.taken ? 'Already booked' : s.past ? 'Already passed' : s.timeSlot}
                                 className={`rounded-2xl px-2 py-3 text-sm font-bold transition-colors ${
                                     isSelected
-                                        ? 'bg-accent/15 text-accent ring-1 ring-inset ring-accent/50'
+                                        ? 'bg-brand text-on-ink'
                                         : unavailable
                                             ? 'cursor-not-allowed bg-canvas/50 text-muted/60 line-through'
                                             : readOnly ? 'cursor-default bg-canvas' : 'bg-canvas hover:bg-white/10'

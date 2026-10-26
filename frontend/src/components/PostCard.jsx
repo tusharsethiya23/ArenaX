@@ -121,7 +121,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
         profileUrl ? <Link to={profileUrl} className={className}>{children}</Link> : <span className={className}>{children}</span>;
 
     return (
-        <article className="rounded-[28px] bg-surface p-5">
+        <article className="rounded-2xl bg-surface p-5">
 
             {/* ================= HEADER ================= */}
             <header className="flex items-start gap-3">
@@ -144,7 +144,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                     <button
                         onClick={() => onToggleFollow(author._id)}
                         aria-label={{ following: `Unfollow ${author.name}`, requested: `Cancel follow request to ${author.name}` }[followState] || `Follow ${author.name}`}
-                        className={`btn shrink-0 px-3 py-1.5 text-[13px] sm:px-4 sm:py-2 sm:text-sm ${followState === 'none' ? 'btn-dark' : 'btn-soft'}`}
+                        className={`btn shrink-0 px-3 py-1.5 text-[13px] sm:px-4 sm:py-2 sm:text-sm ${followState === 'none' ? 'btn-follow' : 'btn-following'}`}
                     >
                         {/* Icons only from sm up, so phones keep room for the author's name */}
                         {followState === 'following' && <><Check size={15} className="hidden sm:block" /> Following</>}
@@ -161,7 +161,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                         <MoreHorizontal size={18} />
                     </button>
                     {menuOpen && (
-                        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-2xl border border-line bg-popover p-1.5 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
+                        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-2xl border border-line bg-popover p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
                             <button role="menuitem" onClick={copyLink} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-canvas">
                                 <Link2 size={15} /> Copy link
                             </button>
@@ -190,9 +190,9 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                     onClick={toggleLike}
                     aria-pressed={post.isLiked}
                     aria-label={post.isLiked ? 'Unlike' : 'Like'}
-                    className={`btn px-4 py-2 ${post.isLiked ? 'bg-accent/15 text-accent' : 'hover:bg-canvas'}`}
+                    className={`btn px-4 py-2 hover:bg-canvas ${post.isLiked ? 'text-ink' : 'text-muted hover:text-ink'}`}
                 >
-                    <Heart size={17} className={post.isLiked ? 'fill-accent' : ''} /> {compact(post.likeCount)}
+                    <Heart key={post.isLiked ? 'liked' : 'not'} size={17} className={post.isLiked ? 'like-pop fill-like text-like' : ''} /> {compact(post.likeCount)}
                 </button>
                 <button onClick={() => setCommentsOpen(!commentsOpen)} aria-expanded={commentsOpen} aria-label="Comments" className={`btn px-4 py-2 ${commentsOpen ? 'bg-data-blue/15 text-data-blue' : 'hover:bg-canvas'}`}>
                     <MessageCircle size={17} /> {compact(post.commentCount)}

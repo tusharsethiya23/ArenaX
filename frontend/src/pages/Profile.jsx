@@ -123,12 +123,12 @@ const Profile = () => {
 
             {/* Tabs (only shown when there's more than one) */}
             {tabs.length > 1 && (
-                <div className="flex gap-2">
+                <div className="flex gap-6 border-b border-line">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setSearchParams(tab.id === 'profile' ? {} : { tab: tab.id })}
-                            className={`chip ${activeTab === tab.id ? 'chip-active' : ''}`}
+                            className={`tab ${activeTab === tab.id ? 'tab-active' : ''}`}
                         >
                             {tab.label}
                         </button>

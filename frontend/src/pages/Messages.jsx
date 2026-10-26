@@ -49,7 +49,7 @@ const Messages = () => {
                                                 {lastMessage.text}
                                             </p>
                                             {unread > 0 && (
-                                                <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-on-ink">
+                                                <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-like px-1.5 text-[11px] font-bold text-white">
                                                     {unread > 99 ? '99+' : unread}
                                                 </span>
                                             )}

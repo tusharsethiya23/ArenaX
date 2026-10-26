@@ -10,7 +10,7 @@ import { toISODate, fromISODate } from '../../utils/slots';
 
 const WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const SHOWN = ['pending', 'confirmed', 'completed']; // declined / cancelled don't appear on the grid
-const DOT = { confirmed: 'bg-data-mint', pending: 'bg-accent', completed: 'bg-ink/40' };
+const DOT = { confirmed: 'bg-ok', pending: 'bg-warn', completed: 'bg-ok/50' };
 const LEGEND = [['confirmed', 'Confirmed'], ['pending', 'Requested'], ['completed', 'Completed']];
 
 const MonthCalendar = ({ bookings, selected, onSelect }) => {

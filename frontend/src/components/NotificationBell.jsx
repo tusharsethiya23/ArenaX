@@ -156,7 +156,7 @@ const NotificationBell = () => {
             >
                 <Bell size={18} strokeWidth={1.8} />
                 {hasUnread && (
-                    <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
+                    <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-like ring-2 ring-surface" />
                 )}
             </button>
 
@@ -218,7 +218,7 @@ const NotificationBell = () => {
                                         onClick={close}
                                         className="flex gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-canvas"
                                     >
-                                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.time > highlightBefore ? 'bg-accent ring-1 ring-ink/20' : 'bg-transparent'}`} />
+                                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.time > highlightBefore ? 'bg-likent ring-1 ring-ink/20' : 'bg-transparent'}`} />
                                         <span className="min-w-0">
                                             <span className="block text-sm font-medium">{n.text}</span>
                                             <span className="block text-xs text-muted">{n.detail}</span>

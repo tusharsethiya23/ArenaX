@@ -23,7 +23,7 @@ const ImageCarousel = ({ images, location }) => {
     };
 
     return (
-        <div className="group relative overflow-hidden rounded-[24px] bg-canvas">
+        <div className="group relative overflow-hidden rounded-xl bg-canvas">
             <div
                 ref={trackRef}
                 onScroll={handleScroll}
@@ -37,7 +37,7 @@ const ImageCarousel = ({ images, location }) => {
                         alt={`Photo ${i + 1} of ${images.length}`}
                         loading="lazy"
                         draggable={false}
-                        className="h-full w-full shrink-0 snap-center object-cover"
+                        className="h-full w-full shrink-0 snap-center photo"
                     />
                 ))}
             </div>
@@ -59,7 +59,7 @@ const ImageCarousel = ({ images, location }) => {
             )}
 
             {location && (
-                <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-popover px-3 py-1.5 backdrop-blur-md text-sm font-semibold">
+                <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-popover px-3 py-1.5 text-sm font-semibold">
                     <MapPin size={14} className="shrink-0 text-accent" /> {location}
                 </span>
             )}

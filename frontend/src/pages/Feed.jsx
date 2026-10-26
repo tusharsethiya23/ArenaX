@@ -44,7 +44,7 @@ const EMPTY = {
 // Side columns stay in view while the feed scrolls (below the 96px navbar), are
 // never taller than the screen (24px gap at the bottom), and scroll inside
 // themselves when their content is taller.
-const SIDE_COLUMN = 'sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain rounded-[28px] [scrollbar-width:thin]';
+const SIDE_COLUMN = 'sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]';
 // The left column fits on screen, so it never shows a scrollbar (the wheel still works on very short screens)
 const LEFT_COLUMN = SIDE_COLUMN.replace('[scrollbar-width:thin]', '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden');
 
@@ -71,14 +71,14 @@ const Feed = () => {
 
                 {/* Tabs + sort; the sort drops to its own line on narrow screens instead of covering a tab */}
                 <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
-                    <div className="flex flex-1 basis-auto gap-2" role="tablist">
+                    <div className="flex flex-1 basis-auto gap-5 border-b border-line" role="tablist">
                         {TABS.map((t) => (
                             <button
                                 key={t.id}
                                 role="tab"
                                 aria-selected={tab === t.id}
                                 onClick={() => setTab(t.id)}
-                                className={`chip ${tab === t.id ? 'chip-active' : ''}`}
+                                className={`tab ${tab === t.id ? 'tab-active' : ''}`}
                             >
                                 {t.label}
                             </button>
