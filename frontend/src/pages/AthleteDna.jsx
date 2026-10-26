@@ -3,7 +3,8 @@
 //   /dna            the logged-in athlete's own DNA (editable)
 //   /dna/:athleteId a coach's view of an athlete they've coached (can assess)
 // Flow: rate skills (self + coaches) -> pick a career goal -> see the gap ->
-// follow the weekly action plan and log activities -> re-assess -> readiness %
+// follow the weekly action plan and log drills (levels unlock as you train,
+// see DrillLibrary) -> re-assess -> readiness %
 // -> opportunities (coaches, tournaments, brands at 70%+).
 
 import { useState, useEffect, useCallback } from 'react';
@@ -16,6 +17,8 @@ import MatchBadge from '../components/MatchBadge';
 import SkillBars from '../components/dna/SkillBars';
 import ProgressChart from '../components/dna/ProgressChart';
 import AssessmentForm from '../components/dna/AssessmentForm';
+import DrillLibrary from '../components/dna/DrillLibrary';
+import LevelChip from '../components/dna/LevelChip';
 
 const BRAND_READY = 70; // keep in sync with Backend/controllers/brand.controller.js
 const fmtDate = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
@@ -116,7 +119,7 @@ const AthleteDna = () => {
     const logActivity = async (key) => {
         setBusyKey(key);
         try { keepOpportunities((await API.post('/dna/activities', { activityKey: key })).data); say('Logged. Nice work!'); }
-        catch (err) { say(err.response?.data?.message || 'Could not log the activity'); }
+        catch (err) { say(err.response?.data?.message || 'Could not log the drill'); }
         setBusyKey(null);
     };
     const undoLog = async (id) => {
@@ -255,7 +258,10 @@ const AthleteDna = () => {
                                     <li key={p.key} className="flex flex-wrap items-center gap-3 py-3">
                                         <div className="min-w-0 flex-1">
                                             <p className="font-medium">{p.title}</p>
-                                            <p className="text-xs text-muted">{p.dimensionLabel} · {p.perWeek}× a week</p>
+                                            <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted">
+                                                {p.level && <LevelChip level={p.level} />}
+                                                {p.dimensionLabel} · {p.perWeek}× a week
+                                            </p>
                                         </div>
                                         <Pips done={p.doneThisWeek} total={p.perWeek} />
                                         {isOwn && (
@@ -267,6 +273,11 @@ const AthleteDna = () => {
                                 ))}
                             </ul>
                         </section>
+                    )}
+
+                    {/* ---------- All drills by level, with locks ---------- */}
+                    {dna.drills && (
+                        <DrillLibrary drills={dna.drills} levels={dna.drillLevels} isOwn={isOwn} onLog={logActivity} busyKey={busyKey} />
                     )}
 
                     {/* ---------- Progress ---------- */}

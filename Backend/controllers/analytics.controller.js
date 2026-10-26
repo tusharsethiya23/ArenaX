@@ -1,6 +1,6 @@
 // analytics.controller.js
 // Aggregates data from multiple collections to build a coach's performance
-// dashboard — bookings, earnings, and now also review ratings, endorsements,
+// dashboard — bookings, brand deals, and now also review ratings, endorsements,
 // and achievements, giving a fuller picture of the athlete's track record.
 
 const ProfileView = require('../models/profileView.model.js');
@@ -27,11 +27,7 @@ const getMyAnalytics = async (req, res) => {
     const confirmedBookings = await Booking.countDocuments({ coach: coachId, status: 'confirmed' });
     const completedBookings = await Booking.countDocuments({ coach: coachId, status: 'completed' });
 
-    const acceptedDeals = await Deal.find({ talent: coachId, status: 'accepted' });
-    const totalBrandEarnings = acceptedDeals.reduce(
-      (sum, deal) => sum + (deal.offerAmount - deal.offerAmount * deal.commissionRate),
-      0
-    );
+    const totalBrandDeals = await Deal.countDocuments({ talent: coachId, status: 'accepted' });
 
     // Performance metrics — new in this update
     const reviews = await Review.find({ coach: coachId });
@@ -53,8 +49,7 @@ const getMyAnalytics = async (req, res) => {
       totalBookings,
       confirmedBookings,
       completedBookings,
-      totalBrandEarnings,
-      totalBrandDeals: acceptedDeals.length,
+      totalBrandDeals,
       averageRating,
       totalReviews: reviews.length,
       endorsementCount,

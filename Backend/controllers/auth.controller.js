@@ -5,6 +5,8 @@
 // email a 6-digit code, and the account only works once the code is entered
 // (emailVerified). Google sign-in counts as verified, since Google has already
 // checked the address.
+// Sign-ups may carry an invite code (`ref`, from someone's invite link): the
+// inviter earns Arena Points once the new account is verified.
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,6 +15,7 @@ const User = require('../models/user.model');
 const { normalizeEmail, isGmail, GMAIL_ONLY_MESSAGE } = require('../utils/email.util');
 const { mailerReady } = require('../utils/mailer.util');
 const { issueCode, checkCode } = require('../utils/emailCode.util');
+const { inviterFor, rewardReferral } = require('../utils/points.util');
 
 const SIGNUP_ROLES = ['learner', 'coach']; // admin accounts are only made by hand in the database
 const MIN_PASSWORD = 8;
@@ -37,11 +40,11 @@ const notVerified = (res, email, extra = '') => res.status(403).json({
   message: `Enter the 6-digit code we sent to ${email}.${extra}`,
 });
 
-// POST /api/auth/register — { name, email, password, role, ...profile }
+// POST /api/auth/register — { name, email, password, role, ref?, ...profile }
 // Creates an unverified account and emails a code. No login until verified.
 const registerUser = async (req, res) => {
   try {
-    const { password, sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio } = req.body;
+    const { password, sport, location, skillLevelTaught, goals, skillLevel, bio } = req.body;
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
     const email = normalizeEmail(req.body.email);
     const role = req.body.role ?? 'learner';
@@ -65,7 +68,8 @@ const registerUser = async (req, res) => {
       name, email, role,
       password: await bcrypt.hash(password, await bcrypt.genSalt(10)),
       emailVerified: false,
-      sport, location, pricePerSession, skillLevelTaught, goals, skillLevel, bio,
+      sport, location, skillLevelTaught, goals, skillLevel, bio,
+      referredBy: await inviterFor(req.body.ref),
     });
 
     const sent = await issueCode(email);
@@ -128,6 +132,7 @@ const verifyEmail = async (req, res) => {
 
     user.emailVerified = true;
     await user.save();
+    await rewardReferral(user);
     res.json(session(user));
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -151,7 +156,7 @@ const resendCode = async (req, res) => {
   }
 };
 
-// POST /api/auth/google — { credential, role? }
+// POST /api/auth/google — { credential, role?, ref? }
 // `credential` is the ID token from the "Continue with Google" button. We ask
 // Google to verify it (no client secret needed), then log in the account with
 // that email, or create one. New accounts need a role; without one we answer
@@ -165,7 +170,7 @@ const googleLogin = async (req, res) => {
     if (!clientId) {
       return res.status(503).json({ message: 'Google sign-in is not set up on the server' });
     }
-    const { credential, role } = req.body;
+    const { credential, role, ref } = req.body;
     if (typeof credential !== 'string' || !credential) {
       return res.status(400).json({ message: 'Missing Google credential' });
     }
@@ -199,14 +204,17 @@ const googleLogin = async (req, res) => {
         profilePhoto: payload.picture || '',
         googleId: true, // no password; this account logs in with Google
         emailVerified: true,
+        referredBy: await inviterFor(ref),
       });
       created = true;
+      await rewardReferral(user);
     } else if (user.emailVerified !== true) {
       // Google just proved who owns this email. A password set before the email
       // was verified may have been chosen by someone else, so it's removed:
       // this account now logs in with Google.
       Object.assign(user, { emailVerified: true, googleId: true, password: undefined });
       await user.save();
+      await rewardReferral(user);
     }
 
     res.status(created ? 201 : 200).json(session(user));

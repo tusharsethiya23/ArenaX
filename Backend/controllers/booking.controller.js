@@ -3,6 +3,8 @@ const Booking = require('../models/booking.model');
 const Review = require('../models/review.model');
 const User = require('../models/user.model');
 const { normalizeDay, nextDateOnWeekday, resolveSlot, isSlotTaken } = require('../utils/slots.util');
+const { awardPoints } = require('../utils/points.util');
+const { refreshCoachVerified } = require('../utils/coachVerification.util');
 
 const TAKEN_MESSAGE = 'That slot was just taken. Please pick another one.';
 
@@ -74,7 +76,7 @@ const getMyBookingsAsCoach = async (req, res) => {
 const getMyBookingsAsLearner = async (req, res) => {
   try {
     const bookings = await Booking.find({ learner: req.user._id })
-      .populate('coach', 'name email sport location pricePerSession profilePhoto')
+      .populate('coach', 'name email sport location profilePhoto')
       .sort({ createdAt: -1 });
 
     res.json(await withReviewed(bookings));
@@ -142,6 +144,14 @@ const updateBookingStatus = async (req, res) => {
 
     booking.status = status;
     await booking.save();
+    if (status === 'completed') {
+      // +50 Arena Points each for the athlete and the coach, and the coach may now be verified
+      await Promise.all([
+        awardPoints(booking.learner, 'session', booking._id),
+        awardPoints(booking.coach, 'session', booking._id),
+        refreshCoachVerified(booking.coach),
+      ]);
+    }
     res.json(booking);
   } catch (error) {
     res.status(500).json({ message: error.message });

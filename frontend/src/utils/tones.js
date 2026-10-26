@@ -31,7 +31,7 @@ const ROUTE_TONES = {
     '/messages': 'blue',
     '/profile?tab=stats': 'mint',
     '/saved': 'pink',
-    '/subscription': 'highlight',
+    '/pro': 'highlight',
     '/deals': 'mint',
     '/admin': 'accent',
     '/settings': 'neutral',

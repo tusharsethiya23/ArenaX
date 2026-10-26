@@ -1,9 +1,9 @@
 const Spotlight = require('../models/spotlight.model');
 
-// Brand ek athlete ko sponsor karke spotlight kharidta hai
+// A brand puts an athlete in the spotlight for a period (no payment involved)
 const createSpotlight = async (req, res) => {
   try {
-    const { athleteId, amountPaid, startDate, endDate } = req.body;
+    const { athleteId, startDate, endDate } = req.body;
 
     // Overlap check — ek time pe sirf ek active spotlight ho sake
     const overlapping = await Spotlight.findOne({
@@ -18,7 +18,6 @@ const createSpotlight = async (req, res) => {
     const spotlight = await Spotlight.create({
       athlete: athleteId,
       sponsorBrand: req.brand._id,
-      amountPaid,
       startDate,
       endDate,
     });

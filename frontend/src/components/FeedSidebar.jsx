@@ -1,21 +1,24 @@
 // FeedSidebar.jsx
 // Left column of the Feed (large screens):
-//   1. Profile summary: avatar, name, "<sport> coach · <city>", and
-//      followers / following / sessions counts
+//   1. Profile summary: avatar, name, "<sport> coach · <city>", Arena Points
+//      and streak, and followers / following / sessions counts
 //   2. Menu: Home feed, My DNA (athletes) / My athletes (coaches), Messages
 //      (with how many people sent unread messages), Calendar
 //      (with a badge for sessions waiting on my answer), My stats (coaches),
 //      Saved posts, Settings
 
 import { Link, NavLink } from 'react-router-dom';
-import { Home, CalendarDays, BarChart3, Bookmark, Settings, Dna, Users, MessageCircle } from 'lucide-react';
+import { Home, CalendarDays, BarChart3, Bookmark, Settings, Dna, Users, MessageCircle, Zap, Flame } from 'lucide-react';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
+import FoundingBadge from './FoundingBadge';
+import usePoints from '../hooks/usePoints';
 import useFollow from '../hooks/useFollow';
 import { compact } from '../utils/format';
 import { hasStarted } from '../utils/sessions';
 import { toneFor, TONES, STAT_TONES } from '../utils/tones';
 import useInbox from '../hooks/useInbox';
+import { canAccess } from '../utils/access';
 
 const roleTitle = (profile) => {
     const role = profile.role === 'learner' ? 'athlete' : profile.role;
@@ -26,6 +29,7 @@ const roleTitle = (profile) => {
 const FeedSidebar = ({ profile, bookings }) => {
     const follow = useFollow(profile._id);
     const { unreadChats: unreadMessages } = useInbox(); // people with unread messages
+    const { points, streak } = usePoints();
     // Sessions that actually happen or will: confirmed + completed
     const sessions = bookings.filter((b) => b.status === 'confirmed' || b.status === 'completed').length;
     const pending = bookings.filter((b) => ['pending', 'confirmed'].includes(b.status) && (
@@ -41,11 +45,11 @@ const FeedSidebar = ({ profile, bookings }) => {
 
     const items = [
         { to: '/', label: 'Home feed', icon: Home, end: true },
-        profile.role === 'learner' && { to: '/dna', label: 'My DNA', icon: Dna },
+        profile.role === 'learner' && canAccess(profile, 'athleteDna') && { to: '/dna', label: 'My DNA', icon: Dna },
         profile.role === 'coach' && { to: '/my-athletes', label: 'My athletes', icon: Users },
-        { to: '/messages', label: 'Messages', icon: MessageCircle, badge: unreadMessages },
+        canAccess(profile, 'directMessages') && { to: '/messages', label: 'Messages', icon: MessageCircle, badge: unreadMessages },
         { to: '/calendar', label: 'Calendar', icon: CalendarDays, badge: pending },
-        profile.role === 'coach' && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
+        profile.role === 'coach' && canAccess(profile, 'coachStats') && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },
         { to: '/settings', label: 'Settings', icon: Settings },
     ].filter(Boolean);
@@ -62,10 +66,17 @@ const FeedSidebar = ({ profile, bookings }) => {
                         <div className="flex items-center gap-1.5">
                             <Link to="/profile" className="truncate font-bold hover:underline">{profile.name}</Link>
                             {profile.verified && <VerifiedBadge size={15} />}
+                            {profile.foundingMember && <FoundingBadge compact />}
                         </div>
                         <p className="truncate text-sm text-muted">{roleTitle(profile)}</p>
                     </div>
                 </div>
+
+                {/* Arena Points and daily streak */}
+                <Link to="/profile" className="mt-3 flex items-center justify-between rounded-2xl bg-canvas px-3 py-2 text-sm transition-colors hover:bg-white/[0.12]">
+                    <span className="flex items-center gap-1.5"><Zap size={14} className="fill-highlight text-highlight" /><b className="text-highlight">{points.toLocaleString()}</b> <span className="text-xs text-muted">Arena Points</span></span>
+                    <span className="flex items-center gap-1 text-xs font-semibold text-accent" title="Days in a row you've opened ArenaX"><Flame size={13} /> {streak.count}</span>
+                </Link>
 
                 <div className="mt-3 grid grid-cols-3 border-t border-line pt-3 text-center">
                     {stats.map((s, i) => (

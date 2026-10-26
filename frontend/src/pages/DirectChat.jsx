@@ -4,10 +4,12 @@
 // (RealtimeConnection relays them as the "arenax:dm" window event), and sends
 // with Enter or the send button. If neither of you follows the other, the
 // history stays visible but the box explains why you can't send.
+// Opened from "Contact seller" (?listing=<id>), it shows the item at the top
+// and sends it with your messages, which is what allows the chat.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Send } from 'lucide-react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Send, Tag } from 'lucide-react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
@@ -27,6 +29,8 @@ const timeLabel = (date) => new Date(date).toLocaleTimeString(undefined, { hour:
 
 const DirectChat = () => {
     const { userId } = useParams();
+    const [searchParams] = useSearchParams();
+    const listingId = searchParams.get('listing');
     const { user } = useAuth();
     const [chat, setChat] = useState(null); // { user, canMessage, messages }
     const [error, setError] = useState('');
@@ -34,12 +38,12 @@ const DirectChat = () => {
     const [sending, setSending] = useState(false);
     const bottomRef = useRef(null);
 
-    const load = useCallback(() => API.get(`/dm/${userId}`)
+    const load = useCallback(() => API.get(`/dm/${userId}${listingId ? `?listing=${listingId}` : ''}`)
         .then((res) => {
             setChat(res.data);
             refreshSharedResource('/dm'); // their messages are read now
         })
-        .catch((err) => setError(err.response?.data?.message || 'Could not open this chat')), [userId]);
+        .catch((err) => setError(err.response?.data?.message || 'Could not open this chat')), [userId, listingId]);
 
     useEffect(() => {
         load();
@@ -68,7 +72,7 @@ const DirectChat = () => {
         if (!body || sending) return;
         setSending(true);
         try {
-            const res = await API.post(`/dm/${userId}`, { text: body });
+            const res = await API.post(`/dm/${userId}`, { text: body, ...(chat.listing && { listing: chat.listing._id }) });
             setChat((c) => (c.messages.some((x) => x._id === res.data._id) ? c : { ...c, messages: [...c.messages, res.data] }));
             setText('');
         } catch (err) {
@@ -112,6 +116,16 @@ const DirectChat = () => {
 
             {/* ---------- Messages ---------- */}
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] bg-surface">
+                {/* The marketplace item this chat is about ("Contact seller") */}
+                {chat?.listing && (
+                    <Link to="/marketplace" className="flex items-center gap-3 border-b border-line px-4 py-3 transition-colors hover:bg-canvas">
+                        {chat.listing.photo && <img src={chat.listing.photo} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />}
+                        <span className="min-w-0">
+                            <span className="flex items-center gap-1.5 text-xs text-muted"><Tag size={12} className="text-data-mint" /> Asking about</span>
+                            <span className="block truncate text-sm font-semibold">{chat.listing.title}</span>
+                        </span>
+                    </Link>
+                )}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-5" aria-live="polite">
                     {!chat ? (
                         <p className="py-10 text-center text-sm text-muted">Loading chat...</p>
@@ -130,6 +144,11 @@ const DirectChat = () => {
                                         )}
                                         <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                                             <div className={`max-w-[78%] rounded-3xl px-4 py-2 text-sm ${mine ? 'rounded-br-md bg-white text-on-ink' : 'rounded-bl-md bg-canvas text-ink'}`}>
+                                                {m.listing && (
+                                                    <p className={`mb-1 flex items-center gap-1 text-[11px] font-semibold ${mine ? 'text-on-ink/70' : 'text-data-mint'}`}>
+                                                        <Tag size={11} /> {m.listing.title}
+                                                    </p>
+                                                )}
                                                 <p className="whitespace-pre-wrap break-words">{m.text}</p>
                                                 <p className={`mt-0.5 text-right text-[10px] ${mine ? 'text-on-ink/60' : 'text-muted'}`}>
                                                     {timeLabel(m.createdAt)}

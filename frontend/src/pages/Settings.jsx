@@ -31,7 +31,6 @@ const initialForm = (profile) => ({
     bio: profile.bio || '',
     location: profile.location || '',
     sport: profile.sport || '',
-    pricePerSession: profile.pricePerSession ?? '',
     skillLevelTaught: profile.skillLevelTaught || '',
     yearsExperience: profile.yearsExperience ?? '',
     availability: sortSlots((profile.availability || []).map(({ day, timeSlot }) => ({ day, timeSlot }))),
@@ -138,7 +137,6 @@ const SettingsContent = ({ profile }) => {
         const payload = { bio: formData.bio, location: formData.location, sport: formData.sport };
         if (isCoach) {
             Object.assign(payload, {
-                pricePerSession: formData.pricePerSession,
                 skillLevelTaught: formData.skillLevelTaught,
                 yearsExperience: formData.yearsExperience,
                 availability: formData.availability,
@@ -209,11 +207,7 @@ const SettingsContent = ({ profile }) => {
                         </div>
 
                         {isCoach && (
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                                <div>
-                                    <label className="label">Price per session (₹)</label>
-                                    <input type="number" min="0" name="pricePerSession" value={formData.pricePerSession} onChange={handleChange} className="input" />
-                                </div>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="label" htmlFor="set-level-taught">Level you teach</label>
                                     <Select id="set-level-taught" value={formData.skillLevelTaught} onChange={(v) => setFormData({ ...formData, skillLevelTaught: v })} options={LEVEL_OPTIONS} />

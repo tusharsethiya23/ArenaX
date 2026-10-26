@@ -20,9 +20,8 @@ const Review = require('../models/review.model');
 const Achievement = require('../models/achievement.model');
 const Endorsement = require('../models/endorsement.model');
 const ProfileView = require('../models/profileView.model');
-const Subscription = require('../models/subscription.model');
-const Content = require('../models/content.model');
-const Purchase = require('../models/purchase.model');
+const Listing = require('../models/listing.model');
+const PointsLog = require('../models/pointsLog.model');
 const Tournament = require('../models/tournament.model');
 const Team = require('../models/team.model');
 const Assessment = require('../models/assessment.model');
@@ -47,6 +46,6 @@ module.exports = {
   mongoose, connect, clearDemoData, demoUserIds, DEMO_DOMAIN, DEMO_EMAIL,
   models: {
     User, Post, Comment, SavedPost, Follow, Booking, Message, Review, Achievement,
-    Endorsement, ProfileView, Subscription, Content, Purchase, Tournament, Team, Assessment, ActivityLog,
+    Endorsement, ProfileView, Listing, PointsLog, Tournament, Team, Assessment, ActivityLog,
   },
 };

@@ -16,7 +16,6 @@ import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import useMyBookings from '../hooks/useMyBookings';
 import useMyProfile from '../hooks/useMyProfile';
-import useSubscription from '../hooks/useSubscription';
 import useDismiss from '../hooks/useDismiss';
 import useFollowingIds from '../hooks/useFollowingIds';
 import CoachCard from '../components/CoachCard';
@@ -27,14 +26,13 @@ import Select from '../components/Select';
 import { nextOpenSlot } from '../utils/slots';
 import { normalizeSport, sportEmoji } from '../utils/sports';
 import { confirmDialog, toastError, toast } from '../utils/dialogs';
+import { canAccess } from '../utils/access';
 
 const SORTS = {
     // Athletes only: coaches outside their sport have no match (-1) and come last
     match: { label: 'Best match', fn: (a, b) => b._match - a._match || (b.rating ?? 0) - (a.rating ?? 0) },
     top: { label: 'Top rated', fn: (a, b) => (b.rating ?? 0) - (a.rating ?? 0) || b.reviewCount - a.reviewCount },
     soonest: { label: 'Soonest slot', fn: (a, b) => a._soonest - b._soonest },
-    priceLow: { label: 'Price: low to high', fn: (a, b) => (a.pricePerSession ?? Infinity) - (b.pricePerSession ?? Infinity) },
-    priceHigh: { label: 'Price: high to low', fn: (a, b) => (b.pricePerSession ?? -1) - (a.pricePerSession ?? -1) },
     experience: { label: 'Most experienced', fn: (a, b) => (b.yearsExperience ?? 0) - (a.yearsExperience ?? 0) },
 };
 
@@ -59,15 +57,15 @@ const LEVEL_OPTIONS = [
     { value: 'advanced', label: 'Advanced' },
 ];
 
-const PromoCard = ({ showPremium }) => (
+const PromoCard = ({ showPro, user }) => (
     <section className="flex flex-col justify-between rounded-[32px] bg-surface p-6 text-ink backdrop-blur-2xl sm:p-8">
-        {showPremium ? (
+        {showPro ? (
             <>
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-ink/65">Learner Premium</p>
-                    <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">Priority booking with top coaches</h2>
+                    <p className="text-xs font-bold uppercase tracking-wider text-accent">ArenaX Pro · coming soon</p>
+                    <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">AI plans, video analysis and more</h2>
                 </div>
-                <Link to="/subscription" className="btn btn-dark mt-6 self-start">See plans <ArrowRight size={16} /></Link>
+                <Link to="/pro" className="btn btn-dark mt-6 self-start">Get notified <ArrowRight size={16} /></Link>
             </>
         ) : (
             <>
@@ -75,7 +73,7 @@ const PromoCard = ({ showPremium }) => (
                     <p className="text-xs font-bold uppercase tracking-wider text-ink/65">AI coach</p>
                     <h2 className="mt-2 text-3xl font-black leading-tight tracking-tighter">Not sure who to pick? Ask the AI coach</h2>
                 </div>
-                <Link to="/ai-assistant" className="btn btn-dark mt-6 self-start">Ask now <ArrowRight size={16} /></Link>
+                <Link to={canAccess(user, 'aiCoach') ? '/ai-assistant' : '/pro'} className="btn btn-dark mt-6 self-start">Ask now <ArrowRight size={16} /></Link>
             </>
         )}
     </section>
@@ -86,7 +84,7 @@ const FiltersButton = ({ filters, setFilters }) => {
     const ref = useRef(null);
     const close = useCallback(() => setOpen(false), []);
     useDismiss(ref, open, close);
-    const active = (filters.maxPrice ? 1 : 0) + (filters.openOnly ? 1 : 0);
+    const active = filters.openOnly ? 1 : 0;
 
     return (
         <div ref={ref} className="relative">
@@ -95,17 +93,6 @@ const FiltersButton = ({ filters, setFilters }) => {
             </button>
             {open && (
                 <div className="absolute right-0 top-full z-30 mt-2 w-64 space-y-4 rounded-3xl border border-line bg-popover p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
-                    <div>
-                        <label className="label">Max price per session (₹)</label>
-                        <input
-                            type="number"
-                            min="0"
-                            value={filters.maxPrice}
-                            onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-                            placeholder="Any"
-                            className="input"
-                        />
-                    </div>
                     <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
                         Open slot in the next 2 weeks
                         <input
@@ -115,7 +102,7 @@ const FiltersButton = ({ filters, setFilters }) => {
                             className="h-5 w-5 accent-ink"
                         />
                     </label>
-                    <button onClick={() => setFilters({ maxPrice: '', openOnly: false })} className="btn btn-soft w-full">Clear</button>
+                    <button onClick={() => setFilters({ openOnly: false })} className="btn btn-soft w-full">Clear</button>
                 </div>
             )}
         </div>
@@ -175,7 +162,6 @@ const BestMatches = ({ matches }) => {
 const Discover = () => {
     const { user } = useAuth();
     const { profile } = useMyProfile();
-    const isPro = useSubscription();
     const { bookings, reload: reloadBookings } = useMyBookings();
 
     const [coaches, setCoaches] = useState([]);
@@ -189,7 +175,7 @@ const Discover = () => {
         if (SORTS[wanted] && (wanted !== 'match' || isLearner)) return wanted;
         return isLearner ? 'match' : 'top';
     });
-    const [filters, setFilters] = useState({ maxPrice: '', openOnly: false });
+    const [filters, setFilters] = useState({ openOnly: false });
     const [loading, setLoading] = useState(true);
     const [spotlight, setSpotlight] = useState(null);
     const [matches, setMatches] = useState(null); // { basis, coaches } for athletes
@@ -206,10 +192,10 @@ const Discover = () => {
     useEffect(() => {
         fetchCoaches().catch(console.error).finally(() => setLoading(false));
         API.get('/spotlight/current').then((res) => setSpotlight(res.data)).catch(() => {});
-        if (isLearner) {
+        if (isLearner && canAccess(user, 'coachMatching')) {
             API.get('/match/coaches').then((res) => setMatches(res.data)).catch(() => {});
         }
-    }, [fetchCoaches, isLearner]);
+    }, [fetchCoaches, isLearner, user]);
     const matchById = Object.fromEntries((matches?.coaches || []).map((c) => [c._id, c.match]));
 
     const currentParams = () => {
@@ -260,7 +246,6 @@ const Discover = () => {
             };
         })
         .filter((c) => sportChip === 'All' || normalizeSport(c.sport) === sportChip)
-        .filter((c) => !filters.maxPrice || (c.pricePerSession ?? Infinity) <= Number(filters.maxPrice))
         .filter((c) => !filters.openOnly || c._next)
         .sort(SORTS[sortKey].fn);
 
@@ -329,7 +314,7 @@ const Discover = () => {
                         </div>
                     </section>
 
-                    <PromoCard showPremium={user.role === 'learner' && !isPro} />
+                    <PromoCard showPro={user.role === 'learner'} user={user} />
                 </div>
             </div>
 
@@ -413,7 +398,6 @@ const Discover = () => {
                                                 {c.rating && <> · <Star size={12} className="fill-highlight text-highlight" /> {c.rating}</>}
                                             </p>
                                         </div>
-                                        {c.pricePerSession && <span className="badge shrink-0 bg-canvas text-muted">₹{c.pricePerSession}</span>}
                                     </Link>
                                 </li>
                             ))}

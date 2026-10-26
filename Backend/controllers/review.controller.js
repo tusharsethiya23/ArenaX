@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Review = require('../models/review.model');
 const Booking = require('../models/booking.model');
+const { refreshCoachVerified } = require('../utils/coachVerification.util');
 
 const createReview = async (req, res) => {
   try {
@@ -46,6 +47,7 @@ const createReview = async (req, res) => {
       rating,
       comment,
     });
+    await refreshCoachVerified(booking.coach); // the average rating changed
 
     res.status(201).json(review);
   } catch (error) {

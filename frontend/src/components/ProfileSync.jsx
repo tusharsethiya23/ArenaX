@@ -8,7 +8,8 @@ import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import useMyProfile from '../hooks/useMyProfile';
 
-const SYNCED = ['name', 'profilePhoto', 'role'];
+// plan: what the app shows (utils/access.js); foundingMember / verified: badges
+const SYNCED = ['name', 'profilePhoto', 'role', 'plan', 'foundingMember', 'verified'];
 
 const ProfileSync = () => {
     const { user, updateUser } = useAuth();

@@ -6,7 +6,7 @@
 //   - who follows them
 //   - date tabs for the next two weeks (SlotPicker) and that day's time slots;
 //     taken or already-past slots are crossed out
-//   - price and a "Book today, 6 PM" button that books the picked slot
+//   - a "Book today, 6 PM" button that books the picked slot
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -14,6 +14,7 @@ import { Star, Check, UserPlus, ArrowRight, Clock, MessageCircle } from 'lucide-
 import API from '../api/axios';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
+import FoundingBadge from './FoundingBadge';
 import StadiumArt from './StadiumArt';
 import FollowListModal from './FollowListModal';
 import SlotPicker from './SlotPicker';
@@ -125,9 +126,10 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
 
             <div className="px-3 pb-3 pt-5 sm:px-4">
                 {/* ---------- Name + details ---------- */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-3xl font-extrabold tracking-tight">{coach.name}</h1>
                     {coach.verified && <VerifiedBadge size={24} />}
+                    {coach.foundingMember && <FoundingBadge />}
                 </div>
                 <p className="mt-1 text-muted">
                     {[
@@ -169,13 +171,8 @@ const CoachProfileCard = ({ coach, follow, isOwn, canBook, onBooked }) => {
 
                 {message && <p className={`mt-4 ${message.error ? 'alert-error' : 'alert-success'}`}>{message.text}</p>}
 
-                {/* ---------- Price + book ---------- */}
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
-                    <p className="text-3xl font-black tracking-tight">
-                        {coach.pricePerSession
-                            ? <>₹{coach.pricePerSession}<span className="text-base font-normal text-muted"> /session</span></>
-                            : <span className="text-base font-normal text-muted">Price on request</span>}
-                    </p>
+                {/* ---------- Book ---------- */}
+                <div className="mt-6 flex flex-wrap items-center justify-end gap-4 border-t border-line pt-5">
                     {canBook && (
                         <button onClick={handleBook} disabled={!selectedSlot || booking} className="btn btn-lime px-6 py-3.5 text-base">
                             {booking

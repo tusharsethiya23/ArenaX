@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { savedInvite } from '../utils/invite';
 
 const useGoogleAuth = ({ onError }) => {
     const { login } = useAuth();
@@ -19,7 +20,8 @@ const useGoogleAuth = ({ onError }) => {
         setBusy(true);
         onError('');
         try {
-            const res = await API.post('/auth/google', { credential, ...(role && { role }) });
+            // ref: a friend's invite code, used only if this creates a new account
+            const res = await API.post('/auth/google', { credential, ...(role && { role }), ref: savedInvite() });
             login(res.data);
             navigate('/');
         } catch (err) {

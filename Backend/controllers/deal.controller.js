@@ -3,12 +3,13 @@ const Deal = require('../models/deal.model');
 // Brand deal request bhejta hai
 const createDeal = async (req, res) => {
   try {
-    const { talentId, offerAmount, message } = req.body;
+    const { talentId } = req.body;
+    const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+    if (!message) return res.status(400).json({ message: 'Write a message about your offer' });
 
     const deal = await Deal.create({
       brand: req.brand._id,
       talent: talentId,
-      offerAmount,
       message,
     });
 
@@ -45,18 +46,11 @@ const updateDealStatus = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized for this deal' });
     }
 
+    if (!['accepted', 'declined'].includes(status)) {
+      return res.status(400).json({ message: 'Status must be accepted or declined' });
+    }
     deal.status = status;
     await deal.save();
-
-    // Commission calculate (sirf tracking, real payment abhi nahi)
-    if (status === 'accepted') {
-      const commission = deal.offerAmount * deal.commissionRate;
-      return res.json({
-        deal,
-        platformCommission: commission,
-        talentEarning: deal.offerAmount - commission,
-      });
-    }
 
     res.json(deal);
   } catch (error) {

@@ -3,16 +3,18 @@ const imagekit = require('../config/imagekit.config');
 const Review = require('../models/review.model.js');
 const { deleteUsersAndData } = require('../utils/accountDeletion.util.js');
 const Follow = require('../models/follow.model.js');
-const Achievement = require('../models/achievement.model.js');
+const { verifiedIdSet } = require('../utils/coachVerification.util.js');
 const { cleanAvailability, takenSlotsByCoach } = require('../utils/slots.util.js');
 const { DIMENSION_KEYS } = require('../utils/dna.util.js');
 const { matchCoachesFor } = require('../utils/match.util.js');
 
 const MAX_COACH_FOCUS = 3;
+// Never sent to other people: password hash, invite code, who invited them
+const PRIVATE_FIELDS = '-password -inviteCode -referredBy';
 
 const getCoaches = async (req, res) => {
   try {
-    const { sport, location, skillLevelTaught, minPrice, maxPrice } = req.query;
+    const { sport, location, skillLevelTaught } = req.query;
 
     // Ek filter object banate hain — sirf wahi cheeze isme daalenge jo user ne bheji hain
     let filter = { role: 'coach' };
@@ -36,27 +38,19 @@ const getCoaches = async (req, res) => {
       filter.skillLevelTaught = skillLevelTaught;
     }
 
-    if (minPrice || maxPrice) {
-      filter.pricePerSession = {};
-      if (minPrice) filter.pricePerSession.$gte = Number(minPrice);
-      if (maxPrice) filter.pricePerSession.$lte = Number(maxPrice);
-    }
-
-    const coaches = await User.find(filter).select('-password').lean();
+    const coaches = await User.find(filter).select(PRIVATE_FIELDS).lean();
     const ids = coaches.map((c) => c._id);
 
     // Extra info for the Discover cards, fetched in bulk (not one query per coach):
-    // rating + review count, "verified" (has a verified achievement), and taken slots
-    const [ratings, verified, taken] = await Promise.all([
+    // rating + review count and taken slots ("verified" is stored on the coach)
+    const [ratings, taken] = await Promise.all([
       Review.aggregate([
         { $match: { coach: { $in: ids } } },
         { $group: { _id: '$coach', avg: { $avg: '$rating' }, count: { $sum: 1 } } },
       ]),
-      Achievement.distinct('user', { user: { $in: ids }, verified: true }),
       takenSlotsByCoach(ids),
     ]);
     const ratingById = Object.fromEntries(ratings.map((r) => [String(r._id), r]));
-    const verifiedIds = new Set(verified.map(String));
 
     res.json(coaches.map((c) => {
       const r = ratingById[String(c._id)];
@@ -64,7 +58,7 @@ const getCoaches = async (req, res) => {
         ...c,
         rating: r ? Math.round(r.avg * 10) / 10 : null,
         reviewCount: r ? r.count : 0,
-        verified: verifiedIds.has(String(c._id)),
+        verified: Boolean(c.coachVerified),
         takenSlots: taken[c._id] || [],
       };
     }));
@@ -84,7 +78,7 @@ const updateProfile = async (req, res) => {
     // Jo bhi field bheji hai, wahi update karo — baaki purani value rakho
     const fieldsToUpdate = [
       'name', 'bio', 'location', 'profilePhoto',
-      'sport', 'pricePerSession', 'skillLevelTaught', 'yearsExperience', 'availability', 'isPrivate', 'coachFocus',
+      'sport', 'skillLevelTaught', 'yearsExperience', 'availability', 'isPrivate', 'coachFocus',
       'goals', 'skillLevel',
     ];
 
@@ -104,7 +98,7 @@ const updateProfile = async (req, res) => {
       req.body.coachFocus = focus;
     }
     // Empty inputs from the form clear these fields instead of failing validation
-    for (const field of ['skillLevelTaught', 'skillLevel', 'yearsExperience', 'pricePerSession']) {
+    for (const field of ['skillLevelTaught', 'skillLevel', 'yearsExperience']) {
       if (req.body[field] === '') {
         user[field] = undefined;
         delete req.body[field];
@@ -135,7 +129,6 @@ const updateProfile = async (req, res) => {
       bio: updatedUser.bio,
       location: updatedUser.location,
       sport: updatedUser.sport,
-      pricePerSession: updatedUser.pricePerSession,
       skillLevelTaught: updatedUser.skillLevelTaught,
       yearsExperience: updatedUser.yearsExperience,
       availability: updatedUser.availability,
@@ -178,26 +171,26 @@ const uploadProfilePhoto = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password').lean();
+    const user = await User.findById(req.params.id).select(PRIVATE_FIELDS).lean();
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    if (user.role !== 'coach') return res.json(user);
+    const verified = (await verifiedIdSet([user])).has(String(user._id));
+    if (user.role !== 'coach') return res.json({ ...user, verified });
 
-    // Coaches: add what the profile card shows (rating, verified badge, taken slots)
-    const [ratings, isVerified, taken] = await Promise.all([
+    // Coaches: add what the profile card shows (rating, taken slots)
+    const [ratings, taken] = await Promise.all([
       Review.aggregate([
         { $match: { coach: user._id } },
         { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
       ]),
-      Achievement.exists({ user: user._id, verified: true }),
       takenSlotsByCoach([user._id]),
     ]);
     res.json({
       ...user,
       rating: ratings[0] ? Math.round(ratings[0].avg * 10) / 10 : null,
       reviewCount: ratings[0]?.count || 0,
-      verified: Boolean(isVerified),
+      verified,
       takenSlots: taken[user._id] || [],
     });
   } catch (error) {

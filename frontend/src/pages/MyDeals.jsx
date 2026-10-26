@@ -55,8 +55,7 @@ const MyDeals = () => {
               <div className="min-w-0">
                 <p className="font-semibold">{d.brand?.companyName}</p>
                 <p className="mt-0.5 text-sm text-muted">
-                  <span className="text-lg font-extrabold text-ink">₹{d.offerAmount}</span>
-                  {d.message ? ` · ${d.message}` : ''}
+                  {d.message}
                 </p>
               </div>
 

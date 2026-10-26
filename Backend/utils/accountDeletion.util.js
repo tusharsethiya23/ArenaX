@@ -7,8 +7,8 @@
 // likes and saves; follows both ways; bookings they were in, with those
 // bookings' chat messages and reviews; reviews they wrote or received;
 // achievements; Athlete DNA (assessments of them or by them, activity logs);
-// endorsements given or received; profile views; subscriptions; their
-// marketplace content and its purchases, and their own purchases; brand deals
+// endorsements given or received; profile views; direct messages; their
+// marketplace listings; Arena Points history; Pro waitlist entry; brand deals
 // and spotlights; tournaments they created (with their teams) and teams they
 // captain; and they're taken off other teams.
 //
@@ -30,9 +30,10 @@ const Review = require('../models/review.model');
 const Achievement = require('../models/achievement.model');
 const Endorsement = require('../models/endorsement.model');
 const ProfileView = require('../models/profileView.model');
-const Subscription = require('../models/subscription.model');
-const Content = require('../models/content.model');
-const Purchase = require('../models/purchase.model');
+const DirectMessage = require('../models/directMessage.model');
+const Listing = require('../models/listing.model');
+const PointsLog = require('../models/pointsLog.model');
+const Waitlist = require('../models/waitlist.model');
 const Deal = require('../models/deal.model');
 const Spotlight = require('../models/spotlight.model');
 const Tournament = require('../models/tournament.model');
@@ -48,7 +49,6 @@ const deleteUsersAndData = async (userIds) => {
 
   const postIds = await Post.find({ author: inIds }).distinct('_id');
   const bookingIds = await Booking.find({ $or: [{ learner: inIds }, { coach: inIds }] }).distinct('_id');
-  const contentIds = await Content.find({ coach: inIds }).distinct('_id');
   const tournamentIds = await Tournament.find({ createdBy: inIds }).distinct('_id');
   // Posts by other people that lose comments need their counts fixed afterwards
   const otherCommented = await Comment.find({ author: inIds, post: { $nin: postIds } }).distinct('post');
@@ -71,9 +71,10 @@ const deleteUsersAndData = async (userIds) => {
   await run('activityLogs', ActivityLog.deleteMany({ athlete: inIds }));
   await run('endorsements', Endorsement.deleteMany({ $or: [{ endorser: inIds }, { endorsedUser: inIds }] }));
   await run('profileViews', ProfileView.deleteMany({ profileOwner: inIds }));
-  await run('subscriptions', Subscription.deleteMany({ user: inIds }));
-  await run('purchases', Purchase.deleteMany({ $or: [{ content: { $in: contentIds } }, { learner: inIds }] }));
-  await run('content', Content.deleteMany({ _id: { $in: contentIds } }));
+  await run('directMessages', DirectMessage.deleteMany({ $or: [{ from: inIds }, { to: inIds }] }));
+  await run('listings', Listing.deleteMany({ seller: inIds }));
+  await run('pointsLogs', PointsLog.deleteMany({ user: inIds }));
+  await run('waitlist', Waitlist.deleteMany({ user: inIds }));
   await run('deals', Deal.deleteMany({ talent: inIds }));
   await run('spotlights', Spotlight.deleteMany({ athlete: inIds }));
   await run('teams', Team.deleteMany({ $or: [{ tournament: { $in: tournamentIds } }, { captain: inIds }] }));

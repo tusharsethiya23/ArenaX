@@ -18,6 +18,7 @@ import MessagesButton from './MessagesButton';
 import UserMenu from './UserMenu';
 import { toneFor } from '../utils/tones';
 import useHideOnScroll from '../hooks/useHideOnScroll';
+import { canAccess } from '../utils/access';
 
 const Navbar = () => {
     const { user } = useAuth();
@@ -85,7 +86,7 @@ const Navbar = () => {
                     {user ? (
                         <>
                             <NotificationBell />
-                            <MessagesButton />
+                            {canAccess(user, 'directMessages') && <MessagesButton />}
                             <UserMenu />
                         </>
                     ) : (

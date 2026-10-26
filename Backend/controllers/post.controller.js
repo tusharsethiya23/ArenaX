@@ -4,14 +4,15 @@ const Comment = require('../models/comment.model');
 const SavedPost = require('../models/savedPost.model');
 const Follow = require('../models/follow.model');
 const User = require('../models/user.model');
-const Achievement = require('../models/achievement.model');
 const imagekit = require('../config/imagekit.config');
+const { awardPoints, revokePoints } = require('../utils/points.util');
+const { verifiedIdSet } = require('../utils/coachVerification.util');
 
 const { MAX_TEXT_LENGTH, MAX_IMAGES, MAX_LOCATION_LENGTH } = Post;
 const { MAX_COMMENT_LENGTH } = Comment;
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 20;
-const AUTHOR_FIELDS = 'name profilePhoto role sport location pricePerSession';
+const AUTHOR_FIELDS = 'name profilePhoto role sport location foundingMember coachVerified';
 const COMMENT_AUTHOR_FIELDS = 'name profilePhoto role';
 
 const isId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -44,13 +45,12 @@ const pageLimit = (raw) => {
 };
 
 // Adds what the feed shows for each post, in a few bulk queries for the whole page:
-// isLiked / isSaved (for the logged-in user), the latest comment, and author.verified.
+// isLiked / isSaved (for the logged-in user), the latest comment, and author.verified
+// (coaches: earned from sessions and ratings; others: a verified achievement).
 const decoratePosts = async (posts, viewer) => {
   if (posts.length === 0) return [];
   const ids = posts.map((p) => p._id);
-  const authorIds = [...new Set(posts.map((p) => String(p.author?._id)).filter(Boolean))];
-
-  const [liked, saved, latest, verified] = await Promise.all([
+  const [liked, saved, latest, verifiedSet] = await Promise.all([
     viewer ? Post.find({ _id: { $in: ids }, likes: viewer._id }).distinct('_id') : [],
     viewer ? SavedPost.find({ user: viewer._id, post: { $in: ids } }).distinct('post') : [],
     Comment.aggregate([
@@ -58,7 +58,7 @@ const decoratePosts = async (posts, viewer) => {
       { $sort: { _id: -1 } },
       { $group: { _id: '$post', comment: { $first: '$$ROOT' } } },
     ]),
-    Achievement.distinct('user', { user: { $in: authorIds }, verified: true }),
+    verifiedIdSet(posts.map((p) => p.author)),
   ]);
 
   // Load the latest comments' authors
@@ -66,11 +66,10 @@ const decoratePosts = async (posts, viewer) => {
   const latestByPost = Object.fromEntries(latestComments.map((c) => [String(c.post), c]));
   const likedSet = new Set(liked.map(String));
   const savedSet = new Set(saved.map(String));
-  const verifiedSet = new Set(verified.map(String));
 
   return posts.map((p) => ({
     ...p,
-    author: p.author ? { ...p.author, verified: verifiedSet.has(String(p.author._id)) } : null,
+    author: p.author ? { ...p.author, coachVerified: undefined, verified: verifiedSet.has(String(p.author._id)) } : null,
     isLiked: likedSet.has(String(p._id)),
     isSaved: savedSet.has(String(p._id)),
     latestComment: latestByPost[String(p._id)] || null,
@@ -114,6 +113,7 @@ const createPost = async (req, res) => {
       location,
       images: uploads.map((u) => u.url),
     });
+    await awardPoints(req.user._id, 'post', post._id); // +5 Arena Points
     const populated = await Post.findById(post._id).populate('author', AUTHOR_FIELDS).lean();
     const [decorated] = await decoratePosts([populated], req.user);
 
@@ -260,6 +260,7 @@ const deletePost = async (req, res) => {
       Post.deleteOne({ _id: post._id }),
       Comment.deleteMany({ post: post._id }),
       SavedPost.deleteMany({ post: post._id }),
+      revokePoints(post.author, 'post', post._id), // the post's points go too
     ]);
     res.json({ message: 'Post deleted' });
   } catch (error) {

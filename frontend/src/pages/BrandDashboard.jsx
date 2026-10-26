@@ -20,7 +20,7 @@ const BrandDashboard = () => {
   const [filters, setFilters] = useState({ sport: '', location: '' });
   const [talent, setTalent] = useState([]);
   const [dealTarget, setDealTarget] = useState(null); // id of the talent being offered a deal
-  const [dealForm, setDealForm] = useState({ offerAmount: '', message: '' });
+  const [dealForm, setDealForm] = useState({ message: '' });
 
   const searchTalent = async () => {
     const params = {};
@@ -51,12 +51,11 @@ const BrandDashboard = () => {
     try {
       await API.post('/deals', {
         talentId: dealTarget,
-        offerAmount: Number(dealForm.offerAmount),
         message: dealForm.message,
       });
       toast('Deal offer sent!', 'success');
       setDealTarget(null);
-      setDealForm({ offerAmount: '', message: '' });
+      setDealForm({ message: '' });
     } catch (err) {
       toastError(err);
     }
@@ -130,20 +129,13 @@ const BrandDashboard = () => {
       {dealTarget && (
         <Modal title="Send deal offer" description={`To ${talent.find((t) => t._id === dealTarget)?.name || 'this athlete'}`} onClose={() => setDealTarget(null)}>
             <form onSubmit={handleSendDeal} className="space-y-3">
-              <input
-                data-autofocus
-                type="number"
-                placeholder="Offer amount (₹)"
-                value={dealForm.offerAmount}
-                onChange={(e) => setDealForm({ ...dealForm, offerAmount: e.target.value })}
-                required
-                className="input"
-              />
               <textarea
-                placeholder="Message to the athlete"
+                data-autofocus
+                required
+                placeholder="Describe your offer: what you'd like them to do, and what they get"
                 value={dealForm.message}
                 onChange={(e) => setDealForm({ ...dealForm, message: e.target.value })}
-                rows={3}
+                rows={4}
                 className="input resize-none"
               />
               <div className="flex gap-3 pt-1">

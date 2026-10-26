@@ -9,7 +9,10 @@ import BackgroundGlow from './components/BackgroundGlow';
 import DialogHost from './components/DialogHost';
 import ProfileSync from './components/ProfileSync';
 import RealtimeConnection from './components/RealtimeConnection';
+import DailyCheckIn from './components/DailyCheckIn';
 import { useAuth } from './context/AuthContext';
+import ProGate from './components/ProGate';
+import { canAccess } from './utils/access';
 
 // Pages load on demand, so the first visit only downloads the page being opened
 const Settings = lazy(() => import('./pages/Settings'));
@@ -20,7 +23,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Marketplace = lazy(() => import('./pages/MarketPlace'));
 const UserProfileView = lazy(() => import('./pages/UserProfileView'));
-const Subscription = lazy(() => import('./pages/Subscription'));
+const ProComingSoon = lazy(() => import('./pages/ProComingSoon'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Chat = lazy(() => import('./pages/Chat'));
 const Messages = lazy(() => import('./pages/Messages'));
@@ -84,7 +87,7 @@ function App() {
           }
         />
         {/* Athlete DNA: own dashboard, a coach's view of an athlete, and a coach's athlete list */}
-        <Route path="/dna" element={<ProtectedRoute><AthleteDna /></ProtectedRoute>} />
+        <Route path="/dna" element={<ProtectedRoute><ProGate feature="athleteDna"><AthleteDna /></ProGate></ProtectedRoute>} />
         <Route path="/dna/:athleteId" element={<ProtectedRoute><AthleteDna /></ProtectedRoute>} />
         <Route path="/my-athletes" element={<ProtectedRoute><MyAthletes /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
@@ -135,12 +138,15 @@ function App() {
           }
         />
         <Route
-          path="/subscription"
-          element={<ProtectedRoute>
-            <Subscription />
-          </ProtectedRoute>
+          path="/pro"
+          element={
+            <ProtectedRoute>
+              <ProComingSoon />
+            </ProtectedRoute>
           }
         />
+        {/* The old subscription page is now "Pro coming soon" */}
+        <Route path="/subscription" element={<Navigate to="/pro" replace />} />
 
         {/* Old Analytics page now lives in the Profile page's Stats tab */}
         <Route path="/analytics" element={<Navigate to="/profile?tab=stats" replace />} />
@@ -178,7 +184,7 @@ function App() {
           path="/messages"
           element={
             <ProtectedRoute>
-              <Messages />
+              <ProGate feature="directMessages"><Messages /></ProGate>
             </ProtectedRoute>
           }
         />
@@ -186,7 +192,7 @@ function App() {
           path="/messages/:userId"
           element={
             <ProtectedRoute>
-              <DirectChat />
+              <ProGate feature="directMessages"><DirectChat /></ProGate>
             </ProtectedRoute>
           }
         />
@@ -226,7 +232,7 @@ function App() {
           path="/ai-assistant"
           element={
             <ProtectedRoute>
-              <AiAssistant/>
+              <ProGate feature="aiCoach"><AiAssistant /></ProGate>
             </ProtectedRoute>
           }
         />
@@ -240,7 +246,7 @@ function App() {
       {user && (
         <>
           <MobileTabBar />
-          <AiAssistantButton />
+          {canAccess(user, 'aiCoach') && <AiAssistantButton />}
         </>
       )}
 
@@ -252,6 +258,9 @@ function App() {
 
       {/* Live updates (new direct messages) while logged in */}
       {user && <RealtimeConnection />}
+
+      {/* Daily streak + Arena Points for opening the app */}
+      {user && <DailyCheckIn />}
     </>
   );
 }

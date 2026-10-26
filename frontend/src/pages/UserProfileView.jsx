@@ -14,12 +14,15 @@ import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import FollowButton from '../components/FollowButton';
 import MessageButton from '../components/MessageButton';
+import FoundingBadge from '../components/FoundingBadge';
+import VerifiedBadge from '../components/VerifiedBadge';
 import FollowCounts from '../components/FollowCounts';
 import CoachProfileCard from '../components/CoachProfileCard';
 import Portfolio from '../components/portfolio/Portfolio';
 import MatchCard from '../components/MatchCard';
 import useFollow from '../hooks/useFollow';
 import { toastError } from '../utils/dialogs';
+import { canAccess } from '../utils/access';
 
 const UserProfileView = () => {
     const { userId } = useParams();
@@ -59,7 +62,6 @@ const UserProfileView = () => {
         }
     };
 
-    // Shortcut to the user's own plan page (subscriptions are per-user plans)
     // Private accounts: a lock badge, explaining why their posts may be hidden
     const privateBadge = profileUser?.isPrivate && (
         <span className="badge gap-1 bg-canvas text-muted" title="Only approved followers see their posts">
@@ -129,7 +131,7 @@ const UserProfileView = () => {
                 </div>
 
                 <div className="min-w-0 space-y-6">
-                    {currentUser.role === 'learner' && !isOwnProfile && <MatchCard key={profileUser._id} coachId={profileUser._id} />}
+                    {currentUser.role === 'learner' && !isOwnProfile && canAccess(currentUser, 'coachMatching') && <MatchCard key={profileUser._id} coachId={profileUser._id} />}
                     <section className="card">
                         <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">About {privateBadge}</h2>
                         <p className="mt-3 text-sm leading-6 text-ink/80">{profileUser.bio || 'No bio yet.'}</p>
@@ -152,7 +154,9 @@ const UserProfileView = () => {
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <h1 className="break-words text-3xl font-extrabold tracking-tight">{profileUser.name}</h1>
-                        {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role}</span>}
+                        {profileUser.verified && <VerifiedBadge size={22} />}
+                        {profileUser.role && <span className="badge bg-canvas capitalize text-ink">{profileUser.role === 'learner' ? 'athlete' : profileUser.role}</span>}
+                        {profileUser.foundingMember && <FoundingBadge />}
                         {privateBadge}
                     </div>
                     <p className="mt-1 text-sm text-muted">

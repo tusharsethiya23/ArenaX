@@ -9,6 +9,7 @@
 //   level        teaches at the level the athlete's goal (or skill level) needs
 //   nearby       same city
 //   quality      rating (pulled towards 4/5 when there are few reviews) + verified
+//                (coaches are verified automatically, see coachVerification.util.js)
 //   availability an open slot in the next week (half credit for the week after)
 //
 // "Track record": between a coach's first and latest assessment of the same
@@ -16,7 +17,6 @@
 
 const User = require('../models/user.model');
 const Review = require('../models/review.model');
-const Achievement = require('../models/achievement.model');
 const Assessment = require('../models/assessment.model');
 const Booking = require('../models/booking.model');
 const { DIMENSIONS, DIMENSION_KEYS, GOALS, combineScores, gapsFor } = require('./dna.util');
@@ -88,22 +88,20 @@ const matchCoachesFor = async (athlete, { coachId, limit } = {}) => {
   if (coachId) filter._id = coachId;
   else if (athlete.sport) filter.sport = { $regex: `^${escapeRegex(athlete.sport.trim())}$`, $options: 'i' };
   const coaches = await User.find(filter)
-    .select('name profilePhoto sport location bio skillLevelTaught yearsExperience pricePerSession availability coachFocus')
+    .select('name profilePhoto sport location bio skillLevelTaught yearsExperience availability coachFocus coachVerified foundingMember')
     .lean();
   const ids = coaches.map((c) => c._id);
 
-  const [ratings, verified, taken, records, coachedBefore] = await Promise.all([
+  const [ratings, taken, records, coachedBefore] = await Promise.all([
     Review.aggregate([
       { $match: { coach: { $in: ids } } },
       { $group: { _id: '$coach', avg: { $avg: '$rating' }, n: { $sum: 1 } } },
     ]),
-    Achievement.distinct('user', { user: { $in: ids }, status: 'verified' }),
     takenSlotsByCoach(ids),
     trackRecords(ids),
     Booking.find({ learner: athlete._id, coach: { $in: ids }, status: { $in: ['confirmed', 'completed'] } }).distinct('coach'),
   ]);
   const ratingById = Object.fromEntries(ratings.map((r) => [String(r._id), r]));
-  const verifiedIds = new Set(verified.map(String));
   const coachedIds = new Set(coachedBefore.map(String));
 
   const wantedLevels = goal ? GOALS[goal].coachLevels : athlete.skillLevel ? [athlete.skillLevel] : null;
@@ -115,7 +113,7 @@ const matchCoachesFor = async (athlete, { coachId, limit } = {}) => {
     const focus = c.coachFocus || [];
     const record = records[id] || {};
     const r = ratingById[id];
-    const isVerified = verifiedIds.has(id);
+    const isVerified = Boolean(c.coachVerified);
     const next = nextOpenSlot(c.availability, taken[c._id] || [], 14);
     const parts = {};
     const reasons = [];

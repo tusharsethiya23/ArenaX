@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const Booking = require('./models/booking.model');
+const { runStartupMigrations } = require('./utils/startupMigrations.util');
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +36,11 @@ app.use(cors({
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected ✅'))
+  .then(() => {
+    console.log('MongoDB connected ✅');
+    // Bring older data up to date (founding members, no prices, verified coaches)
+    return runStartupMigrations().catch((err) => console.log('Startup migrations failed:', err.message));
+  })
   .catch((err) => console.log('MongoDB error ❌', err));
 
 // ---------- Routes ----------
@@ -48,10 +53,11 @@ app.use('/api/dm', require('./routes/directMessage.routes.js'));
 app.use('/api/reviews', require('./routes/review.routes.js'));
 app.use('/api/endorsements', require('./routes/endorsement.routes.js'));
 app.use('/api/achievements', require('./routes/achievement.routes.js'));
-app.use('/api/content', require('./routes/content.routes.js'));
+app.use('/api/listings', require('./routes/listing.routes.js'));
 app.use('/api/brands', require('./routes/brand.routes.js'));
 app.use('/api/deals', require('./routes/deal.routes.js'));
-app.use('/api/subscriptions', require('./routes/subscription.routes.js'));
+app.use('/api/points', require('./routes/points.routes.js'));
+app.use('/api/waitlist', require('./routes/waitlist.routes.js'));
 app.use('/api/spotlight', require('./routes/spotlight.routes.js'));
 app.use('/api/analytics', require('./routes/analytics.routes.js'));
 app.use('/api/tournaments', tournamentRoutes);

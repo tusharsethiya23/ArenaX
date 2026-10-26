@@ -2,7 +2,7 @@
 // One post in the feed:
 //   header   avatar, name, role badge, "sport · location · 1h ago", Follow, "…" menu
 //   body     text with #tags/@mentions, photo carousel with location tag
-//   actions  like, comments, share, save, and "Book <coach> · ₹price" on coach posts
+//   actions  like, comments, share, save, and "Book session" on coach posts
 //   footer   latest comment preview, or the full comments panel when opened
 // Likes and saves update instantly and are corrected from the server's answer.
 
@@ -13,10 +13,11 @@ import API from '../api/axios';
 import useDismiss from '../hooks/useDismiss';
 import Avatar from './Avatar';
 import VerifiedBadge from './VerifiedBadge';
+import FoundingBadge from './FoundingBadge';
 import RichText from './RichText';
 import ImageCarousel from './ImageCarousel';
 import CommentsPanel from './CommentsPanel';
-import { compact, timeAgo, firstName } from '../utils/format';
+import { compact, timeAgo } from '../utils/format';
 import { confirmDialog } from '../utils/dialogs';
 import MessageButton from './MessageButton';
 
@@ -129,6 +130,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         {toProfile(author.name, 'truncate font-bold hover:underline')}
                         {author.verified && <VerifiedBadge size={16} />}
+                        {author.foundingMember && <FoundingBadge compact />}
                         {badge && <span className={`badge px-2 py-0.5 text-[10px] uppercase tracking-wider ${badge.className}`}>{badge.label}</span>}
                     </div>
                     <p className="truncate text-sm text-muted">
@@ -206,7 +208,7 @@ const PostCard = ({ post: initialPost, viewer, followState = 'none', onToggleFol
 
                 {canBookAuthor && (
                     <Link to={profileUrl} className="btn btn-lime ml-auto">
-                        Book {firstName(author.name)}{author.pricePerSession ? ` · ₹${author.pricePerSession}` : ''}
+                        Book session
                     </Link>
                 )}
             </div>

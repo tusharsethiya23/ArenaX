@@ -1,6 +1,6 @@
 // dna.util.js
 // The rules behind "Athlete DNA": the six skills, career goals and their target
-// scores, the activity library, and the maths that turns assessments and
+// scores, the drill library and its levels, and the maths that turns assessments and
 // activity logs into scores, gaps, an action plan and a readiness %.
 // Pure functions, no database access, so they're easy to reason about.
 
@@ -25,22 +25,61 @@ const GOALS = {
   professional: { label: 'Professional', target: 9, coachLevels: ['advanced'] },
 };
 
-// ---------- Activity library: what to do to close a gap in each skill ----------
+// ---------- Drill library: what to do to close a gap in each skill ----------
+// Every skill has a beginner, intermediate and advanced drill (see DRILL_LEVELS
+// for how levels unlock). Keys are stored in activity logs: never rename them.
 const ACTIVITIES = [
-  { key: 'technique-drills', dimension: 'technique', title: (s) => `${s || 'Sport'} technique drills`, perWeek: 3 },
-  { key: 'video-review', dimension: 'technique', title: () => 'Film and review your technique', perWeek: 1 },
-  { key: 'match-play', dimension: 'gameSense', title: () => 'Play a practice match', perWeek: 2 },
-  { key: 'study-games', dimension: 'gameSense', title: () => 'Watch and analyse a top-level match', perWeek: 1 },
-  { key: 'endurance', dimension: 'fitness', title: () => '30-min endurance run or cycle', perWeek: 3 },
-  { key: 'strength', dimension: 'fitness', title: () => 'Strength session (gym or bodyweight)', perWeek: 2 },
-  { key: 'sprints', dimension: 'speed', title: () => 'Sprint intervals (8 × 30 m)', perWeek: 2 },
-  { key: 'agility', dimension: 'speed', title: () => 'Agility ladder and cone drills', perWeek: 2 },
-  { key: 'visualisation', dimension: 'mental', title: () => '10-min visualisation and breathing', perWeek: 4 },
-  { key: 'journal', dimension: 'mental', title: () => 'Training journal: what went well, what to fix', perWeek: 2 },
-  { key: 'mobility', dimension: 'discipline', title: () => '15-min mobility and stretching', perWeek: 4 },
-  { key: 'sleep', dimension: 'discipline', title: () => '8 hours of sleep', perWeek: 5 },
+  { key: 'technique-drills', level: 'beginner', dimension: 'technique', title: (s) => `${s || 'Sport'} technique drills`, perWeek: 3 },
+  { key: 'video-review', level: 'intermediate', dimension: 'technique', title: () => 'Film and review your technique', perWeek: 1 },
+  { key: 'pressure-reps', level: 'advanced', dimension: 'technique', title: () => 'Technique under pressure: 50 game-speed reps', perWeek: 2 },
+  { key: 'study-games', level: 'beginner', dimension: 'gameSense', title: () => 'Watch and analyse a top-level match', perWeek: 1 },
+  { key: 'match-play', level: 'intermediate', dimension: 'gameSense', title: () => 'Play a practice match', perWeek: 2 },
+  { key: 'scenario-play', level: 'advanced', dimension: 'gameSense', title: () => 'Scenario training: play out 10 match situations', perWeek: 2 },
+  { key: 'endurance', level: 'beginner', dimension: 'fitness', title: () => '30-min endurance run or cycle', perWeek: 3 },
+  { key: 'strength', level: 'intermediate', dimension: 'fitness', title: () => 'Strength session (gym or bodyweight)', perWeek: 2 },
+  { key: 'hiit', level: 'advanced', dimension: 'fitness', title: () => 'HIIT circuit: 20 min of 40 s on / 20 s off', perWeek: 2 },
+  { key: 'agility', level: 'beginner', dimension: 'speed', title: () => 'Agility ladder and cone drills', perWeek: 2 },
+  { key: 'sprints', level: 'intermediate', dimension: 'speed', title: () => 'Sprint intervals (8 × 30 m)', perWeek: 2 },
+  { key: 'reaction-sprints', level: 'advanced', dimension: 'speed', title: () => 'Reaction sprints on a partner\'s call (10 × 20 m)', perWeek: 2 },
+  { key: 'journal', level: 'beginner', dimension: 'mental', title: () => 'Training journal: what went well, what to fix', perWeek: 2 },
+  { key: 'visualisation', level: 'intermediate', dimension: 'mental', title: () => '10-min visualisation and breathing', perWeek: 4 },
+  { key: 'pressure-routine', level: 'advanced', dimension: 'mental', title: () => 'Mock competition with your pre-game routine', perWeek: 1 },
+  { key: 'sleep', level: 'beginner', dimension: 'discipline', title: () => '8 hours of sleep', perWeek: 5 },
+  { key: 'mobility', level: 'intermediate', dimension: 'discipline', title: () => '15-min mobility and stretching', perWeek: 4 },
+  { key: 'recovery-protocol', level: 'advanced', dimension: 'discipline', title: () => 'Full recovery routine: mobility, foam roll, cold shower', perWeek: 3 },
 ];
 const ACTIVITY_BY_KEY = Object.fromEntries(ACTIVITIES.map((a) => [a.key, a]));
+
+// ---------- Drill levels and how they unlock ----------
+//   beginner:     open to everyone
+//   intermediate: 5 completed beginner drills, or a 7-day streak (best streak counts)
+//   advanced:     5 completed intermediate drills, or 500 Arena Points
+const DRILL_LEVELS = ['beginner', 'intermediate', 'advanced'];
+const UNLOCK = {
+  intermediate: { drills: 5, streak: 7, condition: 'Complete 5 beginner drills or reach a 7-day streak' },
+  advanced: { drills: 5, points: 500, condition: 'Complete 5 intermediate drills or earn 500 Arena Points' },
+};
+
+// done: { beginner, intermediate } completed-drill counts (all time)
+const drillUnlocks = ({ done, bestStreak = 0, points = 0 }) => ({
+  beginner: { unlocked: true },
+  intermediate: {
+    unlocked: done.beginner >= UNLOCK.intermediate.drills || bestStreak >= UNLOCK.intermediate.streak,
+    condition: UNLOCK.intermediate.condition,
+    progress: [
+      { label: 'Beginner drills', value: Math.min(done.beginner, UNLOCK.intermediate.drills), target: UNLOCK.intermediate.drills },
+      { label: 'Best streak (days)', value: Math.min(bestStreak, UNLOCK.intermediate.streak), target: UNLOCK.intermediate.streak },
+    ],
+  },
+  advanced: {
+    unlocked: done.intermediate >= UNLOCK.advanced.drills || points >= UNLOCK.advanced.points,
+    condition: UNLOCK.advanced.condition,
+    progress: [
+      { label: 'Intermediate drills', value: Math.min(done.intermediate, UNLOCK.advanced.drills), target: UNLOCK.advanced.drills },
+      { label: 'Arena Points', value: Math.min(points, UNLOCK.advanced.points), target: UNLOCK.advanced.points },
+    ],
+  },
+});
 
 const COACH_WEIGHT = 2;          // a coach's assessment counts double a self-rating
 const COACH_ASSESSMENT_DAYS = 120; // older coach assessments stop counting
@@ -98,16 +137,18 @@ const gapsFor = (scores, goalKey) => {
     .sort((a, b) => b.gap - a.gap || a.current - b.current);
 };
 
-// Weekly plan from the three biggest gaps (two activities for the biggest).
-// If every skill already meets the goal, a maintenance plan for the two lowest.
-const buildPlan = (gaps, sport) => {
+// Weekly plan from the three biggest gaps (two drills for the biggest), using
+// only unlocked levels and the hardest unlocked drill first. If every skill
+// already meets the goal, a maintenance plan for the two lowest.
+const buildPlan = (gaps, sport, unlockedLevels = ['beginner']) => {
   if (gaps.length === 0) return [];
   const open = gaps.filter((g) => g.gap > 0);
   const focus = open.length ? open.slice(0, 3) : [...gaps].sort((a, b) => a.current - b.current).slice(0, 2);
   return focus.flatMap((g, i) => ACTIVITIES
-    .filter((a) => a.dimension === g.key)
+    .filter((a) => a.dimension === g.key && unlockedLevels.includes(a.level))
+    .sort((a, b) => DRILL_LEVELS.indexOf(b.level) - DRILL_LEVELS.indexOf(a.level))
     .slice(0, i === 0 && open.length ? 2 : 1)
-    .map((a) => ({ key: a.key, dimension: a.dimension, dimensionLabel: g.label, title: a.title(sport), perWeek: a.perWeek })));
+    .map((a) => ({ key: a.key, level: a.level, dimension: a.dimension, dimensionLabel: g.label, title: a.title(sport), perWeek: a.perWeek })));
 };
 
 // This week's progress per plan item, and plan consistency over the last 4 weeks (0-1)
@@ -156,6 +197,6 @@ const cleanScores = (input) => {
 };
 
 module.exports = {
-  DIMENSIONS, DIMENSION_KEYS, GOALS, ACTIVITIES, ACTIVITY_BY_KEY,
+  DIMENSIONS, DIMENSION_KEYS, GOALS, ACTIVITIES, ACTIVITY_BY_KEY, DRILL_LEVELS, drillUnlocks,
   combineScores, overallOf, history, gapsFor, buildPlan, planProgress, readinessFor, cleanScores, weekStart,
 };

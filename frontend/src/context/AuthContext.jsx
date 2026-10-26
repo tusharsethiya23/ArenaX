@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useCallback } from 'react';
 import { clearSharedResources } from '../hooks/useSharedResource';
+import { clearInvite } from '../utils/invite';
 
 const AuthContext = createContext();
 
@@ -10,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (userData) => {
+    clearInvite(); // an invite code only matters until the account exists
     localStorage.setItem('token', userData.token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);

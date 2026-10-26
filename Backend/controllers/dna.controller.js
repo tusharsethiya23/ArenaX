@@ -1,7 +1,8 @@
 // dna.controller.js
 // Athlete DNA: skill scores from self + coach assessments, a career goal, the
-// gap to that goal, a weekly action plan, activity logging, a readiness %, and
-// opportunities (coaches at the right level, upcoming tournaments).
+// gap to that goal, a weekly action plan, drill logging (drills have levels that
+// unlock, see DRILL_LEVELS in dna.util.js), a readiness %, and opportunities
+// (coaches at the right level, upcoming tournaments).
 
 const mongoose = require('mongoose');
 const User = require('../models/user.model');
@@ -10,9 +11,10 @@ const Tournament = require('../models/tournament.model');
 const Assessment = require('../models/assessment.model');
 const ActivityLog = require('../models/activityLog.model');
 const {
-  DIMENSIONS, GOALS, ACTIVITY_BY_KEY, combineScores, overallOf, history, gapsFor,
+  DIMENSIONS, GOALS, ACTIVITIES, ACTIVITY_BY_KEY, DRILL_LEVELS, drillUnlocks, combineScores, overallOf, history, gapsFor,
   buildPlan, planProgress, readinessFor, cleanScores,
 } = require('../utils/dna.util');
+const { canAccess } = require('../utils/access.util');
 // A coach may assess / view an athlete they've had a confirmed or completed session with
 const { hasCoachingRelation } = require('../utils/coaching.util');
 const { matchCoachesFor } = require('../utils/match.util');
@@ -21,17 +23,36 @@ const isId = (id) => mongoose.Types.ObjectId.isValid(id);
 const LOG_WINDOW_DAYS = 35; // enough for 4 full weeks of consistency + this week
 
 
+// Which drill levels the athlete has unlocked, from their all-time completed
+// drills per level, best streak and Arena Points
+const drillLevelsFor = async (athlete) => {
+  const [counts, fresh] = await Promise.all([
+    ActivityLog.aggregate([{ $match: { athlete: athlete._id } }, { $group: { _id: '$activityKey', n: { $sum: 1 } } }]),
+    User.findById(athlete._id).select('points streak plan').lean(), // never a cached copy
+  ]);
+  const done = { beginner: 0, intermediate: 0, advanced: 0 };
+  for (const c of counts) {
+    const level = ACTIVITY_BY_KEY[c._id]?.level;
+    if (level) done[level] += c.n;
+  }
+  const levels = drillUnlocks({ done, bestStreak: fresh?.streak?.best || 0, points: fresh?.points || 0 });
+  // Advanced drills may become a Pro feature one day
+  if (!canAccess(fresh, 'advancedDrills')) levels.advanced = { ...levels.advanced, unlocked: false, condition: 'Coming with ArenaX Pro' };
+  return { done, levels, unlocked: DRILL_LEVELS.filter((l) => levels[l].unlocked) };
+};
+
 // Everything the dashboard shows for one athlete
 const buildDashboard = async (athlete, { withOpportunities = false } = {}) => {
   const since = new Date(Date.now() - LOG_WINDOW_DAYS * 24 * 60 * 60 * 1000);
-  const [assessments, logs] = await Promise.all([
+  const [assessments, logs, drillLevels] = await Promise.all([
     Assessment.find({ athlete: athlete._id }).sort({ createdAt: -1 }).populate('assessor', 'name profilePhoto role').lean(),
     ActivityLog.find({ athlete: athlete._id, doneAt: { $gte: since } }).sort({ doneAt: -1 }).lean(),
+    drillLevelsFor(athlete),
   ]);
 
   const combined = combineScores(assessments);
   const gaps = gapsFor(combined?.scores, athlete.careerGoal);
-  const plan = buildPlan(gaps, athlete.sport);
+  const plan = buildPlan(gaps, athlete.sport, drillLevels.unlocked);
   const { items, consistency } = planProgress(plan, logs);
 
   const dashboard = {
@@ -59,6 +80,14 @@ const buildDashboard = async (athlete, { withOpportunities = false } = {}) => {
       minutes: l.minutes, doneAt: l.doneAt,
     })),
     lastSelfAssessment: assessments.find((a) => a.source === 'self')?.createdAt || null,
+    // The whole drill library by level, with what's locked and how to unlock it
+    drillLevels: DRILL_LEVELS.map((level) => ({ level, ...drillLevels.levels[level], completed: drillLevels.done[level] })),
+    drills: ACTIVITIES.map((a) => ({
+      key: a.key, level: a.level, dimension: a.dimension,
+      dimensionLabel: DIMENSIONS.find((d) => d.key === a.dimension)?.label,
+      title: a.title(athlete.sport), perWeek: a.perWeek,
+      locked: !drillLevels.unlocked.includes(a.level),
+    })),
   };
 
   if (withOpportunities) dashboard.opportunities = await opportunitiesFor(athlete);
@@ -71,7 +100,7 @@ const opportunitiesFor = async (athlete) => {
   const { coaches } = await matchCoachesFor(athlete, { limit: 3 });
   const rankedCoaches = coaches.map((c) => ({
     _id: c._id, name: c.name, profilePhoto: c.profilePhoto, sport: c.sport, location: c.location,
-    skillLevelTaught: c.skillLevelTaught, pricePerSession: c.pricePerSession, rating: c.rating, match: c.match,
+    skillLevelTaught: c.skillLevelTaught, rating: c.rating, match: c.match,
   }));
 
   const tournaments = await Tournament.find({
@@ -161,6 +190,10 @@ const logActivity = async (req, res) => {
     if (!req.user || req.user.role !== 'learner') return res.status(403).json({ message: 'Only athletes log activities' });
     const activity = ACTIVITY_BY_KEY[req.body.activityKey];
     if (!activity) return res.status(400).json({ message: 'Unknown activity' });
+    const { levels } = await drillLevelsFor(req.user);
+    if (!levels[activity.level].unlocked) {
+      return res.status(403).json({ code: 'DRILL_LOCKED', message: `This ${activity.level} drill is locked. ${levels[activity.level].condition} to unlock it.` });
+    }
     const minutes = req.body.minutes === undefined || req.body.minutes === '' ? undefined : Number(req.body.minutes);
     if (minutes !== undefined && (!Number.isInteger(minutes) || minutes < 1 || minutes > 600)) {
       return res.status(400).json({ message: 'Minutes must be a whole number from 1 to 600' });

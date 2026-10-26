@@ -11,10 +11,6 @@ const spotlightSchema = new mongoose.Schema({
     ref: 'Brand',
     required: true,
   },
-  amountPaid: {
-    type: Number,
-    required: true,
-  },
   startDate: {
     type: Date,
     required: true,

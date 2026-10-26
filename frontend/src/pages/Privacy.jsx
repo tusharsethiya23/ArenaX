@@ -15,10 +15,14 @@ const Privacy = () => (
             <ul>
                 <li><b>Account details:</b> your name, email address, role (learner or coach) and a password, which we store only in hashed form.</li>
                 <li><b>Google sign-in:</b> if you choose "Continue with Google", Google shares your name, email address and profile photo with us. We don't receive your Google password or access to anything else in your Google account.</li>
-                <li><b>Profile information you add:</b> photo, bio, city, sport, skill level, goals, and for coaches: price, experience, weekly availability and focus skills.</li>
+                <li><b>Profile information you add:</b> photo, bio, city, sport, skill level, goals, and for coaches: experience, weekly availability and focus skills.</li>
                 <li><b>Things you create:</b> posts, photos, comments, likes, saved posts, follows, endorsements, reviews and portfolio achievements.</li>
                 <li><b>Sessions:</b> bookings with coaches (dates, times and status) and the chat messages sent within a booking.</li>
-                <li><b>Athlete DNA:</b> skill ratings from you and from coaches you have trained with, your career goal, and the training activities you log.</li>
+                <li><b>Messages:</b> direct messages you send to and receive from other users.</li>
+                <li><b>Marketplace:</b> listings you post (photos, title, description, condition and location).</li>
+                <li><b>Athlete DNA:</b> skill ratings from you and from coaches you have trained with, your career goal, and the training drills you log.</li>
+                <li><b>Arena Points:</b> your points, the days you open ArenaX (for your daily streak), and who invited you, if you joined through a friend's invite link.</li>
+                <li><b>Pro waitlist:</b> if you tap "Notify me", your email address so we can tell you when ArenaX Pro launches.</li>
                 <li><b>AI coach:</b> the questions you ask the AI coach.</li>
                 <li><b>Usage:</b> basic records such as who viewed a coach's profile, used to show coaches their statistics.</li>
             </ul>
@@ -53,7 +57,7 @@ const Privacy = () => (
                 <li><b>ImageKit</b> stores the photos you upload.</li>
                 <li><b>Google</b> provides "Continue with Google" sign-in, and Google Gemini answers AI coach questions. Your question and relevant profile and DNA details are sent to Gemini to produce an answer.</li>
             </ul>
-            <p>ArenaX doesn't process real payments yet, so we don't collect card or bank details.</p>
+            <p>ArenaX doesn't handle any payments, so we never collect card or bank details. Marketplace listings have no prices or checkout: buyers and sellers talk in ArenaX messages.</p>
         </Section>
 
         <Section title="How long we keep it">

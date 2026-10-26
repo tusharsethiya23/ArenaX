@@ -47,9 +47,6 @@ const userSchema = new mongoose.Schema({
   sport: {
     type: String,
   },
-  pricePerSession: {
-    type: Number,
-  },
   skillLevelTaught: {
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
@@ -89,6 +86,47 @@ const userSchema = new mongoose.Schema({
   skillLevel: {
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
+  },
+
+  // ---------- Arena Points (utils/points.util.js) ----------
+  points: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  // Days in a row the user opened ArenaX (days in Asia/Kolkata, "YYYY-MM-DD")
+  streak: {
+    count: { type: Number, default: 0 },
+    best: { type: Number, default: 0 },
+    lastDay: { type: String, default: '' },
+  },
+  // Code in the user's invite link (made the first time they open it)
+  inviteCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  // Who invited this user (they get points once this account is verified)
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
+  // Everyone who joins during the launch period
+  foundingMember: {
+    type: Boolean,
+    default: true,
+  },
+  // Coaches: earned automatically (utils/coachVerification.util.js)
+  coachVerified: {
+    type: Boolean,
+    default: false,
+  },
+  // Everything is free today; utils/access.util.js decides what each plan includes
+  plan: {
+    type: String,
+    enum: ['free', 'pro'],
+    default: 'free',
   },
 
 }, { timestamps: true });

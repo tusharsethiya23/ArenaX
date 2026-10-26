@@ -1,7 +1,7 @@
 // StatsPanel.jsx
 // Coach performance stats (formerly the /analytics page, now the "Stats" tab
 // on /profile). Shows booking stats plus trust/performance metrics (rating,
-// endorsements, achievements) and earnings, aggregated by the backend.
+// endorsements, achievements) and brand deals, aggregated by the backend.
 // Each tile has a coloured dot; the first tile's number is the highlight colour.
 
 import { useState, useEffect } from 'react';
@@ -29,6 +29,7 @@ const StatsPanel = () => {
                 { label: 'Total bookings', value: data.totalBookings },
                 { label: 'Confirmed bookings', value: data.confirmedBookings },
                 { label: 'Completed sessions', value: data.completedBookings },
+                { label: 'Brand deals accepted', value: data.totalBrandDeals },
             ],
         },
         {
@@ -39,13 +40,6 @@ const StatsPanel = () => {
                 { label: 'Endorsements', value: data.endorsementCount },
                 { label: 'Achievements', value: `${data.verifiedAchievementCount}/${data.achievementCount} verified` },
                 { label: 'Completion rate', value: data.completionRate !== null ? `${data.completionRate}%` : '—' },
-            ],
-        },
-        {
-            title: 'Earnings',
-            stats: [
-                { label: 'Brand deals closed', value: data.totalBrandDeals },
-                { label: 'Brand deal earnings', value: `₹${data.totalBrandEarnings.toFixed(0)}` },
             ],
         },
     ];

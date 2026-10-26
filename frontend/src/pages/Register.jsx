@@ -15,6 +15,7 @@ import PasswordInput from '../components/PasswordInput';
 import VerifyEmailStep from '../components/VerifyEmailStep';
 import JoinAsPicker from '../components/JoinAsPicker';
 import useGoogleAuth from '../hooks/useGoogleAuth';
+import { rememberInvite, savedInvite } from '../utils/invite';
 
 const GOOGLE_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 const MIN_PASSWORD = 8;
@@ -23,6 +24,11 @@ const GMAIL_RE = /^[a-z0-9](?:[a-z0-9.]{4,28})[a-z0-9](?:\+[a-z0-9._-]{1,30})?@(
 
 const Register = () => {
     const [searchParams] = useSearchParams();
+    // Arriving from a friend's invite link (?ref=...): remember the code for the sign-up
+    const [invited] = useState(() => {
+        rememberInvite(searchParams);
+        return Boolean(savedInvite());
+    });
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -52,7 +58,7 @@ const Register = () => {
             return;
         }
         try {
-            const res = await API.post('/auth/register', { ...formData, email });
+            const res = await API.post('/auth/register', { ...formData, email, ref: savedInvite() });
             // Account made but not usable yet: ask for the emailed code
             setVerifying({ email: res.data.email, note: res.data.codeSent ? '' : res.data.message });
         } catch (err) {
@@ -72,6 +78,11 @@ const Register = () => {
             }
         >
             {error && <div className="alert-error mb-4">{error}</div>}
+            {invited && !verifying && (
+                <p className="mb-4 rounded-2xl bg-highlight/10 px-4 py-3 text-sm text-highlight">
+                    A friend invited you. Join and you'll both be Founding Members of ArenaX.
+                </p>
+            )}
 
             {verifying ? (
                 <VerifyEmailStep

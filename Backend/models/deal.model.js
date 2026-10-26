@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// A brand's sponsorship offer to an athlete or coach: a message they accept or
+// decline. (No money is handled in ArenaX.)
 const dealSchema = new mongoose.Schema({
   brand: {
     type: mongoose.Schema.Types.ObjectId,
@@ -11,10 +13,6 @@ const dealSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  offerAmount: {
-    type: Number,
-    required: true,
-  },
   message: {
     type: String,
     default: '',
@@ -23,10 +21,6 @@ const dealSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'accepted', 'declined'],
     default: 'pending',
-  },
-  commissionRate: {
-    type: Number,
-    default: 0.1, // 10% platform commission
   },
 }, { timestamps: true });
 

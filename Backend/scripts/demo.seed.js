@@ -18,8 +18,10 @@ const { connect, clearDemoData, demoUserIds, mongoose, DEMO_DOMAIN, models } = r
 
 const {
   User, Post, Comment, SavedPost, Follow, Booking, Message, Review, Achievement,
-  Endorsement, ProfileView, Content, Tournament, Team, Assessment, ActivityLog,
+  Endorsement, ProfileView, Listing, PointsLog, Tournament, Team, Assessment, ActivityLog,
 } = models;
+const { POINTS, dayKey } = require('../utils/points.util');
+const { refreshCoachVerified } = require('../utils/coachVerification.util');
 const { DIMENSION_KEYS, combineScores, gapsFor, buildPlan } = require('../utils/dna.util');
 const { dateInZone, addDays, weekdayOf, sessionTimes } = require('../utils/slots.util');
 
@@ -60,20 +62,20 @@ const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 const SLOT_TIMES = ['6 AM - 7 AM', '7 AM - 8 AM', '8 AM - 9 AM', '5 PM - 6 PM', '6 PM - 7 PM', '7 PM - 8 PM'];
 
 const COACHES = [
-  ['Rahul Sharma', 'Cricket', 'Indore', 'advanced', 12, 1200, 'Former Ranji player. Batting technique, playing pace and match temperament.'],
-  ['Vikram Singh', 'Cricket', 'Mumbai', 'advanced', 15, 1500, 'Fast-bowling specialist. Run-ups, wrist position and injury-free bowling.'],
-  ['Amit Verma', 'Football', 'Mumbai', 'beginner', 8, 800, 'Grassroots coach. First touch, passing and loving the game.'],
-  ['Sneha Kapoor', 'Football', 'Delhi', 'intermediate', 5, 900, 'Midfield play, scanning and decision making under pressure.'],
-  ['Priya Nair', 'Tennis', 'Pune', 'intermediate', 6, 1000, 'Serve, footwork and point construction for club players.'],
-  ['Arjun Reddy', 'Tennis', 'Hyderabad', 'advanced', 10, 1400, 'ITF-level coaching. Tactical patterns and mental game.'],
-  ['Kabir Mehta', 'Badminton', 'Indore', 'beginner', 4, 600, 'Grip, footwork and clean clears for new players.'],
-  ['Meera Iyer', 'Badminton', 'Bengaluru', 'advanced', 9, 1100, 'National-level doubles player. Net play and rotation.'],
-  ['Rohan Das', 'Basketball', 'Kolkata', 'intermediate', 7, 700, 'Shooting form, ball handling and team defence.'],
-  ['Anjali Rao', 'Swimming', 'Chennai', 'beginner', 6, 900, 'Learn-to-swim and stroke correction for all ages.'],
-  ['Farhan Ali', 'Athletics', 'Delhi', 'advanced', 11, 1000, 'Sprints and hurdles. Starts, drive phase and speed endurance.'],
-  ['Deepak Yadav', 'Kabaddi', 'Jaipur', 'intermediate', 8, 500, 'Raiding skills, footwork and fitness for kabaddi.'],
-  ['Neha Joshi', 'Yoga', 'Pune', 'beginner', 5, 700, 'Mobility and recovery yoga for athletes.'],
-  ['Sameer Khan', 'Boxing', 'Mumbai', 'advanced', 13, 1300, 'Footwork, defence and ring craft. Private account.'],
+  ['Rahul Sharma', 'Cricket', 'Indore', 'advanced', 12, 'Former Ranji player. Batting technique, playing pace and match temperament.'],
+  ['Vikram Singh', 'Cricket', 'Mumbai', 'advanced', 15, 'Fast-bowling specialist. Run-ups, wrist position and injury-free bowling.'],
+  ['Amit Verma', 'Football', 'Mumbai', 'beginner', 8, 'Grassroots coach. First touch, passing and loving the game.'],
+  ['Sneha Kapoor', 'Football', 'Delhi', 'intermediate', 5, 'Midfield play, scanning and decision making under pressure.'],
+  ['Priya Nair', 'Tennis', 'Pune', 'intermediate', 6, 'Serve, footwork and point construction for club players.'],
+  ['Arjun Reddy', 'Tennis', 'Hyderabad', 'advanced', 10, 'ITF-level coaching. Tactical patterns and mental game.'],
+  ['Kabir Mehta', 'Badminton', 'Indore', 'beginner', 4, 'Grip, footwork and clean clears for new players.'],
+  ['Meera Iyer', 'Badminton', 'Bengaluru', 'advanced', 9, 'National-level doubles player. Net play and rotation.'],
+  ['Rohan Das', 'Basketball', 'Kolkata', 'intermediate', 7, 'Shooting form, ball handling and team defence.'],
+  ['Anjali Rao', 'Swimming', 'Chennai', 'beginner', 6, 'Learn-to-swim and stroke correction for all ages.'],
+  ['Farhan Ali', 'Athletics', 'Delhi', 'advanced', 11, 'Sprints and hurdles. Starts, drive phase and speed endurance.'],
+  ['Deepak Yadav', 'Kabaddi', 'Jaipur', 'intermediate', 8, 'Raiding skills, footwork and fitness for kabaddi.'],
+  ['Neha Joshi', 'Yoga', 'Pune', 'beginner', 5, 'Mobility and recovery yoga for athletes.'],
+  ['Sameer Khan', 'Boxing', 'Mumbai', 'advanced', 13, 'Footwork, defence and ring craft. Private account.'],
 ];
 const ATHLETES = [
   ['Tushar Singh', 'Cricket', 'Indore', 'intermediate', 'Make the state U-19 squad'],
@@ -167,13 +169,13 @@ const REVIEWS = [
     const joined = () => daysAgo(30, 60);
 
     // ---------- Users ----------
-    const coachDocs = COACHES.map(([name, sport, location, skillLevelTaught, yearsExperience, pricePerSession, bio]) => {
+    const coachDocs = COACHES.map(([name, sport, location, skillLevelTaught, yearsExperience, bio]) => {
       const days = sample(WEEKDAYS, int(3, 6));
       const times = sample(SLOT_TIMES, int(2, 3));
       const createdAt = joined();
       return {
         _id: idAt(createdAt), name, email: emailFor(name), password, emailVerified: true, role: 'coach', sport, location, bio,
-        skillLevelTaught, yearsExperience, pricePerSession, isPrivate: PRIVATE_NAMES.has(name),
+        skillLevelTaught, yearsExperience, isPrivate: PRIVATE_NAMES.has(name),
         availability: days.flatMap((day) => times.map((timeSlot) => ({ day, timeSlot }))),
         coachFocus: sample(DIMENSION_KEYS, int(2, 3)),
         createdAt, updatedAt: createdAt,
@@ -495,17 +497,46 @@ const REVIEWS = [
     }
     console.log(`Tournaments: ${tournamentSpecs.length}, teams: ${teamCount}`);
 
-    // ---------- Marketplace content ----------
-    const contentTypes = ['drill', 'training_plan', 'video_course'];
-    await Content.insertMany(sample(coaches, 8).map((c) => {
-      const type = pick(contentTypes);
+    // ---------- Marketplace listings (gear, no prices) ----------
+    const GEAR = [
+      ['Cricket bat, English willow (SH)', 'like_new', 'Used for one season. Knocked in, no cracks.'],
+      ['Football boots, size 9', 'good', 'Firm-ground studs, plenty of grip left.'],
+      ['Badminton racket pair with cover', 'good', 'Two rackets, freshly strung at 24 lbs.'],
+      ['Tennis balls, 2 cans', 'new', 'Unopened. Bought too many for the season.'],
+      ['Agility ladder and 10 cones', 'like_new', 'Great for footwork drills at home.'],
+      ['Boxing gloves 12 oz', 'fair', 'Well loved but still solid. Good for bag work.'],
+      ['Yoga mat, 6 mm', 'like_new', 'Non-slip, comes with a carry strap.'],
+      ['Cricket helmet (youth)', 'good', 'Steel grille, fits ages 12 to 15.'],
+    ];
+    await Listing.insertMany(GEAR.map(([title, condition, description], i) => {
+      const seller = everyone[(i * 5) % everyone.length];
+      const createdAt = daysAgo(0, 14);
       return {
-        coach: c._id, type, price: pick([199, 299, 499, 799, 999]),
-        title: { drill: `${c.sport} drill pack`, training_plan: `8-week ${c.sport.toLowerCase()} plan`, video_course: `${c.sport} fundamentals video course` }[type],
-        description: `Built from ${c.yearsExperience} years of coaching. Step-by-step and beginner friendly.`,
-        fileLink: 'https://example.com/demo-content',
+        seller: seller._id, title, description, condition, location: seller.location || 'Mumbai',
+        photos: [`https://picsum.photos/seed/arenax-gear-${i}/900/700`],
+        status: i === GEAR.length - 1 ? 'sold' : 'active', createdAt, updatedAt: createdAt,
       };
     }));
+    console.log(`Marketplace listings: ${GEAR.length}`);
+
+    // ---------- Arena Points for the seeded activity, streaks, verified coaches ----------
+    const seededPosts = await Post.find({ author: { $in: everyone.map((u) => u._id) } }).select('author').lean();
+    const seededSessions = await Booking.find({ coach: { $in: coaches.map((c) => c._id) }, status: 'completed' }).select('coach learner').lean();
+    const logs = [
+      ...seededPosts.map((p) => ({ user: p.author, reason: 'post', ref: String(p._id), amount: POINTS.post })),
+      ...seededSessions.flatMap((bk) => [bk.learner, bk.coach].map((user) => ({ user, reason: 'session', ref: String(bk._id), amount: POINTS.session }))),
+    ];
+    for (const u of everyone) {
+      const days = int(0, 9); // a streak of 0-9 days, up to yesterday
+      for (let d = 1; d <= days; d++) logs.push({ user: u._id, reason: 'streak', ref: dayKey(new Date(Date.now() - d * 86400000)), amount: POINTS.streak });
+      if (days) await User.updateOne({ _id: u._id }, { streak: { count: days, best: days + int(0, 5), lastDay: dayKey(new Date(Date.now() - 86400000)) } });
+    }
+    await PointsLog.insertMany(logs);
+    const totals = {};
+    for (const l of logs) totals[l.user] = (totals[l.user] || 0) + l.amount;
+    await User.bulkWrite(Object.entries(totals).map(([id, points]) => ({ updateOne: { filter: { _id: id }, update: { points } } })));
+    for (const c of coaches) await refreshCoachVerified(c._id);
+    console.log(`Arena Points: ${logs.length} awards; verified coaches: ${await User.countDocuments({ _id: { $in: coaches.map((c) => c._id) }, coachVerified: true })}`);
 
     console.log('\nDone. Log in as any demo user with password "demo1234", e.g.');
     console.log(`  coach:   ${emailFor('Rahul Sharma')}`);

@@ -50,9 +50,11 @@ export const refreshSharedResource = (url) => {
 const AFFECTS = [
     [/^\/(bookings|reviews)\b/, /^\/bookings\//],
     [/^\/users\/profile\b/, /^\/users\/[0-9a-f]{24}$/],
-    [/^\/subscriptions\b/, /^\/subscriptions\//],
+    [/^\/waitlist\b/, /^\/waitlist\/me$/],
     [/^\/follows\b/, /^\/follows\/requests$/],
     [/^\/dm\b/, /^\/dm$/],
+    // Actions that earn (or take back) Arena Points
+    [/^\/(posts|bookings|reviews|dna)\b/, /^\/points\/me$/],
 ];
 
 API.interceptors.response.use((res) => {
