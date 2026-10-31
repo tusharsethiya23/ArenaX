@@ -30,7 +30,7 @@ const Navbar = () => {
             <div className="mx-auto grid h-full max-w-[1440px] grid-cols-[1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
 
                 {/* ---------- LEFT: logo ---------- */}
-                <div className="nav-glass justify-self-start rounded-2xl p-1 pr-4 max-[379px]:pr-1 md:pr-1 xl:pr-4">
+                <div className="justify-self-start">
                     <Logo />
                 </div>
 

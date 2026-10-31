@@ -19,6 +19,14 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 
 ---
 
+## 2026-10-31 (Sat)
+**Logo without a box**
+- Removed the dark rounded box the navbar drew around the logo; the white AX logo now sits directly on the page background.
+
+**New AX logo**
+- New "AX" monogram: the A's right leg is also one stroke of the X, and the A's crossbar stops on the X. White on a transparent background (no yellow tile), with an all-white "ARENAX" wordmark (`Logo.jsx`, `LogoMark`).
+- The browser-tab icon (`public/favicon.svg`) was still Vite's default purple logo; it is now the AX mark in white on a dark rounded square, so it stays visible on light browser tabs.
+
 ## 2026-10-26 (Mon)
 **Yellow pills are now outlined**
 - Every yellow pill (main buttons such as Search, Book session, Register team, Log in; selected chips; Joining as; the selected booking slot) has no yellow fill any more: a thin (1px) yellow border with white text. On hover it fills solid yellow with black text (counts and icons inside turn black too); clicking darkens it slightly and presses it in. All other pills and chips also press in when clicked. One shared CSS rule: `.btn-dark`, `.btn-lime`, `.chip-active`, `.pill-selected` in `index.css`.
