@@ -6,11 +6,15 @@
 //   CENTER: the 4 primary links inside a pill; the active one is a yellow
 //           filled pill with black text (desktop only; mobile uses MobileTabBar)
 //   RIGHT:  notification bell + messages (chat) button + profile pill
-//           (or Log in / Join when logged out)
+//           (a brand that is logged in sees its name, linking to the Brand
+//           dashboard, and Log out; logged out: Log in / Join)
 // Everything else (bookings, plan, settings, logout...) lives in UserMenu.
 
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useBrandAuth } from '../context/BrandAuthContext';
+import Avatar from './Avatar';
 import NAV_LINKS from './navLinks';
 import Logo from './Logo';
 import NotificationBell from './NotificationBell';
@@ -21,6 +25,10 @@ import { canAccess } from '../utils/access';
 
 const Navbar = () => {
     const { user } = useAuth();
+    const { brand, brandLogout } = useBrandAuth();
+    // A brand is logged in (and no player): show the brand instead of Log in / Join
+    const isBrand = !user && !!brand;
+    const navigate = useNavigate();
     // Slides up out of view while scrolling down, back in on any scroll up
     const hidden = useHideOnScroll();
 
@@ -31,7 +39,7 @@ const Navbar = () => {
 
                 {/* ---------- LEFT: logo ---------- */}
                 <div className="justify-self-start">
-                    <Logo />
+                    <Logo to={isBrand ? '/brand/dashboard' : '/'} />
                 </div>
 
                 {/* ---------- CENTER: primary links (desktop) ---------- */}
@@ -81,6 +89,23 @@ const Navbar = () => {
                             <NotificationBell />
                             {canAccess(user, 'directMessages') && <MessagesButton />}
                             <UserMenu />
+                        </>
+                    ) : isBrand ? (
+                        <>
+                            <Link to="/brand/dashboard" title="Brand dashboard" className="nav-glass flex max-w-[220px] items-center gap-2 rounded-full p-1 transition-colors hover:bg-canvas sm:pr-4">
+                                <Avatar name={brand.companyName} pastel className="h-9 w-9 text-xs" />
+                                <span className="hidden min-w-0 sm:block">
+                                    <span className="block truncate text-sm font-semibold">{brand.companyName}</span>
+                                    <span className="block text-xs text-muted">Brand</span>
+                                </span>
+                            </Link>
+                            <button
+                                onClick={() => { brandLogout(); navigate('/brand/login'); }}
+                                aria-label="Log out"
+                                className="btn btn-soft px-3 sm:px-4"
+                            >
+                                <LogOut size={16} /> <span className="hidden sm:inline">Log out</span>
+                            </button>
                         </>
                     ) : (
                         <>

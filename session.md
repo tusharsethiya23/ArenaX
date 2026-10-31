@@ -75,7 +75,7 @@ Free for now: there are no payments.
 - Don't repeat secrets or the user's email address.
 
 ## Next task
-- **Brand flow is done:** brands send offers (a message, no money) to coaches and athletes, see each offer's status, and chat with the person once it is accepted. Possible next: show the logged-in brand in the navbar.
+- **Brand flow is done:** brands send offers (a message, no money) to coaches and athletes, see each offer's status, and chat with the person once it is accepted. The navbar shows the logged-in brand (name pill + Log out).
 - **Not decided yet.** Ask the user. Open questions:
   - Switch email to Brevo, or stay on Gmail?
   - What were features #3, #6 and #7 from the original list?

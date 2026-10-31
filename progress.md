@@ -6,13 +6,12 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ## Where we are
 
 - **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
-- **Next up:** brand flow done (offers to coaches and athletes, sent-offers status, chat after acceptance). Waiting for your next request. Possible next: show the logged-in brand in the navbar (it still shows Log in / Join).
+- **Next up:** brand flow done (offers to coaches and athletes, sent-offers status, chat after acceptance). Waiting for your next request.
 - **To do on your side:**
   - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
   - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
   - Google Cloud Console: fill in the Branding URLs (home page, privacy, terms).
 - **Known issues:**
-  - While a brand is logged in, the navbar still shows "Log in / Join" (it only knows player accounts).
   - Old lint errors in `AuthContext`, `BrandAuthContext`, `AdminDashboard`, `BrandDashboard`, `MyDeals` and `Tournament` (setState inside an effect). These existed before the restyle.
 - **Offered, not started:**
   - Delete the old content/purchase/subscription collections from the database.
@@ -21,6 +20,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-31 (Sat)
+**Navbar for logged-in brands**
+- A logged-in brand no longer sees "Log in / Join": the navbar shows the brand (initials + company name, linking to the Brand dashboard) and a Log out button; the logo goes to the Brand dashboard. On phones only the initials and a log-out icon show. Players and visitors are unchanged. Tested (14 checks) on desktop and phone, including log out.
+
 **Brand and talent chat (brand step 3 of 3)**
 - Once an offer is accepted, the brand and the coach/athlete can chat to agree the details (still no money in the app). Chat button on accepted offers in the brand's Sent offers tab and on the talent's Brand deals page; chat page at `/deals/:id/chat` works for both kinds of login.
 - Backend: new `DealMessage` model; `GET` / `POST /api/deals/:id/messages` (only the deal's brand and talent, only after acceptance); new messages are pushed live to a private `deal:<id>` socket room that the server only lets those two join. Brands' socket logins are now recognised. Deleting an account also deletes its deal chat messages.
