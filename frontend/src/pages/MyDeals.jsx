@@ -10,6 +10,7 @@ import PageHeader from '../components/PageHeader';
 import { toastError } from '../utils/dialogs';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { MessageCircle } from 'lucide-react';
 
 // Colour-coded status badge
 const statusColor = {
@@ -74,6 +75,12 @@ const MyDeals = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`badge capitalize ${statusColor[d.status]}`}>{d.status}</span>
+
+                {d.status === 'accepted' && (
+                  <Link to={`/deals/${d._id}/chat`} className="btn btn-soft">
+                    <MessageCircle size={16} /> Chat with {d.brand?.companyName || 'brand'}
+                  </Link>
+                )}
 
                 {d.status === 'pending' && (
                   <>

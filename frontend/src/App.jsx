@@ -31,6 +31,7 @@ const Tournaments = lazy(() => import('./pages/Tournament'));
 const BrandLogin = lazy(() => import('./pages/BrandLogin'));
 const BrandDashboard = lazy(() => import('./pages/BrandDashboard'));
 const MyDeals = lazy(() => import('./pages/MyDeals'));
+const DealChat = lazy(() => import('./pages/DealChat'));
 const AiAssistant = lazy(() => import('./pages/AiAssistant'));
 const Feed = lazy(() => import('./pages/Feed'));
 const NewPost = lazy(() => import('./pages/NewPost'));
@@ -224,6 +225,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Brand <-> coach/athlete chat on an accepted deal (both kinds of login) */}
+        <Route path="/deals/:dealId/chat" element={<DealChat />} />
 
 
         <Route

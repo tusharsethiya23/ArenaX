@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const Booking = require('./models/booking.model');
+const Deal = require('./models/deal.model');
 const { runStartupMigrations } = require('./utils/startupMigrations.util');
 
 const app = express();
@@ -88,11 +89,14 @@ io.on('connection', (socket) => {
   // their direct messages are delivered. Rooms are joined only here, after the
   // token is verified, so nobody can listen to another user's messages.
   let userId = null;
+  let brandId = null;
   const token = socket.handshake.auth?.token;
   if (token) {
     try {
       const { id, type } = jwt.verify(token, process.env.JWT_SECRET);
-      if (type !== 'brand') {
+      if (type === 'brand') {
+        brandId = String(id);
+      } else {
         userId = String(id);
         socket.join(`user:${userId}`);
       }
@@ -105,6 +109,18 @@ io.on('connection', (socket) => {
     if (!userId || !mongoose.Types.ObjectId.isValid(bookingId)) return;
     const isParticipant = await Booking.exists({ _id: bookingId, $or: [{ learner: userId }, { coach: userId }] });
     if (isParticipant) socket.join(`booking:${bookingId}`);
+  });
+
+  // Each accepted deal has its own room ("deal:<id>"), joined only by that
+  // deal's brand or coach/athlete; new messages are pushed by the API
+  socket.on('joinDealRoom', async (dealId) => {
+    if ((!userId && !brandId) || !mongoose.Types.ObjectId.isValid(dealId)) return;
+    const isParticipant = await Deal.exists({
+      _id: dealId,
+      status: 'accepted',
+      ...(brandId ? { brand: brandId } : { talent: userId }),
+    });
+    if (isParticipant) socket.join(`deal:${dealId}`);
   });
 
   socket.on('sendMessage', (messageData) => {

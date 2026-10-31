@@ -62,6 +62,7 @@ Free for now: there are no payments.
 - **No payments.** Everyone is on `plan: "free"`, and `canAccess()` decides what each user can use (`frontend/src/utils/access.js`, `Backend/utils/access.util.js`). Pro features are on a waitlist (`/pro`). Arena Points replace money as the reward.
 - **Email:** Gmail SMTP through nodemailer. Sign-up only accepts Gmail addresses, confirmed with an emailed code. Moving to Brevo was mentioned but not decided.
 - **Sidebar layout reverted (2026-10-26):** the user wants theme changes only.
+- **Brands:** no money in the app. Brands find talent (coaches, and athletes with 70%+ DNA readiness), send offers as messages, and chat only after the offer is accepted.
 - **Messages:** direct messages only between users who follow each other. The bell shows notifications only; messages have their own button.
 
 ## Working rules for Claude
@@ -74,7 +75,7 @@ Free for now: there are no payments.
 - Don't repeat secrets or the user's email address.
 
 ## Next task
-- **In progress: brand features, one step at a time.** Done: athletes see Brand deals; brands see their Sent offers with status. Next: brand and talent chat after an accepted offer.
+- **Brand flow is done:** brands send offers (a message, no money) to coaches and athletes, see each offer's status, and chat with the person once it is accepted. Possible next: show the logged-in brand in the navbar.
 - **Not decided yet.** Ask the user. Open questions:
   - Switch email to Brevo, or stay on Gmail?
   - What were features #3, #6 and #7 from the original list?

@@ -8,8 +8,8 @@
 // talent cards are one column on mobile, more on wider screens.
 
 import { useState, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { Search, MapPin } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Search, MapPin, MessageCircle } from 'lucide-react';
 import Modal from '../components/Modal';
 import API from '../api/axios';
 import { useBrandAuth } from '../context/BrandAuthContext';
@@ -192,7 +192,14 @@ const BrandDashboard = () => {
                     </p>
                     <p className="mt-2 whitespace-pre-line text-sm text-ink/80">{d.message}</p>
                   </div>
-                  <p className="shrink-0 text-xs text-muted">Sent {fmtDate(d.createdAt)}</p>
+                  <div className="flex shrink-0 flex-row items-center gap-3 sm:flex-col sm:items-end">
+                    <p className="text-xs text-muted">Sent {fmtDate(d.createdAt)}</p>
+                    {d.status === 'accepted' && (
+                      <Link to={`/deals/${d._id}/chat`} className="btn btn-soft px-4 py-2">
+                        <MessageCircle size={16} /> Chat
+                      </Link>
+                    )}
+                  </div>
                 </li>
               );
             })}

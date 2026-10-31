@@ -1,5 +1,6 @@
 const Deal = require('../models/deal.model');
 const User = require('../models/user.model');
+const DealMessage = require('../models/dealMessage.model');
 
 // Brand deal request bhejta hai
 const createDeal = async (req, res) => {
@@ -76,4 +77,60 @@ const updateDealStatus = async (req, res) => {
   }
 };
 
-module.exports = { createDeal, getSentDeals, getMyDeals, updateDealStatus };
+// ---------- Chat on an accepted deal (brand <-> coach/athlete) ----------
+
+// The deal, if the requester is its brand or its talent and it was accepted.
+// Sends the error response itself and returns null otherwise.
+const chatDealFor = async (req, res) => {
+  const deal = await Deal.findById(req.params.id).catch(() => null);
+  if (!deal) {
+    res.status(404).json({ message: 'Deal not found' });
+    return null;
+  }
+  const isBrand = !!req.brand && String(deal.brand) === String(req.brand._id);
+  const isTalent = !!req.user && String(deal.talent) === String(req.user._id);
+  if (!isBrand && !isTalent) {
+    res.status(403).json({ message: 'Not part of this deal' });
+    return null;
+  }
+  if (deal.status !== 'accepted') {
+    res.status(400).json({ message: 'Chat opens once the offer is accepted' });
+    return null;
+  }
+  return { deal, isBrand };
+};
+
+// The deal (with both sides' names) and its messages, oldest first
+const getDealMessages = async (req, res) => {
+  try {
+    const found = await chatDealFor(req, res);
+    if (!found) return;
+    const deal = await found.deal.populate([
+      { path: 'brand', select: 'companyName industry website' },
+      { path: 'talent', select: 'name role sport location profilePhoto' },
+    ]);
+    const messages = await DealMessage.find({ deal: deal._id }).sort({ createdAt: 1 }).limit(500);
+    res.json({ deal, messages });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Send a message; it is pushed live to everyone in the deal's room
+const sendDealMessage = async (req, res) => {
+  try {
+    const found = await chatDealFor(req, res);
+    if (!found) return;
+    const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
+    if (!text) return res.status(400).json({ message: 'Write a message' });
+    if (text.length > DealMessage.MAX_LENGTH) return res.status(400).json({ message: `Keep it under ${DealMessage.MAX_LENGTH} characters` });
+
+    const message = await DealMessage.create({ deal: found.deal._id, fromBrand: found.isBrand, text });
+    req.app.get('io')?.to(`deal:${found.deal._id}`).emit('dealMessage', message);
+    res.status(201).json(message);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { createDeal, getSentDeals, getMyDeals, updateDealStatus, getDealMessages, sendDealMessage };

@@ -21,8 +21,9 @@ const AiAssistantButton = () => {
         return () => document.removeEventListener('keydown', handleKey);
     }, [open]);
 
-    // The full-page assistant is already open there
-    if (pathname === '/ai-assistant') return null;
+    // The full-page assistant is already open there; on chat pages the floating
+    // button would cover the Send button (booking chat, direct messages, deal chat)
+    if (pathname === '/ai-assistant' || /^\/(chat\/[^/]+|messages\/[^/]+|deals\/[^/]+\/chat)$/.test(pathname)) return null;
 
     return (
         <>

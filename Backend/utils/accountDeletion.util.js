@@ -35,6 +35,7 @@ const Listing = require('../models/listing.model');
 const PointsLog = require('../models/pointsLog.model');
 const Waitlist = require('../models/waitlist.model');
 const Deal = require('../models/deal.model');
+const DealMessage = require('../models/dealMessage.model');
 const Spotlight = require('../models/spotlight.model');
 const Tournament = require('../models/tournament.model');
 const Team = require('../models/team.model');
@@ -75,7 +76,9 @@ const deleteUsersAndData = async (userIds) => {
   await run('listings', Listing.deleteMany({ seller: inIds }));
   await run('pointsLogs', PointsLog.deleteMany({ user: inIds }));
   await run('waitlist', Waitlist.deleteMany({ user: inIds }));
-  await run('deals', Deal.deleteMany({ talent: inIds }));
+  const dealIds = await Deal.find({ talent: inIds }).distinct('_id');
+  await run('dealMessages', DealMessage.deleteMany({ deal: { $in: dealIds } }));
+  await run('deals', Deal.deleteMany({ _id: { $in: dealIds } }));
   await run('spotlights', Spotlight.deleteMany({ athlete: inIds }));
   await run('teams', Team.deleteMany({ $or: [{ tournament: { $in: tournamentIds } }, { captain: inIds }] }));
   await run('tournaments', Tournament.deleteMany({ _id: { $in: tournamentIds } }));

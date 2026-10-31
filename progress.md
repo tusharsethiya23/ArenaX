@@ -6,7 +6,7 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ## Where we are
 
 - **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
-- **Next up:** brand step 3: chat between a brand and the coach/athlete after an offer is accepted.
+- **Next up:** brand flow done (offers to coaches and athletes, sent-offers status, chat after acceptance). Waiting for your next request. Possible next: show the logged-in brand in the navbar (it still shows Log in / Join).
 - **To do on your side:**
   - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
   - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
@@ -21,6 +21,12 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-31 (Sat)
+**Brand and talent chat (brand step 3 of 3)**
+- Once an offer is accepted, the brand and the coach/athlete can chat to agree the details (still no money in the app). Chat button on accepted offers in the brand's Sent offers tab and on the talent's Brand deals page; chat page at `/deals/:id/chat` works for both kinds of login.
+- Backend: new `DealMessage` model; `GET` / `POST /api/deals/:id/messages` (only the deal's brand and talent, only after acceptance); new messages are pushed live to a private `deal:<id>` socket room that the server only lets those two join. Brands' socket logins are now recognised. Deleting an account also deletes its deal chat messages.
+- The floating AI coach button is hidden on chat pages (booking chat, direct messages, deal chat), where it covered the Send button on phones.
+- Tested (17 checks): no chat while pending, outsiders and other brands blocked, messages arrive live both ways with no duplicates, another brand's socket hears nothing, history survives a refresh, phone layout.
+
 **Brand "Sent offers" (brand step 2 of 3)**
 - Brand Dashboard now has two tabs: Find talent | Sent offers. Sent offers lists every offer the brand sent, newest first, with the person, their sport and city, the message, the date and a status badge (Pending amber, Accepted green, Declined red). New API: `GET /api/deals/sent` (brands only).
 - Fixed: a player account calling "send offer" crashed with a server error; it now gets a clear 403. Offers to a non-existent person are rejected (404).
