@@ -1,11 +1,15 @@
 // MyDeals.jsx
-// Lets a coach see brand deal offers sent to them and accept or decline each.
+// Lets a coach or athlete see brand deal offers sent to them and accept or
+// decline each. Athletes only show up in brand search once their Athlete DNA
+// career readiness reaches 70%, so their empty state says so.
 // Responsive: each card stacks vertically on mobile, becomes a row on larger screens.
 
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import { toastError } from '../utils/dialogs';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 // Colour-coded status badge
 const statusColor = {
@@ -15,6 +19,7 @@ const statusColor = {
 };
 
 const MyDeals = () => {
+  const { user } = useAuth();
   const [deals, setDeals] = useState([]);
 
   const fetchDeals = async () => {
@@ -44,7 +49,15 @@ const MyDeals = () => {
       <PageHeader title="Brand deals" subtitle="Sponsorship offers sent to you" />
 
       {deals.length === 0 ? (
-        <p className="empty-state">No deal offers yet.</p>
+        <p className="empty-state">
+          No deal offers yet.
+          {user.role === 'learner' && (
+            <>
+              {' '}Brands can find you once your career readiness reaches 70% on{' '}
+              <Link to="/dna" className="font-semibold text-ink underline underline-offset-2">My DNA</Link>.
+            </>
+          )}
+        </p>
       ) : (
         <div className="space-y-3">
           {deals.map((d) => (

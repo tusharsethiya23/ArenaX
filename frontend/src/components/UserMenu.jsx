@@ -49,7 +49,7 @@ const UserMenu = () => {
         user.role === 'coach' && canAccess(user, 'coachStats') && { to: '/profile?tab=stats', label: 'My stats', icon: BarChart3 },
         { to: '/saved', label: 'Saved posts', icon: Bookmark },
         { to: '/pro', label: 'ArenaX Pro', icon: Sparkles, tag: 'Soon' },
-        user.role === 'coach' && { to: '/deals', label: 'Brand deals', icon: Handshake },
+        (user.role === 'coach' || user.role === 'learner') && { to: '/deals', label: 'Brand deals', icon: Handshake },
         user.role === 'admin' && { to: '/admin', label: 'Admin', icon: ShieldCheck },
         { to: '/settings', label: 'Settings', icon: Settings },
     ].filter(Boolean);

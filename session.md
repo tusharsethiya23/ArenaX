@@ -74,6 +74,7 @@ Free for now: there are no payments.
 - Don't repeat secrets or the user's email address.
 
 ## Next task
+- **In progress: brand features, one step at a time.** Done: athletes see Brand deals. Next: "Sent offers" list on the Brand Dashboard. Then: brand and talent chat after an accepted offer.
 - **Not decided yet.** Ask the user. Open questions:
   - Switch email to Brevo, or stay on Gmail?
   - What were features #3, #6 and #7 from the original list?

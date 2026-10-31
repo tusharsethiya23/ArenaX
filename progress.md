@@ -6,7 +6,7 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ## Where we are
 
 - **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
-- **Next up:** not decided. Open questions are in session.md (Brevo or Gmail, features #3/#6/#7, end goal).
+- **Next up:** brand step 2: a "Sent offers" list on the Brand Dashboard (pending / accepted / declined). Then step 3: chat between brand and talent after an offer is accepted.
 - **To do on your side:**
   - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
   - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
@@ -20,6 +20,9 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-31 (Sat)
+**Brand deals for athletes (brand step 1 of 3)**
+- Athletes now see "Brand deals" in the account menu (it was coach-only, so offers brands sent to athletes were never seen). With no offers yet, the page tells athletes that brands can find them once their career readiness reaches 70% on My DNA. Tested: brand sends an offer to an athlete, the athlete opens it from the menu and accepts it.
+
 **Logo without a box**
 - Removed the dark rounded box the navbar drew around the logo; the white AX logo now sits directly on the page background.
 

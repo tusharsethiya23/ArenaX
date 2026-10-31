@@ -90,7 +90,9 @@ Status: ✅ done · 🟡 partly done · ⏳ planned
 | Feature | Status | Where |
 |---|---|---|
 | Brand login and dashboard: talent search (DNA readiness ≥ 70) | ✅ | `brand.*`, `pages/BrandDashboard.jsx` |
-| Deals between brands and coaches | ✅ | `deal.*`, `pages/MyDeals.jsx` |
+| Deals: brands send offers (a message, no money) to coaches and athletes; they accept or decline under "Brand deals" | ✅ | `deal.*`, `pages/MyDeals.jsx` |
+| Brand sees the status of offers it sent | ⏳ | next step |
+| Chat between brand and talent after an offer is accepted | ⏳ | planned |
 | Athlete spotlight on Discover | ✅ | `spotlight.*`, `pages/Discover.jsx` |
 
 ### Pro (no payments yet)
