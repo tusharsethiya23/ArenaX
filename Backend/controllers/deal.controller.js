@@ -1,9 +1,13 @@
 const Deal = require('../models/deal.model');
+const User = require('../models/user.model');
 
 // Brand deal request bhejta hai
 const createDeal = async (req, res) => {
   try {
+    if (!req.brand) return res.status(403).json({ message: 'Only brands can send deal offers' });
     const { talentId } = req.body;
+    const talent = await User.exists({ _id: talentId, role: { $in: ['coach', 'learner'] } }).catch(() => null);
+    if (!talent) return res.status(404).json({ message: 'Coach or athlete not found' });
     const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
     if (!message) return res.status(400).json({ message: 'Write a message about your offer' });
 
@@ -14,6 +18,20 @@ const createDeal = async (req, res) => {
     });
 
     res.status(201).json(deal);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Brand sees the offers it has sent, newest first, with each one's status
+const getSentDeals = async (req, res) => {
+  try {
+    if (!req.brand) return res.status(403).json({ message: 'Only brands have sent offers' });
+    const deals = await Deal.find({ brand: req.brand._id })
+      .populate('talent', 'name role sport location profilePhoto')
+      .sort({ createdAt: -1 });
+
+    res.json(deals);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -58,4 +76,4 @@ const updateDealStatus = async (req, res) => {
   }
 };
 
-module.exports = { createDeal, getMyDeals, updateDealStatus };
+module.exports = { createDeal, getSentDeals, getMyDeals, updateDealStatus };

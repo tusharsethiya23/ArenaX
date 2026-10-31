@@ -1,7 +1,11 @@
 // BrandDashboard.jsx
-// Lets a logged-in brand search talent by sport/location and send deal
-// offers. Responsive: filters stack on mobile and sit in a row on larger
-// screens; talent cards are one column on mobile, more on wider screens.
+// Two tabs for a logged-in brand:
+//   Find talent  - search coaches and brand-ready athletes by sport/location
+//                  and send deal offers
+//   Sent offers  - every offer the brand has sent, with its status
+//                  (pending / accepted / declined)
+// Responsive: filters stack on mobile and sit in a row on larger screens;
+// talent cards are one column on mobile, more on wider screens.
 
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -13,6 +17,20 @@ import Avatar from '../components/Avatar';
 import PageHeader from '../components/PageHeader';
 import { toastError, toast } from '../utils/dialogs';
 
+const TABS = [
+  { id: 'find', label: 'Find talent' },
+  { id: 'sent', label: 'Sent offers' },
+];
+
+// Status badge colours by meaning: pending amber, accepted green, declined red
+const STATUS = {
+  pending: { label: 'Pending', className: 'bg-warn/15 text-warn' },
+  accepted: { label: 'Accepted', className: 'bg-ok/15 text-ok' },
+  declined: { label: 'Declined', className: 'bg-danger/10 text-danger' },
+};
+
+const fmtDate = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+
 const BrandDashboard = () => {
   const { brand, brandLogout } = useBrandAuth();
   const navigate = useNavigate();
@@ -21,6 +39,13 @@ const BrandDashboard = () => {
   const [talent, setTalent] = useState([]);
   const [dealTarget, setDealTarget] = useState(null); // id of the talent being offered a deal
   const [dealForm, setDealForm] = useState({ message: '' });
+  const [tab, setTab] = useState('find');
+  const [sent, setSent] = useState(null); // null while loading
+
+  const loadSent = () => API.get('/deals/sent').then((res) => setSent(res.data)).catch(() => setSent([]));
+  useEffect(() => {
+    if (brand) loadSent();
+  }, [brand]);
 
   const searchTalent = async () => {
     const params = {};
@@ -56,6 +81,7 @@ const BrandDashboard = () => {
       toast('Deal offer sent!', 'success');
       setDealTarget(null);
       setDealForm({ message: '' });
+      loadSent();
     } catch (err) {
       toastError(err);
     }
@@ -69,6 +95,22 @@ const BrandDashboard = () => {
         action={<button onClick={handleLogout} className="btn btn-soft bg-surface">Log out</button>}
       />
 
+      <div className="mb-6 flex gap-5 border-b border-line" role="tablist">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`tab ${tab === t.id ? 'tab-active' : ''}`}
+          >
+            {t.label}
+            {t.id === 'sent' && sent?.length > 0 && <span className="ml-1.5 text-muted">{sent.length}</span>}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'find' && (<>
       {/* Search filters: same white search pill as Discover */}
       <form
         onSubmit={(e) => { e.preventDefault(); searchTalent(); }}
@@ -123,6 +165,39 @@ const BrandDashboard = () => {
             </div>
           ))}
         </div>
+      )}
+      </>)}
+
+      {/* Sent offers: newest first */}
+      {tab === 'sent' && (
+        sent === null ? (
+          <p className="empty-state">Loading…</p>
+        ) : sent.length === 0 ? (
+          <p className="empty-state">No offers sent yet. Find a coach or athlete and send your first offer.</p>
+        ) : (
+          <ul className="space-y-3">
+            {sent.map((d) => {
+              const status = STATUS[d.status] || STATUS.pending;
+              const person = d.talent;
+              return (
+                <li key={d._id} className="flex flex-col gap-3 rounded-2xl bg-surface p-5 sm:flex-row sm:items-start">
+                  <Avatar name={person?.name || '?'} photo={person?.profilePhoto} className="h-12 w-12 text-sm" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold">{person?.name || 'Deleted account'}</h3>
+                      <span className={`badge ${status.className}`}>{status.label}</span>
+                    </div>
+                    <p className="text-sm text-muted">
+                      {[person?.role === 'learner' ? 'Athlete' : person?.role === 'coach' ? 'Coach' : null, person?.sport, person?.location].filter(Boolean).join(' · ')}
+                    </p>
+                    <p className="mt-2 whitespace-pre-line text-sm text-ink/80">{d.message}</p>
+                  </div>
+                  <p className="shrink-0 text-xs text-muted">Sent {fmtDate(d.createdAt)}</p>
+                </li>
+              );
+            })}
+          </ul>
+        )
       )}
 
       {/* Deal offer modal */}

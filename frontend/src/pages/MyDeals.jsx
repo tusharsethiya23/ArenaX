@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 
 // Colour-coded status badge
 const statusColor = {
-  pending: 'bg-canvas text-muted',
+  pending: 'bg-warn/15 text-warn',
   accepted: 'bg-data-mint/15 text-data-mint',
   declined: 'bg-danger/10 text-danger',
 };

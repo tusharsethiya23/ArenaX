@@ -6,12 +6,13 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ## Where we are
 
 - **Current focus:** UI polish after the black + yellow restyle (colours and fonts only; layout stays as it is).
-- **Next up:** brand step 2: a "Sent offers" list on the Brand Dashboard (pending / accepted / declined). Then step 3: chat between brand and talent after an offer is accepted.
+- **Next up:** brand step 3: chat between a brand and the coach/athlete after an offer is accepted.
 - **To do on your side:**
   - Render (arenaX-server): set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `GEMINI_API_KEY`.
   - UptimeRobot: ping `https://arenax-server-v75s.onrender.com/api/health` every 5 minutes so the free server doesn't fall asleep.
   - Google Cloud Console: fill in the Branding URLs (home page, privacy, terms).
 - **Known issues:**
+  - While a brand is logged in, the navbar still shows "Log in / Join" (it only knows player accounts).
   - Old lint errors in `AuthContext`, `BrandAuthContext`, `AdminDashboard`, `BrandDashboard`, `MyDeals` and `Tournament` (setState inside an effect). These existed before the restyle.
 - **Offered, not started:**
   - Delete the old content/purchase/subscription collections from the database.
@@ -20,6 +21,12 @@ Feature list and end goal: [feature.md](feature.md). New session? Start with [se
 ---
 
 ## 2026-10-31 (Sat)
+**Brand "Sent offers" (brand step 2 of 3)**
+- Brand Dashboard now has two tabs: Find talent | Sent offers. Sent offers lists every offer the brand sent, newest first, with the person, their sport and city, the message, the date and a status badge (Pending amber, Accepted green, Declined red). New API: `GET /api/deals/sent` (brands only).
+- Fixed: a player account calling "send offer" crashed with a server error; it now gets a clear 403. Offers to a non-existent person are rejected (404).
+- Brand deals page: Pending badge is now amber (colours by meaning).
+- Tested: guards, 3 offers with pending/accepted/declined, desktop and phone.
+
 **Brand deals for athletes (brand step 1 of 3)**
 - Athletes now see "Brand deals" in the account menu (it was coach-only, so offers brands sent to athletes were never seen). With no offers yet, the page tells athletes that brands can find them once their career readiness reaches 70% on My DNA. Tested: brand sends an offer to an athlete, the athlete opens it from the menu and accepts it.
 
